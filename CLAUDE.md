@@ -35,8 +35,8 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Episódio #001 já enviado como privado: https://www.youtube.com/shorts/5YPMC0g-DvY
 
 ## Próximos passos (estado em 17/11/2026)
-1. Testar `python3 yt_upload.py --whoami` com o refresh token (sem enviar nada).
-2. Confirmar que o segredo de rede temporário `youtube.googleapis.com` foi apagado.
+1. ✅ `--whoami` testado a 17/11/2026: canal Whatifaholic autorizado. O script usa `youtube.googleapis.com`, porque em `www.googleapis.com` o proxy injeta uma chave de API (`X-Goog-Api-Key`) e os pedidos OAuth dão 401.
+2. ✅ Segredo temporário `youtube.googleapis.com` apagado (só resta a chave de API em `www.googleapis.com`, útil para pesquisa pública).
 3. Decidir onde corre a produção diária (tarefa agendada com sessão nova, GitHub Actions ou computador do dono) e testar se a sessão agendada consegue usar o Higgsfield.
 4. Pendente: frase "No Moon, no signal" no #001 é uma simplificação (a temperatura e a duração do dia também contam).
 5. Pendente: pack de efeitos sonoros da YouTube Audio Library para substituir os sons sintetizados.

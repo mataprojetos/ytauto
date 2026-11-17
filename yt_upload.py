@@ -28,7 +28,7 @@ import time
 
 import requests
 
-HOST = os.environ.get("YT_API_HOST", "www.googleapis.com")  # youtube.googleapis.com também serve a API
+HOST = os.environ.get("YT_API_HOST", "youtube.googleapis.com")  # não usar www.googleapis.com: o segredo de rede do proxy (chave de API) estraga o OAuth
 API = f"https://{HOST}/youtube/v3"
 UPLOAD = f"https://{HOST}/upload/youtube/v3/videos"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
