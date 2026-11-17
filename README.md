@@ -15,7 +15,8 @@ Canal de YouTube Shorts **Whatifaholic** (@whatifaholics): perguntas "What if…
 | `ep001/build/words_v4.json` | Tempos de cada palavra (faster-whisper), usados para sincronizar cenas e legendas |
 | `ep001/anim/*.png` | Ilustrações do estilo animado |
 | `ep001/publish/metadata.json` | Título, descrição (com fontes), etiquetas e definições do upload |
-| `ep001/whatifaholic_ep001_moon.mp4` | Vídeo final do episódio #001 (1080×1920, 80 s) |
+| `ep001/whatifaholic_ep001_moon_v6.mp4` | Vídeo final do episódio #001, v6 (1080×1920, 48 s, alarme no gancho), montado por `ep001/anim_ep001_v6.py` |
+| `ep001/whatifaholic_ep001_moon.mp4` | Versão antiga de 80 s (v5), só como referência |
 | `yt_upload.py` | Upload para o YouTube (resumível, privado por omissão, `--dry-run`, `--whoami`) |
 | `music/` | Biblioteca de música reutilizável |
 | `branding/` | Fotos de perfil e banner do canal |

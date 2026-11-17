@@ -11,6 +11,8 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 
 ## Fórmula de cada vídeo (aprovada pelo dono)
 - Gancho com urgência + número + recompensa em 1–2 s (ex.: contagem "1.30 SECONDS LEFT" e a Lua estilhaça no zero).
+- Gancho sonoro e visual: alarme de emergência de dois tons + bordas vermelhas a piscar até à recompensa (decisão do dono, 17/11/2026; é a exceção ao som discreto).
+- Duração alvo: 40–55 s (~140–160 palavras de guião). Cortar o facto mais fraco antes de cortar uma boa piada.
 - Loop aberto principal com selo no ecrã até à revelação; loops curtos a cada 8–10 s.
 - Uma piada a cada ~15 s, cada uma com imagem própria; pergunta final "A ou B" para comentários.
 - Sem espaços mortos: pausas da narração cortadas para ≤0,12 s e voz +10% (atempo, sem mudar o tom).
@@ -39,7 +41,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Credenciais em variáveis de ambiente (nunca no repositório): `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `YT_REFRESH_TOKEN`.
 - Permissões da app OAuth: `youtube.upload`, `youtube.readonly`, `yt-analytics.readonly` (não pode apagar nem mudar a visibilidade).
 - App OAuth "em produção" no projeto Google Cloud "Ptojeto YT"; página e política de privacidade em https://mataprojetos.github.io/whatifaholic-site/
-- Episódio #001 já enviado como privado: https://www.youtube.com/shorts/5YPMC0g-DvY
+- Episódio #001 v6 enviado como privado: https://www.youtube.com/shorts/mclRjhuB7eg (a v1 de 80 s, 5YPMC0g-DvY, é para apagar)
 
 ## Como se produz um episódio
 - O dono escreve "começa" (ou "começa: tema X") na sessão de controlo. Não há produção agendada por agora.
@@ -50,6 +52,6 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 1. ✅ `--whoami` testado a 17/11/2026: canal Whatifaholic autorizado. O script usa `youtube.googleapis.com`, porque em `www.googleapis.com` o proxy injeta uma chave de API (`X-Goog-Api-Key`) e os pedidos OAuth dão 401.
 2. ✅ Segredo temporário `youtube.googleapis.com` apagado (só resta a chave de API em `www.googleapis.com`, útil para pesquisa pública).
 3. ✅ Decidido: produção arranca à mão ("começa"). Testado a 17/11: uma sessão nova criada pela sessão de controlo tem Higgsfield e credenciais do YouTube. Tarefas agendadas criadas pelo Claude não levam conectores (só pela interface do claude.ai).
-4. Pendente: frase "No Moon, no signal" no #001 é uma simplificação (a temperatura e a duração do dia também contam).
+4. ✅ #001 refeito (v6, 48 s, alarme no gancho, corais corrigidos): privado em https://www.youtube.com/shorts/mclRjhuB7eg. O dono apaga a v1 (5YPMC0g-DvY) no Studio e decide quando publicar.
 5. Pendente: pack de efeitos sonoros da YouTube Audio Library para substituir os sons sintetizados.
 6. Pendente: mudar o nome da app OAuth de "Claude" para "Whatifaholic Uploader" no Branding.
