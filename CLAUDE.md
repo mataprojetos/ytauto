@@ -44,14 +44,14 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Episódio #001 v6 enviado como privado: https://www.youtube.com/shorts/mclRjhuB7eg (a v1 de 80 s, 5YPMC0g-DvY, é para apagar)
 
 ## Como se produz um episódio
-- O dono escreve "começa" (ou "começa: tema X") na sessão de controlo. Não há produção agendada por agora.
-- A sessão de controlo propõe 2–3 temas com factos verificados (se não houver tema), o dono escolhe, e abre uma sessão nova "Whatifaholic · EPxxx" (etiqueta `whatifaholic`) que faz tudo e envia como **privado**.
-- No fim: link do vídeo privado + créditos gastos ao dono; atualizar registo e painel; arquivar a sessão do episódio depois de aprovado.
+- Sem palavras-chave nem automatismos: o dono pede sugestões de temas e decide-se em conversa (decisão do dono, 17/11/2026).
+- Depois de acordado o tema e o guião, a produção pode correr numa sessão nova "Whatifaholic · EPxxx" (etiqueta `whatifaholic`), que envia como **privado**.
+- No fim: link do vídeo privado + créditos gastos ao dono; atualizar registo e painel.
 
 ## Próximos passos (estado em 17/11/2026)
 1. ✅ `--whoami` testado a 17/11/2026: canal Whatifaholic autorizado. O script usa `youtube.googleapis.com`, porque em `www.googleapis.com` o proxy injeta uma chave de API (`X-Goog-Api-Key`) e os pedidos OAuth dão 401.
 2. ✅ Segredo temporário `youtube.googleapis.com` apagado (só resta a chave de API em `www.googleapis.com`, útil para pesquisa pública).
-3. ✅ Decidido: produção arranca à mão ("começa"). Testado a 17/11: uma sessão nova criada pela sessão de controlo tem Higgsfield e credenciais do YouTube. Tarefas agendadas criadas pelo Claude não levam conectores (só pela interface do claude.ai).
+3. ✅ Decidido: produção arranca à mão, em conversa com o dono. Testado a 17/11: uma sessão nova criada pela sessão de controlo tem Higgsfield e credenciais do YouTube. Tarefas agendadas criadas pelo Claude não levam conectores (só pela interface do claude.ai).
 4. ✅ #001 refeito (v6, 48 s, alarme no gancho, corais corrigidos): privado em https://www.youtube.com/shorts/mclRjhuB7eg. O dono apaga a v1 (5YPMC0g-DvY) no Studio e decide quando publicar.
 5. Pendente: pack de efeitos sonoros da YouTube Audio Library para substituir os sons sintetizados.
 6. Pendente: mudar o nome da app OAuth de "Claude" para "Whatifaholic Uploader" no Branding.
