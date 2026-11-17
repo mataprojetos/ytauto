@@ -11,7 +11,8 @@
 |---|---|---|
 | 8 ilustrações (sem refações) | nano_banana_pro | 16,00 |
 | Narração (uma vez) | elevenlabs_v4_turbo, voz Orion | 2,70 |
-| **Total** | | **18,70** (saldo 1 729,19 → 1 710,49) |
+| 3 amostras de voz (Orion, Marcus, Gideon) em elevenlabs_v4, rejeitadas | elevenlabs_v4 | 2,76 |
+| **Total** | | **21,46** (saldo 1 729,19 → 1 707,73) |
 
 Música reaproveitada de `music/`; alarme, swish, pop, ding e boom sintetizados por código.
 
@@ -24,3 +25,4 @@ Música reaproveitada de `music/`; alarme, swish, pop, ding e boom sintetizados 
 ## Notas
 - O faster-whisper não descarregou o modelo (limite do Hugging Face); usou-se o openai-whisper.
 - Algumas imagens vêm com faixas escuras decorativas em cima e em baixo (o relógio e as legendas ficam por cima delas).
+- Teste de voz mais intensa (Eleven v4, estabilidade 0,3, marcas de emoção): o dono achou que todas soavam a IA. Fica a voz Orion em elevenlabs_v4_turbo; o vídeo enviado não muda. Amostras em `ep002/audio/amostras/`.
