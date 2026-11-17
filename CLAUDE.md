@@ -7,6 +7,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Formato comum: perguntas "What if…?" sobre ciência, dinheiro, tecnologia e IA, em animação.
 - Finanças: só conteúdo educativo, nunca recomendações de investimento, sempre "not financial advice".
 - Plano completo (documento): https://claude.ai/artifact/8GWwure2Kc1sery37j6A7K
+- Painel (episódios, créditos, saldo, YouTube): https://claude.ai/artifact/SXpVwhH1JMhxAAfUkn3RYC. Atualizar: `python3 episodios/painel_dados.py --saldo <balance>`, carregar os 3 JSON de `episodios/painel/` como assets e apontar `datasets/<id>.source.url` para os novos (com `updated`).
 
 ## Fórmula de cada vídeo (aprovada pelo dono)
 - Gancho com urgência + número + recompensa em 1–2 s (ex.: contagem "1.30 SECONDS LEFT" e a Lua estilhaça no zero).
@@ -24,7 +25,13 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Higgsfield (créditos: plano Ultra, 3 000/mês). Imagem `nano_banana_pro` ≈ 2 créditos; clip Seedance 28 (evitar).
 - Voz: `elevenlabs_v4_turbo`, voz preset "Orion" `ed69c516-92d2-4b30-a967-617737a342e5` (~3 créditos/episódio).
 - Música: reutilizar `music/` (gerar uma faixa custa ~10 créditos).
-- Meta: 11–15 créditos por episódio.
+- Meta: 11–15 créditos por episódio. **Limite rígido: 30 créditos por vídeo** (decisão do dono, 17/11/2026):
+  - Registar o saldo do Higgsfield (`balance`) no início e verificar antes de cada geração; se a próxima geração passar dos 30, parar e perguntar ao dono.
+  - Proibido gerar clips de vídeo no Higgsfield (Seedance ≈28). Animação só por código.
+  - Imagens só com `nano_banana_pro`; no máximo 1 refação por imagem.
+  - Música: reutilizar `music/`; faixa nova só com autorização do dono.
+  - Voz: gerar uma vez, só com o guião fechado.
+  - No fim: créditos reais em `episodios/registo.csv` e `episodios/EPxxx/relatorio.md`.
 - YouTube Data API: quota de 10 000 unidades/dia; `research/yt_new_shorts_channels.py` controla a quota.
 
 ## Publicação
@@ -34,10 +41,15 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - App OAuth "em produção" no projeto Google Cloud "Ptojeto YT"; página e política de privacidade em https://mataprojetos.github.io/whatifaholic-site/
 - Episódio #001 já enviado como privado: https://www.youtube.com/shorts/5YPMC0g-DvY
 
+## Como se produz um episódio
+- O dono escreve "começa" (ou "começa: tema X") na sessão de controlo. Não há produção agendada por agora.
+- A sessão de controlo propõe 2–3 temas com factos verificados (se não houver tema), o dono escolhe, e abre uma sessão nova "Whatifaholic · EPxxx" (etiqueta `whatifaholic`) que faz tudo e envia como **privado**.
+- No fim: link do vídeo privado + créditos gastos ao dono; atualizar registo e painel; arquivar a sessão do episódio depois de aprovado.
+
 ## Próximos passos (estado em 17/11/2026)
 1. ✅ `--whoami` testado a 17/11/2026: canal Whatifaholic autorizado. O script usa `youtube.googleapis.com`, porque em `www.googleapis.com` o proxy injeta uma chave de API (`X-Goog-Api-Key`) e os pedidos OAuth dão 401.
 2. ✅ Segredo temporário `youtube.googleapis.com` apagado (só resta a chave de API em `www.googleapis.com`, útil para pesquisa pública).
-3. Decidir onde corre a produção diária (tarefa agendada com sessão nova, GitHub Actions ou computador do dono) e testar se a sessão agendada consegue usar o Higgsfield.
+3. ✅ Decidido: produção arranca à mão ("começa"). Testado a 17/11: uma sessão nova criada pela sessão de controlo tem Higgsfield e credenciais do YouTube. Tarefas agendadas criadas pelo Claude não levam conectores (só pela interface do claude.ai).
 4. Pendente: frase "No Moon, no signal" no #001 é uma simplificação (a temperatura e a duração do dia também contam).
 5. Pendente: pack de efeitos sonoros da YouTube Audio Library para substituir os sons sintetizados.
 6. Pendente: mudar o nome da app OAuth de "Claude" para "Whatifaholic Uploader" no Branding.

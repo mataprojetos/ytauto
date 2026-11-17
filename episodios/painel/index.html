@@ -1,0 +1,220 @@
+<meta name="dash-one-writer">
+<style>
+  .wf { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+  .wf h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; }
+  .wf h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+  .wf .lead { margin: var(--cds-gap-sm) 0 0; color: var(--color-fg-muted); max-width: 65ch; line-height: 1.5; }
+  .wf .lead b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; }
+  .wf .note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-md); }
+  .wf .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--cds-gap-md); }
+  .wf .tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); min-width: 0; }
+  .wf .tile .lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .02em; }
+  .wf .tile .num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .wf .tile .sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .wf .ok { color: var(--color-ok); } .wf .warn { color: var(--color-warn); } .wf .bad { color: var(--color-bad); }
+  .wf .chartbox { position: relative; min-height: 220px; }
+  .wf .chartbox svg text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .wf .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; }
+  .wf .tablewrap { overflow-x: auto; }
+  .wf table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .wf th, .wf td { text-align: left; padding: var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  .wf th { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); white-space: nowrap; }
+  .wf td.n, .wf th.n { text-align: right; }
+  .wf td a { color: inherit; }
+  .wf .pill { display: inline-block; padding: 0 var(--cds-pad-sm); border-radius: 999px; border: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); }
+  .wf .muted { color: var(--color-fg-muted); }
+</style>
+
+<div class="wf" data-read lang="pt-PT">
+  <header id="topo">
+    <h1>Whatifaholic</h1>
+    <p class="lead"><b data-draw="neps" data-source="resumo" data-field="episodios" data-row="0">—</b> episódios feitos até agora. Cada vídeo gastou em média <b data-draw="media" data-source="resumo" data-field="media_creditos" data-row="0">—</b> créditos do Higgsfield, para um limite de <b data-draw="limite">—</b> por vídeo.</p>
+  </header>
+
+  <section class="tiles" id="resumo">
+    <div class="tile" id="t-eps">
+      <span class="lbl">Episódios</span>
+      <span class="num" data-draw="neps2" data-source="resumo" data-field="episodios" data-row="0">—</span>
+      <span class="sub">desde 17/11/2026</span>
+    </div>
+    <div class="tile" id="t-media">
+      <span class="lbl">Créditos por vídeo (média)</span>
+      <span class="num" data-draw="media2" data-source="resumo" data-field="media_creditos" data-row="0">—</span>
+      <span class="sub" data-draw="media-sub">—</span>
+    </div>
+    <div class="tile" id="t-saldo">
+      <span class="lbl">Saldo do Higgsfield</span>
+      <span class="num" data-draw="saldo" data-source="saldo_atual">—</span>
+      <span class="sub" data-draw="saldo-sub">—</span>
+    </div>
+    <div class="tile" id="t-subs">
+      <span class="lbl">Subscritores</span>
+      <span class="num" data-draw="subs" data-source="canal" data-field="subscritores" data-row="0">—</span>
+      <span class="sub" data-draw="subs-sub">—</span>
+    </div>
+  </section>
+
+  <section id="creditos">
+    <h2>Créditos gastos por episódio</h2>
+    <p class="note">Barra vermelha: passou do limite. Episódios sem barra foram feitos antes de se registarem os créditos.</p>
+    <div class="chartbox" data-draw="grafico" data-source="episodios"></div>
+  </section>
+
+  <section id="episodios">
+    <h2>Episódios</h2>
+    <p class="note">Visualizações e retenção vêm do YouTube. A retenção é a percentagem média do vídeo que cada pessoa viu.</p>
+    <div class="tablewrap">
+      <table data-source="episodios" data-row-key="episodio">
+        <thead>
+          <tr>
+            <th data-field="episodio">Ep.</th>
+            <th data-field="data">Data</th>
+            <th data-field="titulo">Título</th>
+            <th data-field="estado">Estado</th>
+            <th class="n" data-field="creditos">Créditos</th>
+            <th class="n" data-field="visualizacoes">Visualizações</th>
+            <th class="n" data-field="retencao_pct">Retenção</th>
+          </tr>
+        </thead>
+        <tbody data-draw="tabela"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  window.WF_LIMITE = 30;
+  window.wfNum = (v, d = 0) => (v == null || isNaN(v)) ? '—' : Number(v).toLocaleString('pt-PT', {minimumFractionDigits: d, maximumFractionDigits: d});
+  window.wfDia = (s) => s ? d3.utcFormat('%d/%m/%Y')(new Date(s.slice(0, 10) + 'T00:00:00Z')) : '—';
+
+  dash.calc('resumo', {
+    inputs: ['episodios'],
+    title: 'Resumo dos episódios',
+    description: 'Número de episódios e média de créditos, contando só os episódios com créditos registados.',
+    fn: (episodios) => {
+      const comCred = episodios.filter((e) => e.creditos != null && e.creditos !== '');
+      const total = d3.sum(comCred, (e) => +e.creditos);
+      return [{
+        episodios: episodios.length,
+        com_creditos: comCred.length,
+        total_creditos: Math.round(total * 100) / 100,
+        media_creditos: comCred.length ? Math.round(total / comCred.length * 10) / 10 : null,
+      }];
+    },
+  });
+
+  dash.calc('saldo_atual', {
+    inputs: ['saldo'],
+    title: 'Saldo atual do Higgsfield',
+    description: 'O registo de saldo mais recente.',
+    fn: (saldo) => saldo.length ? +saldo[saldo.length - 1].creditos : null,
+  });
+
+  const put = (el, txt) => { el.textContent = txt; };
+
+  dash.draw('limite', (el) => put(el, String(window.WF_LIMITE)));
+
+  for (const name of ['neps', 'neps2']) {
+    dash.draw(name, (el) => {
+      const r = dash.data('resumo');
+      put(el, r.status === 'ok' && r.data ? wfNum(r.data[0].episodios) : '—');
+    });
+  }
+
+  for (const name of ['media', 'media2']) {
+    dash.draw(name, (el) => {
+      const r = dash.data('resumo');
+      const v = r.status === 'ok' && r.data ? r.data[0].media_creditos : null;
+      put(el, v == null ? '—' : wfNum(v, 1));
+      el.classList.toggle('bad', v != null && v > window.WF_LIMITE);
+    });
+  }
+
+  dash.draw('media-sub', (el) => {
+    const r = dash.data('resumo');
+    if (r.status !== 'ok' || !r.data) return put(el, '—');
+    const x = r.data[0];
+    put(el, x.com_creditos ? `${x.com_creditos} com registo · limite ${window.WF_LIMITE}` : `ainda sem registos · limite ${window.WF_LIMITE}`);
+  });
+
+  dash.draw('saldo', (el) => {
+    const r = dash.data('saldo_atual');
+    put(el, r.status === 'ok' ? wfNum(r.data, 0) : '—');
+  });
+
+  dash.draw('saldo-sub', (el) => {
+    const s = dash.data('saldo');
+    if (s.status !== 'ok' || !s.data.length) return put(el, '—');
+    const last = s.data[s.data.length - 1];
+    put(el, `plano ${last.plano} · em ${wfDia(last.data)}`);
+  });
+
+  dash.draw('subs', (el) => {
+    const c = dash.data('canal');
+    put(el, c.status === 'ok' && c.data.length ? wfNum(c.data[0].subscritores) : '—');
+  });
+
+  dash.draw('subs-sub', (el) => {
+    const c = dash.data('canal');
+    if (c.status !== 'ok' || !c.data.length) return put(el, '—');
+    put(el, `${wfNum(c.data[0].videos_publicos)} vídeos públicos · em ${wfDia(c.data[0].atualizado)}`);
+  });
+
+  dash.draw('tabela', (tb) => {
+    const e = dash.data('episodios');
+    tb.replaceChildren();
+    if (e.status !== 'ok') return;
+    for (const r of e.data) {
+      const tr = document.createElement('tr');
+      tr.dataset.key = r.episodio;
+      const td = (txt, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = txt; tr.appendChild(c); return c; };
+      td(r.episodio);
+      td(wfDia(r.data));
+      const t = td('');
+      if (r.link) { const a = document.createElement('a'); a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.titulo; t.appendChild(a); } else t.textContent = r.titulo;
+      const st = td(''); const p = document.createElement('span'); p.className = 'pill'; p.textContent = r.estado; st.appendChild(p);
+      const cr = td(r.creditos == null ? 'não registado' : wfNum(r.creditos, 1), 'n');
+      if (r.creditos == null) cr.classList.add('muted'); else if (+r.creditos > window.WF_LIMITE) cr.classList.add('bad');
+      td(wfNum(r.visualizacoes), 'n');
+      td(r.retencao_pct == null ? '—' : wfNum(r.retencao_pct, 1) + ' %', 'n');
+      tb.appendChild(tr);
+    }
+  });
+
+  dash.draw('grafico', (box) => {
+    const e = dash.data('episodios');
+    box.replaceChildren();
+    if (e.status === 'error') { box.textContent = 'Não foi possível carregar.'; return; }
+    if (e.status !== 'ok') return;
+    const rows = e.data;
+    const W = Math.max(280, box.clientWidth || 600), H = 220, m = {t: 12, r: 12, b: 28, l: 36};
+    const max = Math.max(window.WF_LIMITE * 1.2, d3.max(rows, (r) => +r.creditos || 0));
+    const x = d3.scaleBand().domain(rows.map((r) => r.episodio)).range([m.l, W - m.r]).padding(0.35);
+    const y = d3.scaleLinear().domain([0, max]).nice().range([H - m.b, m.t]);
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('role', 'img').attr('aria-label', 'Créditos do Higgsfield gastos em cada episódio, com o limite de ' + window.WF_LIMITE);
+    svg.append('g').selectAll('line').data(y.ticks(4)).join('line')
+      .attr('x1', m.l).attr('x2', W - m.r).attr('y1', (d) => y(d)).attr('y2', (d) => y(d)).style('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(y.ticks(4)).join('text')
+      .attr('x', m.l - 6).attr('y', (d) => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end').text((d) => d);
+    svg.append('g').selectAll('text').data(rows).join('text')
+      .attr('x', (r) => x(r.episodio) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle').text((r) => r.episodio);
+    const bw = Math.min(x.bandwidth(), 56);
+    const tip = d3.select(box).append('div').attr('class', 'tip').attr('hidden', true);
+    svg.append('g').selectAll('rect').data(rows.filter((r) => r.creditos != null)).join('rect')
+      .attr('x', (r) => x(r.episodio) + (x.bandwidth() - bw) / 2).attr('width', bw)
+      .attr('y', (r) => y(+r.creditos)).attr('height', (r) => y(0) - y(+r.creditos)).attr('rx', 3)
+      .style('fill', (r) => +r.creditos > window.WF_LIMITE ? 'var(--cds-chart-status-critical)' : dash.colors[0])
+      .on('pointerenter pointermove', (ev, r) => {
+        const [px, py] = d3.pointer(ev, box);
+        tip.attr('hidden', null).text(`${r.episodio}: ${wfNum(r.creditos, 1)} créditos`)
+          .style('left', Math.min(px + 10, box.clientWidth - 160) + 'px').style('top', (py - 30) + 'px');
+      })
+      .on('pointerleave', () => tip.attr('hidden', true));
+    svg.append('g').selectAll('text.nr').data(rows.filter((r) => r.creditos == null)).join('text')
+      .attr('x', (r) => x(r.episodio) + x.bandwidth() / 2).attr('y', y(0) - 8).attr('text-anchor', 'middle').text('não registado');
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(window.WF_LIMITE)).attr('y2', y(window.WF_LIMITE))
+      .style('stroke', 'var(--cds-chart-status-critical)').style('stroke-dasharray', '4 4');
+    svg.append('text').attr('x', W - m.r).attr('y', y(window.WF_LIMITE) - 5).attr('text-anchor', 'end').text('limite ' + window.WF_LIMITE);
+  });
+</script>
