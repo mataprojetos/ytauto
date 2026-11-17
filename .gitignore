@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Segredos: NUNCA no repositório (vão para as variáveis/segredos do ambiente)
+.env
+*.secret
+client_secret*.json
+token*.json
+
+# Ficheiros temporários de montagem (regeneráveis)
+**/build/*
+!**/build/words_*.json
+**/anim/*_raw.mp4
+**/anim/*.ass
+*.raw
+
+# Registo local de quota da pesquisa
+quota_ledger.json
