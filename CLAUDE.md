@@ -20,6 +20,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Estilo: ilustração plana em camadas (Higgsfield) + animação por código (pycairo); paleta azul-noite e ciano.
 - Legendas palavra a palavra, palavra atual em ciano, fora das zonas tapadas pelo YouTube.
 - Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
+- **Pop-up de subscrição em todos os vídeos** (aprovado pelo dono): cápsula "🔔 SUBSCRIBE · for more what ifs" logo após a revelação principal (~70–75%), ~2,5 s, toque animado → "SUBSCRIBED ✓", pop leve; fora das zonas do YouTube e sem tapar o essencial da cena. Código de referência: `lib/subscribe_popup.py`.
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio no ecrã.
 - Factos sempre verificados em fontes abertas; fontes na descrição de cada vídeo.
 
