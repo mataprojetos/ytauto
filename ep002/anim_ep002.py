@@ -6,13 +6,18 @@ import math, re, json, subprocess, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cairo
 import numpy as np
+from scipy import ndimage as _nd
+
+
+def nd_dilate(m):
+    return _nd.binary_dilation(m, iterations=3)
 import neuro_lib as L
 from neuro_lib import W, H, FPS, A, BLD, NAVY, CYAN, CREAM, SUN, INK, QUIET, seg, ease, paint_cover, glow, text
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 NARR = f"{ROOT}/audio/narration.wav"
 MUSIC = f"{ROOT}/../music/track01_cosmic_ambient.mp3"
-OUT = f"{ROOT}/whatifaholic_ep002_ai_job_v2.mp4"
+OUT = f"{ROOT}/whatifaholic_ep002_ai_job_v3.mp4"
 dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                      "-of", "csv=p=0", NARR]))
 T_END = round(dur + 0.5, 2)
@@ -58,6 +63,227 @@ T = dict(hired=at("hired"), h1=at("hour one"), emails=at("emails"), boss=at("you
          because=at("because your job"))
 ZERO = T["hired"]  # a contagem chega a zero em "hired": corte para o robô na cadeira
 HOURS = [(T["h1"], 1), (T["h3"], 3), (T["h8"], 8), (T["h12"], 12), (T["h24"], 24)]
+
+
+# ---------- cenas vivas: movimento dentro das ilustrações (vivo.py) ----------
+import vivo as V
+from vivo import S as VS
+import random as _r
+_r.seed(11)
+
+
+def blink(t, period=3.1, ph=0.0):
+    return ((t + ph) % period) < 0.13
+
+
+def between(t, a, b):
+    return a <= t < b
+
+
+def white_fn(f):
+    mx, mn = f.max(2), f.min(2)
+    return (mx > 0.6) & ((mx - mn) / (mx + 1e-6) < 0.36) & (f[..., 2] >= f[..., 0] - 0.02)
+
+
+# --- secretária (contratado, emails, nota, aumento, reviravolta)
+def desk_state(t):
+    if t < T["h1"]:
+        return dict(kind="happy", look=(0, 0))
+    if t < T["boss"]:
+        return dict(kind="normal", look=(-0.7, 0.15), blink=blink(t))
+    if t < T["written"]:
+        return dict(kind="normal", look=(0, 0), blink=blink(t, 2.4))
+    if t < T["h12"]:
+        return dict(kind="happy", tilt=-4)
+    if t < T["raise_"]:
+        return dict(kind="normal", look=(0.2, 0), blink=blink(t))
+    if t < T["elec"]:
+        return dict(kind="wide", tilt=-6)
+    return dict(kind="happy", tilt=-3)
+
+
+DESK = V.LiveScene(f"{A}/robot_desk.png")
+DESK.robot([(904, 1214), (999, 1214)], 30, 52, state=desk_state)
+_body = DESK.color_mask((0.40, 0.49, 0.72, 0.585), white_fn)
+_body &= ~DESK.robots[0].mask
+_arm = _body.copy(); _arm[:, int(840 * VS):] = False
+_tor = _body & ~_arm
+
+
+def typing(t):
+    return T["h1"] <= t < T["boss"] or T["h3"] - 1 <= t < T["h3"]
+
+
+DESK.part(_tor, lambda t: (0, 3 * VS * math.sin(t * 2.2), 0, (0, 0)))
+DESK.part(_arm, lambda t: (0, 1.5 * VS * math.sin(t * 2.2) - (4 * VS * abs(math.sin(t * 22)) if typing(t) else 0), 0, (0, 0)))
+_CODE = [(_r.randint(1, 4), _r.uniform(0.25, 0.9), _r.choice([CYAN, (1, 1, 1), SUN])) for _ in range(60)]
+_STARS = [(_r.uniform(200, 1330) * VS, _r.uniform(840, 1050) * VS, _r.uniform(2, 5), _r.random() * 6.28) for _ in range(26)]
+
+
+def desk_fx(ctx, t):
+    for x, y, r_, ph in _STARS:
+        ctx.set_source_rgba(0.7, 0.95, 1, 0.3 + 0.7 * (0.5 + 0.5 * math.sin(t * 3 + ph))); ctx.arc(x, y, r_ * VS, 0, 6.283); ctx.fill()
+    x, y, w, h = 372 * VS, 1222 * VS, 372 * VS, 205 * VS
+    ctx.save(); ctx.rectangle(x, y, w, h); ctx.clip()
+    ctx.set_source_rgba(0.02, 0.06, 0.16, 0.92); ctx.paint()
+    speed = 160 if typing(t) else 40
+    lh = 15 * VS
+    for i, (ind, ln, col) in enumerate(_CODE):
+        yy = y + 10 * VS + i * lh - (t * speed * VS) % (len(_CODE) * lh)
+        if y - lh < yy < y + h:
+            ctx.set_source_rgba(*col, 0.85); ctx.rectangle(x + 10 * VS + ind * 14 * VS, yy, (w - 40 * VS) * ln * 0.75, 6 * VS); ctx.fill()
+    ctx.restore()
+    V.steam(ctx, t, 412 * VS, 1530 * VS, 90 * VS)
+
+
+DESK.fx_under.append(desk_fx)
+
+
+# --- reunião consigo próprio
+def meet_state(t):
+    if t < T["itself"]:
+        return dict(kind="normal", look=(math.sin(t * 1.6) * 0.8, 0), blink=blink(t, 2.7))
+    if t < T["early"]:
+        return dict(kind="happy", tilt=4)
+    return dict(kind="wide", look=(0, 0))
+
+
+MEET = V.LiveScene(f"{A}/meeting.png")
+MEET.robot([(723, 1252), (760, 1245)], 13, 20, state=meet_state, sway=3, bob=2)
+
+
+def meet_fx(ctx, t):
+    x0, y0, x1, y1 = 0.53 * MEET.w, 0.375 * MEET.h, 0.665 * MEET.w, 0.452 * MEET.h
+    ctx.set_source_rgba(0.03, 0.1, 0.25, 0.85); ctx.rectangle(x0, y0, x1 - x0, y1 - y0); ctx.fill()
+    for i in range(6):
+        k = seg(t, T["bug"] + i * 0.35, T["bug"] + i * 0.35 + 0.5)
+        bh = (y1 - y0 - 14 * VS) * (0.25 + 0.12 * i) * k * (1 + 0.05 * math.sin(t * 4 + i))
+        bw = (x1 - x0) / 8
+        ctx.set_source_rgba(*(CYAN if i < 5 else SUN), 0.95)
+        ctx.rectangle(x0 + bw * (0.8 + i * 1.15), y1 - 6 * VS - bh, bw * 0.8, bh); ctx.fill()
+
+
+MEET.fx_under.append(meet_fx)
+
+
+# --- pilotos, chefs, advogados
+def job_state(name_t, ph):
+    def f(t):
+        if t >= T["replaced"]:
+            return dict(kind="happy", dy=-4 * VS * abs(math.sin(t * 6 + ph)))
+        if between(t, name_t, name_t + 0.7):
+            return dict(kind="wide", tilt=-5)
+        return dict(kind="normal", look=(0.4 * math.sin(t + ph), 0), blink=blink(t, 2.9, ph))
+    return f
+
+
+JOBS = V.LiveScene(f"{A}/jobs_city.png")
+JOBS.robot([(790, 1233), (894, 1233)], 35, 57, state=job_state(T["chefs"], 0.7), sway=0.8, bob=1)
+JOBS.robot([(974, 1873), (1107, 1874)], 44, 74, state=job_state(T["lawyers"], 1.9), sway=1.5, bob=2)
+JOBS.robot([(393, 1945), (564, 1945)], 58, 98, state=job_state(T["pilots"], 0.0), sway=1.5, bob=2)
+_plane = JOBS.color_mask((0.42, 0.065, 0.70, 0.145), lambda f: (f.max(2) > 0.72) & ((f.max(2) - f.min(2)) / (f.max(2) + 1e-6) < 0.3))
+JOBS.parts.insert(0, V.Part(JOBS.img, _plane, lambda t: (-(t - T["h8"]) * 70 * VS, (t - T["h8"]) * 18 * VS, 0, (0, 0))))
+
+
+def jobs_fx(ctx, t):
+    V.steam(ctx, t, 0.665 * JOBS.w, 0.515 * JOBS.h, 110 * VS, n=3, spread=16, alpha=0.5)
+
+
+JOBS.fx_over.append(jobs_fx)
+
+
+# --- pizza perfeita
+def pizza_state(t):
+    if t < T["round"]:
+        return dict(kind="normal", look=(0, 0.35), blink=blink(t, 2.5))
+    if t < T["zero"]:
+        return dict(kind="happy", tilt=-5)
+    return dict(kind="flat", tilt=0)
+
+
+PIZZA = V.LiveScene(f"{A}/pizza.png")
+PIZZA.robot([(694, 1130), (842, 1130)], 43, 71, state=pizza_state, sway=2.5, bob=2)
+
+
+def pizza_fx(ctx, t):
+    for k in range(3):
+        V.steam(ctx, t + k * 0.4, (0.40 + 0.09 * k) * PIZZA.w, 0.63 * PIZZA.h, 150 * VS, n=2, spread=14, alpha=0.4, width=6)
+
+
+PIZZA.fx_over.append(pizza_fx)
+
+
+# --- parque e ginásio cheios
+PARK = V.LiveScene(f"{A}/park.png")
+_LEAVES = [(_r.random(), _r.random(), _r.uniform(0.5, 1.5), _r.random() * 6.28) for _ in range(40)]
+
+
+def park_fx(ctx, t):
+    g = 0.5 + 0.5 * math.sin(t * 2)
+    V_glow = cairo.RadialGradient(0.13 * PARK.w, 0.2 * PARK.h, 0, 0.13 * PARK.w, 0.2 * PARK.h, 260 * VS)
+    V_glow.add_color_stop_rgba(0, 1, 0.9, 0.6, 0.35 + 0.2 * g); V_glow.add_color_stop_rgba(1, 1, 0.9, 0.6, 0)
+    ctx.set_source(V_glow); ctx.paint()
+    for i in range(5):  # pássaros
+        x = ((t * 60 + i * 230) % (PARK.w + 200)) - 100
+        y = 0.07 * PARK.h + 30 * i * VS + 10 * VS * math.sin(t * 2 + i)
+        fl = 8 * VS * math.sin(t * 9 + i)
+        ctx.set_source_rgba(0.1, 0.15, 0.3, 0.8); ctx.set_line_width(3 * VS)
+        ctx.move_to(x - 14 * VS, y - fl); ctx.line_to(x, y); ctx.line_to(x + 14 * VS, y - fl); ctx.stroke()
+    for x, y, sp, ph in _LEAVES:  # folhas a voar
+        xx = (x * PARK.w + t * 40 * sp) % PARK.w
+        yy = (y * PARK.h + t * 30 * sp) % PARK.h
+        ctx.save(); ctx.translate(xx, yy); ctx.rotate(t * 2 * sp + ph); ctx.scale(9 * VS, 4 * VS)
+        ctx.set_source_rgba(0.55, 0.8, 0.3, 0.8); ctx.arc(0, 0, 1, 0, 6.283); ctx.fill(); ctx.restore()
+
+
+PARK.fx_over.append(park_fx)
+
+
+# --- a banda do vizinho
+BAND = V.LiveScene(f"{A}/band.png")
+BEAT = 2.4  # batidas por segundo
+
+
+def band_fx(ctx, t):
+    b = max(0, math.sin(t * BEAT * math.pi)) ** 4
+    gx, gy = 0.77 * BAND.w, 0.62 * BAND.h
+    gl = cairo.RadialGradient(gx, gy, 0, gx, gy, 330 * VS)
+    gl.add_color_stop_rgba(0, 1, 0.95, 0.75, 0.15 + 0.4 * b); gl.add_color_stop_rgba(1, 1, 0.95, 0.75, 0)
+    ctx.set_source(gl); ctx.paint()
+    sx, sy = 0.62 * BAND.w, 0.62 * BAND.h  # coluna a pulsar
+    ctx.set_source_rgba(*CYAN, 0.5 * b); ctx.set_line_width(5 * VS)
+    for k in range(3):
+        ctx.arc(sx, sy, (30 + 22 * k + 25 * b) * VS, -1.2, 1.2); ctx.stroke()
+    for i in range(10):  # notas a sair da garagem
+        ph = ((t - T["neighbor"]) * 0.45 + i / 10) % 1
+        x = 0.72 * BAND.w - ph * 0.6 * BAND.w + 30 * VS * math.sin(ph * 9 + i)
+        y = 0.56 * BAND.h - ph * 0.3 * BAND.h
+        V.note(ctx, x, y, (12 + 6 * (i % 3)) * VS, SUN if i % 2 else CYAN, math.sin(ph * math.pi))
+
+
+BAND.fx_over.append(band_fx)
+
+
+# --- a IA despede-se
+def quit_state(t):
+    step = -7 * VS * abs(math.sin(t * 4.2))
+    if t < T["quits"]:
+        return dict(kind="tired", blink=blink(t, 2.2), dy=step, tilt=3)
+    return dict(kind="happy", dy=step, tilt=-3)
+
+
+QUIT = V.LiveScene(f"{A}/robot_quits.png")
+QUIT.robot([(910, 1215), (1018, 1215)], 60, 60, state=quit_state, sway=1.5, bob=0)
+_qb = QUIT.color_mask((0.42, 0.47, 0.86, 0.82), lambda f: white_fn(f) | ((f[..., 0] > f[..., 2] + 0.12) & (f.max(2) > 0.35)))
+_qb &= ~nd_dilate(QUIT.robots[0].mask)
+QUIT.part(_qb, lambda t: (0, -7 * VS * abs(math.sin(t * 4.2)), 0, (0, 0)))
+
+for _sc in (DESK, MEET, JOBS, PIZZA, PARK, BAND, QUIT):
+    _sc.build()
+
+
+def live(ctx, sc, t, t0, t1, z0, z1, focus=(0.5, 0.5)):
+    V.live_cover(ctx, sc, t, t0, t1, z0, z1, W, H, focus, seg)
 
 
 # ---------- utilitários de desenho ----------
@@ -181,7 +407,7 @@ def s_hook(ctx, t):
 
 
 def s_desk(ctx, t):
-    paint_cover(ctx, IMG["robot_desk"], t, ZERO, T["h3"], 1.06, 1.14)
+    live(ctx, DESK, t, ZERO, T["h3"], 1.32, 1.42, (0.47, 0.47))
     glow(ctx, W / 2, H / 2, 900, (1, 1, 1), 0.7 * max(0, 1 - (t - ZERO) / 0.25))  # flash do corte
     stamp(ctx, "HIRED", 540, Y_TAG + 40, 110, CYAN, t, ZERO, t1=T["h1"])
     # emails a responderem-se sozinhos
@@ -202,7 +428,7 @@ def s_desk(ctx, t):
 
 
 def s_meeting(ctx, t):
-    paint_cover(ctx, IMG["meeting"], t, T["h3"], T["h8"], 1.04, 1.12)
+    live(ctx, MEET, t, T["h3"], T["h8"], 1.25, 1.4, (0.5, 0.45))
     rows = [("BUGS FIXED", T["bug"]), ("REPORTS DONE", T["report"]), ("MEETING BOOKED", T["meeting"])]
     for j, (lab, t0) in enumerate(rows):
         k = seg(t, t0, t0 + 0.18)
@@ -218,7 +444,7 @@ def s_meeting(ctx, t):
 
 
 def s_jobs(ctx, t):
-    paint_cover(ctx, IMG["jobs_city"], t, T["h8"], T["pizza"], 1.0, 1.08)
+    live(ctx, JOBS, t, T["h8"], T["pizza"], 1.0, 1.08)
     for j, (lab, t0) in enumerate([("PILOT", T["pilots"]), ("CHEF", T["chefs"]), ("LAWYER", T["lawyers"])]):
         x = 210 + j * 330
         tag(ctx, lab, x, Y_TAG, 54, INK, seg(t, t0, t0 + 0.1), pop(t, t0) or 1)
@@ -230,7 +456,7 @@ def s_jobs(ctx, t):
 
 
 def s_pizza(ctx, t):
-    paint_cover(ctx, IMG["pizza"], t, T["pizza"], T["h12"], 1.05, 1.13)
+    live(ctx, PIZZA, t, T["pizza"], T["h12"], 1.18, 1.28, (0.5, 0.36))
     k = seg(t, T["four"], T["four"] + 0.15)
     sc = pop(t, T["four"]) or 1
     tag(ctx, "DELIVERED IN 4:00", 540, Y_TAG, 62, INK, k, sc)
@@ -238,7 +464,7 @@ def s_pizza(ctx, t):
 
 
 def s_raise(ctx, t):
-    paint_cover(ctx, IMG["robot_desk"], t, T["h12"], T["twist"], 1.18, 1.26)
+    live(ctx, DESK, t, T["h12"], T["twist"], 1.5, 1.62, (0.56, 0.47))
     k = seg(t, T["raise_"], T["raise_"] + 0.15)
     if k > 0.01:
         sc = pop(t, T["raise_"]) or 1
@@ -253,7 +479,7 @@ def s_raise(ctx, t):
 
 
 def s_twist(ctx, t):
-    paint_cover(ctx, IMG["robot_desk"], t, T["h12"], T["twist"], 1.26, 1.3)
+    live(ctx, DESK, t, T["h12"], T["twist"], 1.62, 1.66, (0.56, 0.47))
     dim(ctx, 0.65 * seg(t, T["twist"], T["twist"] + 0.3))
     sc = pop(t, T["twist"] + 0.15, 0.22)
     if sc:
@@ -264,7 +490,7 @@ def s_twist(ctx, t):
 
 
 def s_park(ctx, t):
-    paint_cover(ctx, IMG["park"], t, T["nojobs"], T["neighbor"], 1.04, 1.12)
+    live(ctx, PARK, t, T["nojobs"], T["neighbor"], 1.04, 1.12)
     tag(ctx, "FREE TIME: UNLIMITED", 540, Y_TAG, 58, CYAN, seg(t, T["free"], T["free"] + 0.12), pop(t, T["free"]) or 1)
     stamp(ctx, "GYMS: PACKED", 380, Y_TAG + 180, 64, SUN, t, T["gyms"], rot=-0.06)
     stamp(ctx, "PARKS: FULL", 700, Y_TAG + 330, 64, SUN, t, T["parks"], rot=0.06)
@@ -273,13 +499,13 @@ def s_park(ctx, t):
 def s_band(ctx, t):
     sh = 9 * seg(t, T["neighbor"] + 0.4, T["neighbor"] + 1.0)
     ctx.save(); ctx.translate(sh * math.sin(t * 70), sh * math.cos(t * 83))
-    paint_cover(ctx, IMG["band"], t, T["neighbor"], T["h24"], 1.08, 1.16)
+    live(ctx, BAND, t, T["neighbor"], T["h24"], 1.35 + 0.03 * max(0, math.sin(t * BEAT * math.pi)) ** 4, 1.45, (0.62, 0.5))
     ctx.restore()
     stamp(ctx, "VOLUME: 11", 540, Y_TAG + 40, 84, RED, t, T["unf"], rot=-0.06)
 
 
 def s_quits(ctx, t):
-    paint_cover(ctx, IMG["robot_quits"], t, T["h24"], T["would"], 1.06, 1.14)
+    live(ctx, QUIT, t, T["h24"], T["would"], 1.22, 1.32, (0.6, 0.43))
     k = seg(t, T["tired"], T["tired"] + 0.15)
     if k > 0.01:  # bateria quase vazia
         x, y = 395, Y_TAG - 40
