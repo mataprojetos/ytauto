@@ -29,3 +29,4 @@ Música reaproveitada de `music/`; alarme, swish, pop, ding e boom sintetizados 
 - Algumas imagens vêm com faixas escuras decorativas em cima e em baixo (o relógio e as legendas ficam por cima delas).
 - Teste de voz mais intensa (Eleven v4, estabilidade 0,3, marcas de emoção): o dono achou que todas soavam a IA. Fica a voz Orion em elevenlabs_v4_turbo; o vídeo enviado não muda. Amostras em `ep002/audio/amostras/`.
 - 18/11: o dono escolheu a voz Bram (a mais parecida, em timbre, com uma referência de outro canal; não houve clonagem). v2 refeita com as mesmas imagens. O dono deixou de querer paleta fixa (aplica-se a partir do EP003).
+- 18/11: miniatura feita com `thumbnail.py` (`ep002/publish/thumbnail.jpg`) e aplicada à v2.

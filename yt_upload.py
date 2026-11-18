@@ -16,6 +16,8 @@ Uso:
   python3 yt_upload.py --video ep001/whatifaholic_ep001_moon.mp4 --metadata ep001/publish/metadata.json --dry-run
   python3 yt_upload.py --video ... --metadata ...                 # privado
   python3 yt_upload.py --video ... --metadata ... --public        # só quando já revisto
+  python3 yt_upload.py --video ... --metadata ... --thumbnail epXXX/publish/thumbnail.jpg
+  python3 yt_upload.py --set-thumbnail VIDEO_ID --thumbnail epXXX/publish/thumbnail.jpg
 """
 from __future__ import annotations
 
@@ -31,6 +33,7 @@ import requests
 HOST = os.environ.get("YT_API_HOST", "youtube.googleapis.com")  # não usar www.googleapis.com: o segredo de rede do proxy (chave de API) estraga o OAuth
 API = f"https://{HOST}/youtube/v3"
 UPLOAD = f"https://{HOST}/upload/youtube/v3/videos"
+THUMB = f"https://{HOST}/upload/youtube/v3/thumbnails/set"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 CHUNK = 8 * 1024 * 1024  # múltiplo de 256 KiB, como exige o upload resumível
 
@@ -93,6 +96,20 @@ def whoami() -> None:
           f"· id {c['id']} · {c['statistics'].get('subscriberCount', '?')} subscritores")
 
 
+def set_thumbnail(video_id: str, path: str) -> None:
+    """envia a miniatura (JPG/PNG, até 2 MB). O canal tem de ter as funcionalidades intermédias ativas."""
+    if os.path.getsize(path) > 2 * 1024 * 1024:
+        sys.exit(f"miniatura com mais de 2 MB: {path}")
+    ctype = "image/png" if path.lower().endswith(".png") else "image/jpeg"
+    with open(path, "rb") as f:
+        r = requests.post(THUMB, params={"videoId": video_id}, data=f.read(), timeout=120,
+                          headers={**auth_headers(), "Content-Type": ctype})
+    if r.status_code != 200:
+        print(f"Miniatura NÃO aplicada: HTTP {r.status_code}: {r.text[:400]}", file=sys.stderr)
+        return
+    print(f"Miniatura aplicada a {video_id}")
+
+
 def upload(video: str, meta: dict) -> dict:
     size = os.path.getsize(video)
     h = {**auth_headers(), "Content-Type": "application/json; charset=UTF-8",
@@ -145,10 +162,16 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--whoami", action="store_true")
     ap.add_argument("--log", default="uploaded.json")
+    ap.add_argument("--thumbnail", help="JPG/PNG da miniatura, aplicada depois do upload")
+    ap.add_argument("--set-thumbnail", metavar="VIDEO_ID", help="só aplica --thumbnail a um vídeo já enviado")
     a = ap.parse_args()
 
     if a.whoami:
         whoami(); return
+    if a.set_thumbnail:
+        if not a.thumbnail:
+            ap.error("--set-thumbnail precisa de --thumbnail")
+        set_thumbnail(a.set_thumbnail, a.thumbnail); return
     if not (a.video and a.metadata):
         ap.error("--video e --metadata são obrigatórios")
     meta = json.load(open(a.metadata, encoding="utf-8"))
@@ -172,6 +195,8 @@ def main() -> None:
     log.append({"id": vid, "title": meta["snippet"]["title"], "privacy": res["status"].get("privacyStatus"),
                 "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
     json.dump(log, open(a.log, "w"), indent=2)
+    if a.thumbnail:
+        set_thumbnail(vid, a.thumbnail)
 
 
 if __name__ == "__main__":

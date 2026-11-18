@@ -22,6 +22,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio no ecrã.
 - Factos sempre verificados em fontes abertas; fontes na descrição de cada vídeo.
+- Miniatura em cada vídeo (pedido do dono, 18/11/2026), feita por código com `thumbnail.py` (0 créditos) a partir de uma ilustração do episódio: sujeito em grande, 2–4 palavras enormes (amarelo/branco, contorno preto), etiqueta vermelha com número/urgência, tudo no quadrado central. Enviar com `yt_upload.py --thumbnail epXXX/publish/thumbnail.jpg` (ou `--set-thumbnail VIDEO_ID`). Testado a 18/11 no EP002: funciona com as permissões atuais. Nota: no feed de Shorts o vídeo arranca sozinho (conta o primeiro frame); a miniatura conta na pesquisa, na página do canal e nas sugestões.
 
 ## Ferramentas e custos
 - Higgsfield (créditos: plano Ultra, 3 000/mês). Imagem `nano_banana_pro` ≈ 2 créditos; clip Seedance 28 (evitar).
