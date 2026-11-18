@@ -1,6 +1,7 @@
 # EP002 · What If AI Took Your Job Tomorrow?
 
-- **Versão atual (v2, voz Bram):** 53 s, privado: https://www.youtube.com/shorts/WIIduPBkuO8
+- **Versão atual (v3, cenas vivas + voz Bram):** 53 s, privado: https://www.youtube.com/shorts/7H-JjDiWl7I
+- **v2 (voz Bram, imagens paradas):** https://www.youtube.com/shorts/WIIduPBkuO8 (apagar no Studio)
 - **v1 (voz Orion):** 51 s, privado: https://www.youtube.com/shorts/Iysk_pswcVg (apagar no Studio)
 - **Montagem:** `ep002/anim_ep002.py` (base: `ep001/anim_ep001_v6.py`) · `ep002/neuro_lib.py` (cópia sem recursos da Lua)
 - **Narração:** `ep002/audio/narration.wav` (pausas ≤0,12 s, atempo 1,1) · palavras `ep002/build/words_ep002.json` (openai-whisper base.en)
@@ -30,3 +31,4 @@ Música reaproveitada de `music/`; alarme, swish, pop, ding e boom sintetizados 
 - Teste de voz mais intensa (Eleven v4, estabilidade 0,3, marcas de emoção): o dono achou que todas soavam a IA. Fica a voz Orion em elevenlabs_v4_turbo; o vídeo enviado não muda. Amostras em `ep002/audio/amostras/`.
 - 18/11: o dono escolheu a voz Bram (a mais parecida, em timbre, com uma referência de outro canal; não houve clonagem). v2 refeita com as mesmas imagens. O dono deixou de querer paleta fixa (aplica-se a partir do EP003).
 - 18/11: miniatura feita com `thumbnail.py` (`ep002/publish/thumbnail.jpg`) e aplicada à v2.
+- 18/11: v3 com movimento dentro das imagens (`ep002/vivo.py`): cabeças dos robôs recortadas por cor, olhos redesenhados por código (piscar, olhar, contente, liso, cansado, espantado), braço a escrever, avião, vapor, ecrãs, notas, luzes ao ritmo. 0 créditos.

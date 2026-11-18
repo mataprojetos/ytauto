@@ -18,6 +18,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Sem espaços mortos: pausas da narração cortadas para ≤0,12 s e voz +10% (atempo, sem mudar o tom).
 - Último frame igual ao primeiro (loop). Sem ecrã final.
 - Estilo: ilustração plana em camadas (Higgsfield) + animação por código (pycairo). **Sem paleta fixa** (decisão do dono, 18/11/2026): as cores servem o tema de cada vídeo; o objetivo é só ser viciante (contraste forte, imagem que muda a cada 2–3 s, surpresa visual em cada piada).
+- Movimento dentro das imagens em todas as cenas (pedido do dono, 18/11/2026), por código com `ep002/vivo.py` (0 créditos): partes recortadas por cor, olhos/expressões redesenhados, objetos a mexer de acordo com a narração. Pedir ilustrações com personagens grandes e fáceis de recortar (fundo contrastante).
 - Legendas palavra a palavra, palavra atual em ciano, fora das zonas tapadas pelo YouTube.
 - Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio no ecrã.
