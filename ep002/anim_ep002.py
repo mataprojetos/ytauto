@@ -12,7 +12,7 @@ from neuro_lib import W, H, FPS, A, BLD, NAVY, CYAN, CREAM, SUN, INK, QUIET, seg
 ROOT = os.path.dirname(os.path.abspath(__file__))
 NARR = f"{ROOT}/audio/narration.wav"
 MUSIC = f"{ROOT}/../music/track01_cosmic_ambient.mp3"
-OUT = f"{ROOT}/whatifaholic_ep002_ai_job.mp4"
+OUT = f"{ROOT}/whatifaholic_ep002_ai_job_v2.mp4"
 dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                      "-of", "csv=p=0", NARR]))
 T_END = round(dur + 0.5, 2)

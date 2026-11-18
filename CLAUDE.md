@@ -17,7 +17,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Uma piada a cada ~15 s, cada uma com imagem própria; pergunta final "A ou B" para comentários.
 - Sem espaços mortos: pausas da narração cortadas para ≤0,12 s e voz +10% (atempo, sem mudar o tom).
 - Último frame igual ao primeiro (loop). Sem ecrã final.
-- Estilo: ilustração plana em camadas (Higgsfield) + animação por código (pycairo); paleta azul-noite e ciano.
+- Estilo: ilustração plana em camadas (Higgsfield) + animação por código (pycairo). **Sem paleta fixa** (decisão do dono, 18/11/2026): as cores servem o tema de cada vídeo; o objetivo é só ser viciante (contraste forte, imagem que muda a cada 2–3 s, surpresa visual em cada piada).
 - Legendas palavra a palavra, palavra atual em ciano, fora das zonas tapadas pelo YouTube.
 - Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio no ecrã.
@@ -25,7 +25,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 
 ## Ferramentas e custos
 - Higgsfield (créditos: plano Ultra, 3 000/mês). Imagem `nano_banana_pro` ≈ 2 créditos; clip Seedance 28 (evitar).
-- Voz: `elevenlabs_v4_turbo`, voz preset "Orion" `ed69c516-92d2-4b30-a967-617737a342e5` (~3 créditos/episódio). Testadas a 17/11/2026 vozes mais intensas (Eleven v4, Marcus, Gideon): o dono achou que soavam a IA; manter Orion.
+- Voz: `elevenlabs_v4_turbo`, voz preset **"Bram"** `549ff70a-3ee7-4f04-a4d9-89a24fab7709` (~3 créditos/episódio; escolha do dono a 18/11/2026, a partir do EP002 v2). Antes era "Orion" `ed69c516-92d2-4b30-a967-617737a342e5`. Eleven v4 (não-turbo) com marcas de emoção soou a IA: não usar.
 - Música: reutilizar `music/` (gerar uma faixa custa ~10 créditos).
 - Meta: 11–15 créditos por episódio. **Limite rígido: 30 créditos por vídeo** (decisão do dono, 17/11/2026):
   - Registar o saldo do Higgsfield (`balance`) no início e verificar antes de cada geração; se a próxima geração passar dos 30, parar e perguntar ao dono.
