@@ -1,6 +1,7 @@
 # EP003 · What If You Farted in a Spacesuit?
 
-- **Vídeo:** 45,8 s, privado: https://www.youtube.com/shorts/nyv9yK3VSX0
+- **Vídeo (v2):** 45,8 s, privado: https://www.youtube.com/shorts/u2zB5B1jGM4
+- **v1 (apagar no Studio):** https://www.youtube.com/shorts/nyv9yK3VSX0 (a estação tinha fundo claro)
 - **Montagem:** `ep003/anim_ep003.py` (+ `ep003/neuro_lib.py`) · narração `ep003/audio/narration.wav` · palavras `ep003/build/words_ep003.json` · folha de controlo `ep003/build/folha_controlo.jpg`
 - Guião aprovado pelo dono, narração sem alterações.
 
@@ -9,10 +10,11 @@
 |---|---|---|
 | Astronauta de referência (fora da estação, Terra atrás) | nano_banana_pro | 2 |
 | Close do capacete, interior do capacete, órbita, interior da estação (com a 1.ª como referência) | nano_banana_pro | 8 |
+| Refação do interior da estação, escuro com janela estrelada (indicação do dono) | nano_banana_pro | 2 |
 | Narração (uma vez, guião fechado) | elevenlabs_v4_turbo, voz Orion | 2,55 |
-| **Total** | | **12,55** (saldo 1 678,03 → 1 665,48) |
+| **Total** | | **14,55** (saldo 1 678,03 → 1 663,48) |
 
-Sem refações. Música reutilizada (`music/track01_cosmic_ambient.mp3`). Peido, alarme, toc, faísca, pssh, swish, pop e ding sintetizados por código (ffmpeg).
+1 refação (estação: o dono pediu espaço escuro com estrelas em todas as cenas; a v1 clara ficou em `ep003/anim/station_v1_claro.png`). Música reutilizada (`music/track01_cosmic_ambient.mp3`). Peido, alarme, toc, faísca, pssh, swish, pop e ding sintetizados por código (ffmpeg).
 
 ## Fórmula aplicada
 - 0 s: "pffrrt" sintetizado no frame 1 → alarme de dois tons + bordas vermelhas, painel "SUIT ALERT · AIR QUALITY" e medidor "SMELL LEVEL" até 100 % no fim de "spacesuit." (~2,1 s): "MAX!", flash verde e a nuvem rebenta à volta do capacete.
