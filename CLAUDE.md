@@ -22,7 +22,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
 - **Pop-up de subscrição em todos os vídeos** (aprovado pelo dono): cápsula "🔔 SUBSCRIBE · for more what ifs" logo após a revelação principal (~70–75%), ~2,5 s, toque animado → "SUBSCRIBED ✓", pop leve; fora das zonas do YouTube e sem tapar o essencial da cena. Código de referência: `lib/subscribe_popup.py`.
 - **Capa (thumbnail) em todos os vídeos** (pedido do dono): imagem própria, não precisa de ser um frame do vídeo, feita para ser irresistível de clicar (expressão forte, cor de destaque, 2–4 palavras grandes com contorno, fundo do tema). 1 imagem nano_banana_pro 9:16 (~2 créditos) + texto por código, JPG < 2 MB em `thumbnails/epXXX_thumb.jpg`; aplicar logo após o envio privado com `thumbnails.set` em `youtube.googleapis.com` (funciona com a permissão `youtube.upload`).
-- Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio no ecrã.
+- Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio em nada do que é público (ecrã, título, descrição, etiquetas): é irrelevante para quem vê. EPxxx só nos ficheiros internos.
 - Factos sempre verificados em fontes abertas; fontes na descrição de cada vídeo.
 
 ## Ferramentas e custos
