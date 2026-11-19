@@ -12,12 +12,13 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 ## Fórmula de cada vídeo (aprovada pelo dono)
 - Gancho com urgência + número + recompensa em 1–2 s (ex.: contagem "1.30 SECONDS LEFT" e a Lua estilhaça no zero).
 - Gancho sonoro e visual: alarme de emergência de dois tons + bordas vermelhas a piscar até à recompensa (decisão do dono, 17/11/2026; é a exceção ao som discreto).
+  - No EP003 o dono preferiu sem sirene: o gancho sonoro foi o som do próprio tema (peido sintetizado, bem audível) e a narração só começa depois dele (19/11/2026). Escolher o gancho sonoro conforme o tema.
 - Duração alvo: 40–55 s (~140–160 palavras de guião). Cortar o facto mais fraco antes de cortar uma boa piada.
 - Loop aberto principal com selo no ecrã até à revelação; loops curtos a cada 8–10 s.
 - Uma piada a cada ~15 s, cada uma com imagem própria; pergunta final "A ou B" para comentários.
 - Sem espaços mortos: pausas da narração cortadas para ≤0,12 s e voz +10% (atempo, sem mudar o tom).
 - Último frame igual ao primeiro (loop). Sem ecrã final.
-- Estilo: ilustração plana em camadas (Higgsfield) + animação por código (pycairo); paleta azul-noite e ciano.
+- Estilo: ilustração plana em camadas (Higgsfield) + animação por código (pycairo). Cores adaptadas a cada vídeo, sem ficar preso ao azul/ciano (decisão do dono, 19/11/2026). Vídeos sobre espaço: fundo preto com estrelas em todas as cenas (pedir "pitch-black space with stars"), nada de fundos claros ou azulados.
 - Legendas palavra a palavra, palavra atual em ciano, fora das zonas tapadas pelo YouTube.
 - Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
 - **Pop-up de subscrição em todos os vídeos** (aprovado pelo dono): cápsula "🔔 SUBSCRIBE · for more what ifs" logo após a revelação principal (~70–75%), ~2,5 s, toque animado → "SUBSCRIBED ✓", pop leve; fora das zonas do YouTube e sem tapar o essencial da cena. Código de referência: `lib/subscribe_popup.py`.

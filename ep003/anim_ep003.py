@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Whatifaholic #003: What if you farted in a spacesuit? Animação por código (pycairo) sobre 5 ilustrações.
-Gancho: peido sintetizado no frame 1, alarme + bordas vermelhas e medidor SMELL LEVEL até ao vermelho."""
+Gancho: "pffrrt" sintetizado no frame 1 (sem sirene), medidor SMELL LEVEL até ao vermelho; a narração entra depois."""
 import math, random, re, json, subprocess, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cairo
@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 NARR = f"{ROOT}/audio/narration.wav"
 MUSIC = f"{ROOT}/../music/track01_cosmic_ambient.mp3"
 OUT = f"{ROOT}/whatifaholic_ep003_spacesuit.mp4"
-OFF = 0.45  # a narração entra depois do "pffrrt"
+OFF = 0.95  # a narração entra só depois do "pffrrt" (0,85 s)
 dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                      "-of", "csv=p=0", NARR]))
 T_END = round(OFF + dur + 0.6, 2)
@@ -204,7 +204,7 @@ HX, HY = 875, 710  # capacete em astro_ref.png
 
 
 def s_hook(ctx, t):
-    """0 s: astronauta calmo → 'pffrrt' → alarme e medidor até ao vermelho → nuvem rebenta"""
+    """0 s: astronauta calmo → 'pffrrt' → medidor até ao vermelho → nuvem rebenta"""
     jolt = 14 * math.exp(-t * 9) * math.sin(t * 70) if t < 0.6 else 0
     k = seg(t, 0.15, REWARD + 0.6)
     z = 1.0 + 0.22 * k
@@ -547,6 +547,7 @@ def badge(ctx, t):
 
 
 def alarm(ctx, t):
+    return  # EP003: sem sirene nem bordas vermelhas (decisão do dono, 19/11/2026)
     """bordas vermelhas a piscar ao ritmo do alarme, do fim do 'pffrrt' até à recompensa"""
     if t >= REWARD or t < 0.3:
         return
@@ -673,10 +674,6 @@ def build_audio_and_mux(raw):
             cmd += ["-af", af]
         subprocess.run(cmd + [path], check=True)
         return path
-    # 'pffrrt' cómico: zumbido grave com vibração de lábios, tom a descer, filtrado (curto, não nojento)
-    fart = synth("pffrrt", "(0.55*sgn(sin(2*PI*(118-40*t)*t))+0.35*sin(2*PI*(236-80*t)*t))"
-                 "*(0.55+0.45*sin(2*PI*31*t))*min(1,t*60)*(1-t/0.42)", 0.42,
-                 "lowpass=f=700,highpass=f=60,afade=t=out:st=0.3:d=0.12,volume=1.4")
     swish = f"{BLD}/swish.wav"
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "anoisesrc=d=0.5:c=pink:a=0.5:r=48000",
                     "-af", "bandpass=f=900:w=1400,afade=t=in:d=0.25:curve=qsin,afade=t=out:st=0.25:d=0.25,volume=0.35",
@@ -696,18 +693,13 @@ def build_audio_and_mux(raw):
                     "aevalsrc='0.8*sin(2*PI*(55+90*exp(-t*8))*t)*exp(-t*4)':s=48000:d=1.0",
                     "-f", "lavfi", "-i", "anoisesrc=d=0.5:c=pink:a=0.6:r=48000",
                     "-filter_complex", "[1]afade=t=out:d=0.5,lowpass=f=1500[n];[0][n]amix=inputs=2:normalize=0", poof], check=True)
-    # alarme de dois tons (como no ep001 v6), do fim do 'pffrrt' até à recompensa
-    P = ALARM_P; h = P / 2; dA = REWARD - 0.3
-    env = f"min(1,mod(t,{h})*120)*min(1,({h}-mod(t,{h}))*120)"
-    tone = f"(lt(mod(t,{P}),{h})*(sin(2*PI*960*t)+0.3*sin(2*PI*2880*t))+gte(mod(t,{P}),{h})*(sin(2*PI*770*t)+0.3*sin(2*PI*2310*t)))"
-    alarm_wav = synth("alarm", f"0.45*{env}*{tone}", f"{dA:.3f}", f"afade=t=out:st={max(0, dA - 0.06):.3f}:d=0.06")
-    events = [(fart, 0.0, 0.9), (alarm_wav, 0.3, 0.26), (poof, REWARD - 0.02, 0.6)]
+    fart = f"{ROOT}/audio/pffrrt.wav"  # build/fart_synth.py (sintetizado, sem sirene)
+    events = [(fart, 0.0, 1.0), (poof, REWARD - 0.02, 0.6)]
     events += [(swish, c - 0.25, 0.5) for c in (T["first"], T["space"], T["second"], T["wait"], T["scary"], T["good"], T["question"], T["because"])]
     events += [(pop, x, 0.5) for x in (T["yes"], T["hydrogen"], T["methane"], T["nasa"], T["own"], T["station"])]
     events += [(ding, x, 0.35) for x in (T["face"] + 0.3, T["glass_e"], T["battery_e"], T["please_e"], T["very_e"])]
     events += [(toc, x, 0.55) for x in (T["hold"] + 0.1, T["nose"] + 0.15, T["gloves"] + 0.25)]
     events += [(crackle, T["so"], 0.35), (pssh, T["please"], 0.45), (pop, POP_T + 1.0, 0.3)]
-    events += [(fart, T["because"] + 0.15, 0.0)]  # (sem segundo peido no fim: o loop traz o do início)
     ins, ch, lab = [], [], []
     for n, (f, x, v) in enumerate(events):
         if v <= 0:
