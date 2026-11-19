@@ -27,7 +27,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 
 ## Ferramentas e custos
 - Higgsfield (créditos: plano Ultra, 3 000/mês). Imagem `nano_banana_pro` ≈ 2 créditos; clip Seedance 28 (evitar).
-- Voz: `elevenlabs_v4_turbo`, voz preset "Orion" `ed69c516-92d2-4b30-a967-617737a342e5` (~3 créditos/episódio).
+- Voz: `elevenlabs_v4_turbo`, voz preset **"Bram"** `549ff70a-3ee7-4f04-a4d9-89a24fab7709` (~3 créditos/episódio; escolha do dono, a voz do vídeo do capacete). **Não usar "Orion"** (`ed69c516-…`), a voz antiga. Eleven v4 (não-turbo) com marcas de emoção soou a IA: não usar.
 - Música: reutilizar `music/` (gerar uma faixa custa ~10 créditos).
 - Meta: 11–15 créditos por episódio. **Limite rígido: 30 créditos por vídeo** (decisão do dono, 17/11/2026):
   - Registar o saldo do Higgsfield (`balance`) no início e verificar antes de cada geração; se a próxima geração passar dos 30, parar e perguntar ao dono.
