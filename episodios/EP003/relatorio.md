@@ -35,3 +35,4 @@
 - v1 → v2: estação refeita com interior escuro (indicação do dono via sessão de controlo).
 - v2 → v3 (dono viu o vídeo): fundo ainda azul → as 5 imagens refeitas com espaço preto (versões antigas em `ep003/anim/*_azul.png`); sirene retirada; "pffrrt" mais nítido e narração depois dele.
 - v3 → v4 (19/11, pedido do dono): só a voz, Orion → Bram (`elevenlabs_v4_turbo`, preset 549ff70a-…), mesmo texto; pausas ≤0,12 s, +10 % atempo, palavras retranscritas (faster-whisper small.en, 146 palavras iguais ao guião) e vídeo remontado com o mesmo script. Narração 46,2 s, vídeo 47,8 s. Capa de `main` aplicada com `thumbnails.set`.
+- v4, capa: o primeiro `thumbnails.set` (logo após o envio, antes de o processamento acabar) não chegou ao Studio, que mostrava um frame automático. Reaplicada às 15:49 com o JPG recodificado (o YouTube ignora uma imagem idêntica). Para a próxima: aplicar a capa só depois de `processingStatus = succeeded`.
