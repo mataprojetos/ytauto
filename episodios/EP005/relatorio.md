@@ -2,19 +2,23 @@
 
 **Teste só código** (pedido do dono): animação, capa e efeitos sonoros feitos 100 % por código (pycairo + numpy/ffmpeg), sem imagens geradas no Higgsfield.
 
-- **Vídeo (v2, a boa):** 41,4 s, privado: https://www.youtube.com/shorts/qitV1iN6CjU (capa aplicada com `thumbnails.set`)
+- **PUBLICADO (versão final):** 42,9 s, público desde 21/11/2026: https://www.youtube.com/shorts/V9a7uoX7vdo (capa aplicada)
+- **v2 (apagar no Studio):** 41,4 s, privado: https://www.youtube.com/shorts/qitV1iN6CjU
 - **v1 (apagar no Studio):** 38,3 s, https://www.youtube.com/shorts/yZtfk_Y9ydQ — cortes demasiado apertados, as frases colavam umas às outras.
 - **Montagem:** `ep005/anim_ep005.py` · capa `ep005/thumb_ep005.py` → `thumbnails/ep005_thumb.jpg` · folha de controlo `ep005/folha_controlo_ep005.jpg`
 - **Áudio (v2):** `ep005/build/audio_cut3.py`, um só passe a partir da voz original (os scripts da v1 eram `audio_prep.py` + `audio_cut2.py`)
 
-## Créditos (21/11/2026)
-| Geração | Modelo | Créditos |
+## Créditos (21/11/2026, saldo real 1 630,53 → 1 626,25)
+| Geração | Modelo | Créditos (aprox.) |
 |---|---|---|
 | Narração (1 tentativa) | elevenlabs_v4_turbo, voz Bram | 2,25 |
-| Tosse verdadeira (efeito, 2 s) | mirelo_text_to_audio | 0,25 |
-| Imagens | — (só código) | 0 |
-| **Total** | | **2,50** (saldo 1 630,53 → 1 628,03) |
+| Tosse "porta a bater" (rejeitada pelo dono) | mirelo_text_to_audio | 0,25 |
+| Tosse só com marcas (falhou, mas parece ter cobrado) | elevenlabs_v4 | ~0,25 |
+| Tosse com a voz Bram ("a line of… [coughs]") | elevenlabs_v4 | ~1,38 (cobrado mais do que a cotação de 0,69) |
+| Linha final "Now tell me: blink, or sneeze? Because…" | elevenlabs_v4_turbo, voz Bram | ~0,15 |
+| **Total real** | | **4,28** |
 
+Zero imagens geradas.
 Música reaproveitada (`music/track01_cosmic_ambient.mp3`). Alarme, ka-ching, tosse, swish, pop, ding e som da frase de marca sintetizados por código.
 
 ## Novo em `lib/` (reutilizável)
@@ -45,3 +49,10 @@ Agora (`audio_cut3.py`): pausa conforme a pontuação, medida depois do atempo: 
 - Pausas entre frases: 0,24–0,44 s. Duração: **43,5 s** (acima do alvo de 30–40 s; o dono pôs a clareza à frente).
 - Tosse sintetizada substituída por uma **tosse verdadeira** (Mirelo SFX, 0,25 créditos), guardada em `lib/sfx/cough_real.wav`. No ecrã a personagem tosse (abanão, olhos fechados, punho à boca, "*COUGH*").
 - **Lição para a fórmula:** proteger sempre as palavras com margem; nunca cortar com limiar alto nem com fades longos sobre a fala.
+
+## Versão final publicada (21/11/2026)
+- Tosse com a própria voz Bram (Eleven v4 com `[coughs]`, recortada para `lib/sfx/cough_bram.wav`); a personagem tosse no ecrã.
+- Cortes só em silêncio absoluto (voz e sibilantes): o "s" arrastado de "dollars" fica inteiro. Efeitos sonoros sempre depois do fim real da frase.
+- Sem alarme nem borda vermelha no gancho (decisão do dono para este vídeo).
+- Fim curto do dono: "Now tell me: blink, or sneeze? Because…", e o "because" liga ao "Every time you blink…" do início (loop). `build/loop_end.py`.
+- Publicado público com autorização explícita do dono ("Publica o vídeo com a capa").
