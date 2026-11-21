@@ -763,6 +763,7 @@ BADGE = (T["wait"], T["big"])
 
 
 def alarm_border(c, t):
+    return   # removido a pedido do dono (21/11/2026): o gancho fica melhor sem alarme nem borda vermelha
     if T_END - 0.2 <= t:   # fim do loop: a borda volta a acender para o último frame = primeiro
         a = 0.9 * seg(t, T_END - 0.2, T_END - 1 / FPS)
     elif t >= ALARM_END: return
@@ -912,6 +913,23 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """ + "\n".join(ev) + "\n")
 
 
+_NX = None
+
+
+def sound_end(t):
+    """fim real do som da voz a seguir a t (energia larga + banda aguda abaixo do silêncio durante 60 ms)"""
+    global _NX
+    if _NX is None:
+        x = np.frombuffer(subprocess.check_output(["ffmpeg", "-v", "error", "-i", NARR, "-ac", "1", "-ar", "48000", "-f", "f32le", "-"]), np.float32)
+        fr = 240; n = len(x) // fr
+        e = 20 * np.log10(np.sqrt((x[:n * fr].reshape(n, fr) ** 2).mean(1)) + 1e-9)
+        xd = np.diff(x, prepend=x[0]); h = 20 * np.log10(np.sqrt((xd[:n * fr].reshape(n, fr) ** 2).mean(1)) + 1e-9)
+        _NX = (e < e.max() - 46) & (h < h.max() - 46)
+    f = int(t * 200)
+    while f + 12 < len(_NX) and not _NX[f:f + 12].all(): f += 1
+    return f / 200
+
+
 def mix(raw_video):
     def a(name): return f"{SFX}/{name}.wav"
     P = 0.5; h = P / 2
@@ -933,17 +951,17 @@ def mix(raw_video):
     boom = f"{BLD}/boom.wav"
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "aevalsrc='0.9*sin(2*PI*(48+70*exp(-t*6))*t)*exp(-t*2.8)':s=48000:d=1.6",
                     "-af", "volume=0.8", boom], check=True)
-    E = [(alarm, 0.0, 0.3)]
+    E = []   # sem alarme (decisão do dono para este vídeo)
     E += [(a("kaching"), b + 0.05, 0.55) for b in HOOK_BLINKS]
     E += [(a("scratch_head"), T["brand"], 0.7)]
     E += [(swish, x - 0.2, 0.45) for x in (T["because"], T["meeting"], T["sleeping"], T["sneezing"], T["andyear"])]
     E += [(pop, x, 0.45) for x in (T["fifteen"], T["n900"], T["n14"], T["oneyear"])]
-    E += [(a("kaching"), x, 0.35) for x in (T["n900"] + 0.55, T["n14"] + 0.7)]
-    E += [(ding, x, 0.35) for x in (T["paid"], T["best"] + 0.1, T["boss"], T["free"])]
+    E += [(a("kaching"), sound_end(words[idx(k)]["e"]) + 0.03, 0.35) for k in ("$900", "$14,400")]   # depois de "dollars", nunca por cima
+    E += [(ding, sound_end(words[idx(k, n)]["e"]) + 0.03, 0.35) for k, n in (("paid", 1), ("life", 1), ("boss", 1), ("money", 1))]   # no fim da frase da piada
     E += [(ring, T["alarm"], 0.25)]
     days = [T["andyear"] + (T["big"] - T["andyear"]) * k / 9 for k in range(9)]
     E += [(tick, x, 0.4) for x in days]
-    E += [(boom, T["big"] - 0.02, 0.8), (a("kaching"), T["big"] + 0.02, 0.6)]
+    E += [(boom, T["big"] - 0.02, 0.5)]   # sem ka-ching: a seguir ao número vem logo "Blink money"
     E += [(pop, SUB_T0 + 1.0, 0.3)]
     E += [(pop, T["blinkq"] + x, 0.3) for x in (0.0, 0.25)]
     E += [(a("kaching"), LOOP_START + 0.0, 0.0)]  # placeholder silencioso
@@ -958,7 +976,7 @@ def mix(raw_video):
                     "-filter_complex",
                     f"[0:v]subtitles={ASS},format=yuv420p[v];"
                     "[1:a]asplit=2[n1][nk];"
-                    f"[2:a]atrim=0:{T_END},volume='if(lt(t,{ALARM_END:.2f}),0.12,if(between(t,{big-0.7:.2f},{big:.2f}),0.06,0.32))':eval=frame,"
+                    f"[2:a]atrim=0:{T_END},volume='if(between(t,{big-0.7:.2f},{big:.2f}),0.06,0.32)':eval=frame,"
                     f"afade=t=out:st={T_END-0.6}:d=0.6[m];"
                     "[m][nk]sidechaincompress=threshold=0.03:ratio=8:attack=20:release=300[md];"
                     f"{sfx};[n1][md][sfx]amix=inputs=3:duration=longest:normalize=0,apad,"

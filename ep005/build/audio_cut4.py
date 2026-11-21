@@ -16,6 +16,11 @@ FR = int(0.005 * SR)
 nfr = len(x) // FR
 edb = 20 * np.log10(np.sqrt((x[:nfr * FR].reshape(nfr, FR) ** 2).mean(1)) + 1e-9)
 PEAK = edb.max(); SIL = PEAK - 46
+# banda aguda (diferença de amostras) para apanhar sibilantes fracas ("s" final arrastado)
+xd = np.diff(x, prepend=x[0])
+hdb = 20 * np.log10(np.sqrt((xd[:nfr * FR].reshape(nfr, FR) ** 2).mean(1)) + 1e-9)
+HSIL = hdb.max() - 46
+quiet_fr = (edb < SIL) & (hdb < HSIL)          # frame sem som nenhum (nem voz, nem sibilante)
 
 # 1) zonas protegidas
 prot = np.zeros(len(x), bool)
@@ -24,11 +29,11 @@ for w in W:
     prot[a:b] = True
     # cauda real: estende enquanto houver som acima do silêncio (até +0,3 s)
     f = b // FR
-    while f < nfr and edb[f] > SIL and (f * FR - b) < 0.2 * SR: f += 1
+    while f < nfr and (edb[f] > SIL or hdb[f] > HSIL) and (f * FR - b) < 0.6 * SR: f += 1
     prot[b:min(len(x), f * FR + FR)] = True
     # ataque real: recua enquanto houver som (até -0,2 s)
     f = a // FR
-    while f > 0 and edb[f - 1] > SIL and (a - f * FR) < 0.12 * SR: f -= 1
+    while f > 0 and (edb[f - 1] > SIL or hdb[f - 1] > HSIL) and (a - f * FR) < 0.3 * SR: f -= 1
     prot[max(0, f * FR - FR):a] = True
 
 
@@ -49,7 +54,8 @@ for i, (a, b) in enumerate(zip(W, W[1:])):
         e = [np.sum(x[k:k + FR * 3] ** 2) for k in range(c0, c1, FR)]
         split = c0 + int(np.argmin(e)) * FR + FR
         continue
-    seg = ~prot[lo:hi]
+    quiet = np.repeat(quiet_fr, FR); quiet = np.r_[quiet, np.zeros(len(x) - len(quiet), bool)]
+    seg = (~prot[lo:hi]) & quiet[lo:hi]
     if not seg.any(): continue
     idxs = np.flatnonzero(seg)
     # maior bloco contínuo não protegido
@@ -69,6 +75,8 @@ for i, (a, b) in enumerate(zip(W, W[1:])):
 # 3) verificação: nenhum corte toca em zona protegida
 for c0, c1 in cuts:
     assert not prot[c0:c1].any(), f"corte em zona protegida: {c0/SR:.2f}-{c1/SR:.2f}"
+    f0, f1 = c0 // FR, -(-c1 // FR)
+    assert quiet_fr[f0:f1].all(), f"corte com som: {c0/SR:.2f}-{c1/SR:.2f}"
 
 # 4) montar (fades de 20 ms só nas junções, que estão em silêncio) + tosse com pausa cómica
 cough = np.fromfile("build/cough.f32", np.float32)
