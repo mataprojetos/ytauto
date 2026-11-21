@@ -14,7 +14,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Gancho sonoro e visual: alarme de emergência de dois tons + bordas vermelhas a piscar até à recompensa (decisão do dono, 17/11/2026; é a exceção ao som discreto).
 - Duração alvo: 30–40 s (~100–120 palavras de guião; decisão do dono a 21/11/2026, para subir a % vista). Cortar o facto mais fraco antes de cortar uma boa piada.
 - Loop aberto principal com selo no ecrã até à revelação; loops curtos a cada 8–10 s.
-- Uma piada a cada ~15 s, cada uma com imagem própria; pergunta final "A ou B" para comentários.
+- Uma piada a cada ~10–15 s, cada uma com visual próprio.
 - Sem espaços mortos: pausas da narração cortadas para ≤0,12 s e voz +10% (atempo, sem mudar o tom).
 - Último frame igual ao primeiro (loop). Sem ecrã final.
 - Estilo: ilustração plana e/ou animação só por código (pycairo). **Sem paleta fixa nem cor de marca** (decisão do dono, 21/11/2026): cada vídeo usa as cores que o tema pedir; não forçar azul/ciano.
@@ -23,7 +23,9 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - **Pop-up de subscrição em todos os vídeos** (aprovado pelo dono): cápsula "🔔 SUBSCRIBE · for more what ifs" (cores livres) logo após a revelação principal (~70–75%), ~2,5 s, toque animado → "SUBSCRIBED ✓", pop leve; fora das zonas do YouTube e sem tapar o essencial da cena. Código de referência: `lib/subscribe_popup.py`.
 - **Capa (thumbnail) em todos os vídeos** (pedido do dono): imagem própria, não precisa de ser um frame do vídeo, feita para ser irresistível de clicar (expressão forte, cor de destaque, 2–4 palavras grandes com contorno, fundo do tema). 1 imagem nano_banana_pro 9:16 (~2 créditos) + texto por código, JPG < 2 MB em `thumbnails/epXXX_thumb.jpg`; aplicar logo após o envio privado com `thumbnails.set` em `youtube.googleapis.com` (funciona com a permissão `youtube.upload`).
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio em nada do que é público (ecrã, título, descrição, etiquetas): é irrelevante para quem vê. EPxxx só nos ficheiros internos.
-- **Frase de marca em todos os vídeos, 1 ou mais vezes:** "That one made me scratch my head." (escolha do dono). Dizer na viragem ou no facto mais surpreendente, nunca no primeiro segundo; sempre com a mesma assinatura visual curta (ícone de mão a coçar a cabeça) e o mesmo som curto.
+- **Frase de marca em todos os vídeos:** "That one made me scratch my head." (escolha do dono). **Obrigatória cedo, no desenvolvimento (~3–8 s, logo a seguir ao gancho)**; pode repetir-se na viragem. Sempre com a mesma assinatura visual curta (mão a coçar a cabeça) e o mesmo som curto.
+- **Final com gatilhos até ao último segundo** (pedido do dono, 21/11/2026): guardar a maior revelação/número para os últimos ~5 s, anunciada antes com um loop aberto ("wait until you see…"); nada de abrandar no fim.
+- **Pedido de comentário original e curtíssimo (≤6 palavras)**, colado à revelação final e com animação própria (ex.: "Blink or sneeze money? One word."); nunca o genérico "Tell me below" com pausa. Logo a seguir, a frase do loop.
 - Factos sempre verificados em fontes abertas; fontes na descrição de cada vídeo.
 
 ## Ferramentas e custos
