@@ -37,7 +37,8 @@ for w in raw:
         words[-1]["w"] += w["w"]; words[-1]["e"] = w["e"]
     else:
         words.append(dict(w))
-FIX = {"head": "head…", "bedtime,": "bedtime:", "year,": "year…", "because": "because"}
+FIX = {"head": "head…", "head.": "head…", "bedtime,": "bedtime:", "year,": "year…", "Because": "because",
+       "fifteen": "15", "So,": "So", "Black": "black"}
 out = []
 for i, w in enumerate(words):
     w["w"] = FIX.get(w["w"], w["w"])
@@ -47,34 +48,42 @@ for i, w in enumerate(words):
 words = out
 
 
-def idx(tok, after=0.0):
+def idx(tok, n=1):
+    """índice da n.ª ocorrência da palavra (sem pontuação)"""
+    k = 0
     for i, w in enumerate(words):
-        if w["s"] >= after and re.sub(r"[^\w$,]", "", w["w"]).lower().rstrip(",") == tok:
-            return i
-    raise KeyError(tok)
+        if re.sub(r"[^\w$,]", "", w["w"]).lower().rstrip(",") == tok:
+            k += 1
+            if k == n: return i
+    raise KeyError((tok, n))
 
 
-# correções de tempo à volta da tosse e de "Free money" (o Whisper juntou-os)
-i_of = idx("of", after=27.0); words[i_of]["w"] = "of…"; words[i_of]["e"] = C_AT - 0.1
-i_bl = idx("black", after=27.0); words[i_bl]["s"] = C_AT + C_LEN + 0.16
-i_fr = idx("free", after=29.0); words[i_fr]["e"] = words[i_fr]["s"] + 0.2
-words[i_fr + 1]["s"] = words[i_fr]["e"]; words[i_fr + 1]["e"] = words[i_fr + 1]["s"] + 0.3
-i_and = idx("and", after=29.0); words[i_and]["e"] = words[i_and]["s"] + 0.1; words[i_and + 1]["s"] = words[i_and]["e"]
+# correções de tempo à volta da tosse e de "Free money" (o Whisper junta-os)
+i_bl = idx("black"); i_of = i_bl - 1
+words[i_of]["w"] = "of…"; words[i_of]["e"] = C_AT - 0.1
+words[i_bl]["s"] = C_AT + C_LEN + 0.16
+i_fr = idx("free")
+if words[i_fr + 1]["s"] - words[i_fr]["s"] < 0.15:
+    words[i_fr]["e"] = words[i_fr]["s"] + 0.2
+    words[i_fr + 1]["s"] = words[i_fr]["e"]; words[i_fr + 1]["e"] = max(words[i_fr + 1]["e"], words[i_fr + 1]["s"] + 0.3)
+i_and = idx("and")
+if words[i_and + 1]["s"] - words[i_and]["s"] < 0.05:
+    words[i_and]["e"] = words[i_and]["s"] + 0.1; words[i_and + 1]["s"] = words[i_and]["e"]
 json.dump(words, open(f"{BLD}/words_final.json", "w"), indent=0)
 
 
-def at(tok, after=0.0):
-    return words[idx(tok, after)]["s"]
+def at(tok, n=1):
+    return words[idx(tok, n)]["s"]
 
 
 T = dict(
-    you3=at("you", 1.9), rate=at("you", 2.8), fifteen=at("15"), brand=at("that", 4.5), because=at("because"),
-    n900=at("$900"), hour=at("hour", 8.0), nothing=at("for", 8.8), lunch=at("by"), rent=at("your", 10.5),
-    paid=at("paid"), bedtime=at("by", 11.5), n14=at("$14,400"), meeting=at("that", 13.5), best=at("bestpaid"),
-    wait=at("but"), oneyear=at("after", 17.5), sleeping=at("sleeping"), zero=at("zero"), alarm=at("your", 21.5),
+    you3=at("you", 3), rate=at("you", 4), fifteen=at("15"), brand=at("that"), because=at("because"),
+    n900=at("$900"), hour=at("hour"), nothing=at("for"), lunch=at("by"), rent=at("your"),
+    paid=at("paid"), bedtime=at("by", 2), n14=at("$14,400"), meeting=at("that", 2), best=at("bestpaid"),
+    wait=at("but"), oneyear=at("after"), sleeping=at("sleeping"), zero=at("zero"), alarm=at("your", 4),
     boss=at("boss"), sneezing=at("sneezing"), eyes=at("eyes"), so=at("so"), snorting=at("snorting"),
     lineof=at("line"), black=words[i_bl]["s"], free=words[i_fr]["s"], andyear=words[i_and]["s"],
-    big=at("$5,256,000"), blinkq=at("blink", 33.0), oneword=at("one", 35.0), loop=at("every", 35.5),
+    big=at("$5,256,000"), blinkq=at("blink", 3), oneword=at("one", 5), loop=at("every", 3),
 )
 T["cough"] = C_AT
 LOOP_START = T["loop"] - 0.08
@@ -419,7 +428,7 @@ def s_bed(c, t):
     c.set_source_rgba(0.04, 0.1, 0.16, k); c.arc(860, 330, 82, 0, 2 * math.pi); c.fill()
     text(c, "BEDTIME", 300, 360, 80, INK, k)
     # pilha de notas a crescer
-    v = 14400 * clamp((t - T["n14"] + 0.3) / 1.0)
+    v = 14400 * clamp((t - t0 - 0.1) / (T["n14"] + 0.6 - t0 - 0.1)) ** 1.5
     n = int(v / 600)
     for i in range(n):
         bill(c, 540 + 8 * math.sin(i * 1.7), 1280 - i * 15, 360, 0.04 * math.sin(i * 2.3), 1)
