@@ -591,6 +591,8 @@ def face(c, t, sneezes, x, y, r, extra_eyes=None):
         if s - 0.35 <= t < s: state = "pre"
         elif s <= t < s + 0.3: state = "sneeze"; dx = 14 * math.sin(t * 70); dy = 26 * math.exp(-(t - s) * 8)
     if extra_eyes: state = extra_eyes
+    if state == "cough":
+        dx = 10 * math.sin(t * 55); dy = -14 * abs(math.sin(t * 18))
     c.save(); c.translate(dx, dy)
     c.set_source_rgba(*SKIN, 1); c.arc(x, y, r, 0, 2 * math.pi); c.fill()
     c.set_source_rgba(0.25, 0.16, 0.1, 1); c.arc(x, y - r * 0.08, r * 1.01, math.pi * 1.08, math.pi * 1.92); c.close_path(); c.fill()
@@ -603,6 +605,10 @@ def face(c, t, sneezes, x, y, r, extra_eyes=None):
             eye(c, x + sx * ex, ey, r * 0.26, 1.0, dx=(0.35 if state == "side" else 0.0), lashes=False)
     elif state == "pre":
         for sx in (-1, 1): eye(c, x + sx * ex, ey, r * 0.26, 0.35, dy=-0.2, lashes=False)
+    elif state == "cough":
+        c.set_source_rgba(*DARK, 1); c.set_line_width(r * 0.06); c.set_line_cap(cairo.LINE_CAP_ROUND)
+        for sx in (-1, 1):
+            c.move_to(x + sx * ex - r * 0.16, ey + r * 0.02); c.curve_to(x + sx * ex - r * 0.05, ey - r * 0.08, x + sx * ex + r * 0.05, ey - r * 0.08, x + sx * ex + r * 0.16, ey + r * 0.02); c.stroke()
     else:
         c.set_source_rgba(*DARK, 1); c.set_line_width(r * 0.06); c.set_line_cap(cairo.LINE_CAP_ROUND)
         for sx in (-1, 1):
@@ -610,7 +616,10 @@ def face(c, t, sneezes, x, y, r, extra_eyes=None):
             c.line_to(x + sx * ex - r * 0.2 * -1 * 0 - r * 0.2 + (r * 0.4 if sx > 0 else 0), ey + r * 0.1); c.stroke()
     my = y + r * 0.52
     c.set_source_rgba(*DARK, 1); c.set_line_width(r * 0.05)
-    if state == "sneeze":
+    if state == "cough":
+        c.save(); c.translate(x, my); c.scale(1.0, 0.75); c.arc(0, 0, r * 0.15, 0, 2 * math.pi); c.restore(); c.fill()
+        c.set_source_rgba(*SKIND, 1); c.arc(x + r * 0.32, my + r * 0.12, r * 0.17, 0, 2 * math.pi); c.fill()   # punho à frente da boca
+    elif state == "sneeze":
         c.save(); c.translate(x, my); c.scale(1.3, 0.8); c.arc(0, 0, r * 0.16, 0, 2 * math.pi); c.restore(); c.fill()
     elif state == "pre":
         c.arc(x, my, r * 0.1, 0, 2 * math.pi); c.fill()
@@ -632,7 +641,14 @@ def s_pepper(c, t):
     background(c, t, top=(0.06, 0.22, 0.15))
     sneezes = [T["snorting"] + 0.2, T["lineof"] + 0.1, T["black"] + 0.35, T["free"] + 0.05]
     cough_on = T["cough"] - 0.3 <= t < T["black"]
-    face(c, t, sneezes, 520, 1040, 240, extra_eyes="side" if cough_on else None)
+    coughing = T["cough"] <= t < T["cough"] + C_LEN * 0.8
+    face(c, t, sneezes, 520, 1040, 240, extra_eyes=("cough" if coughing else "side") if cough_on else None)
+    if coughing:
+        d = t - T["cough"]
+        for j in range(5):
+            q = clamp(d / 0.45 - j * 0.08)
+            if q > 0: glow(c, 640 + 160 * q + j * 14, 1150 - 40 * q - j * 10, 30 + 50 * q, (0.85, 0.85, 0.85), 0.5 * (1 - q))
+        text(c, "*COUGH*", 760, 900, 78, INK, 1 - clamp((d - C_LEN * 0.6) / 0.15), scale=popin(t, T["cough"], 0.15), rot=-0.12)
     # pimenteiro a abanar por cima
     shaking = not cough_on
     rot = 2.5 + (0.25 * math.sin(t * 28) if shaking else 0.0)
@@ -650,7 +666,7 @@ def s_pepper(c, t):
     # contagem
     n = sum(1 for s in sneezes if t >= s)
     text(c, "ALL DAY LONG", 540, 330, 84, MINT, seg(t, t0, t0 + 0.2) * (1 - seg(t, T["cough"] - 0.3, T["cough"] - 0.1)))
-    if cough_on:
+    if cough_on and not coughing:
         text(c, "...", 540, 330, 120, INK, 1)
     bk = seg(t, T["black"] - 0.05, T["black"] + 0.12)
     text(c, "BLACK PEPPER", 540, 330, 104, GOLD, bk * (1 - seg(t, T["free"] - 0.1, T["free"])), scale=popin(t, T["black"] - 0.05))

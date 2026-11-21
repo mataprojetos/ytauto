@@ -11,8 +11,9 @@
 | Geração | Modelo | Créditos |
 |---|---|---|
 | Narração (1 tentativa) | elevenlabs_v4_turbo, voz Bram | 2,25 |
+| Tosse verdadeira (efeito, 2 s) | mirelo_text_to_audio | 0,25 |
 | Imagens | — (só código) | 0 |
-| **Total** | | **2,25** (saldo 1 630,53 → 1 628,28) |
+| **Total** | | **2,50** (saldo 1 630,53 → 1 628,03) |
 
 Música reaproveitada (`music/track01_cosmic_ambient.mp3`). Alarme, ka-ching, tosse, swish, pop, ding e som da frase de marca sintetizados por código.
 
@@ -37,3 +38,10 @@ Gancho 0–2,9 s (olho a piscar, "$1 PER BLINK", contador $3 ao ~0,8 s, alarme +
 O dono achou a v1 "muito cortada": cada frase acabava e a seguinte entrava logo, e parecia mal cortado. Causa: dois passes de corte (energia + Whisper), tudo a 0,12 s, com fades de 8 ms.
 Agora (`audio_cut3.py`): pausa conforme a pontuação, medida depois do atempo: **fim de frase ~0,23 s, vírgula ~0,15 s, meio da frase ≤0,08 s**. Limites da fala medidos por energia (não corta sibilantes nem caudas), respirações tratadas como silêncio, cortes só no silêncio, com fades de 40–60 ms. Resultado: 41,4 s (+3 s, um pouco acima dos 40 s do alvo).
 **Proposta para a fórmula:** trocar "pausas ≤0,12 s" por estes valores por pontuação.
+
+## v3 dos cortes + tosse verdadeira (pedido do dono, 21/11/2026)
+- A v2 ainda **comia palavras**: o limiar de silêncio subido (−31 dB) tratava caudas e ataques suaves (s, f, h, t) como silêncio, e os fades de 60 ms cortavam finais.
+- `audio_cut4.py`: **regra rígida, nenhum corte toca numa palavra**. Cada palavra fica protegida (Whisper −60/+90 ms + cauda real até 0,2 s e ataque real até 0,12 s, medidos a −46 dB). Só se remove silêncio fora dessas zonas, com fades de 12 ms. Verificação automática no script (assert) e pelo Whisper: 118/118 palavras, texto igual ao original.
+- Pausas entre frases: 0,24–0,44 s. Duração: **43,5 s** (acima do alvo de 30–40 s; o dono pôs a clareza à frente).
+- Tosse sintetizada substituída por uma **tosse verdadeira** (Mirelo SFX, 0,25 créditos), guardada em `lib/sfx/cough_real.wav`. No ecrã a personagem tosse (abanão, olhos fechados, punho à boca, "*COUGH*").
+- **Lição para a fórmula:** proteger sempre as palavras com margem; nunca cortar com limiar alto nem com fades longos sobre a fala.
