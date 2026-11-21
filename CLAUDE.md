@@ -14,7 +14,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Gancho sonoro e visual: alarme de emergência de dois tons + bordas vermelhas a piscar até à recompensa (decisão do dono, 17/11/2026; é a exceção ao som discreto).
 - Duração alvo: 30–40 s (~100–120 palavras de guião; decisão do dono a 21/11/2026, para subir a % vista). Cortar o facto mais fraco antes de cortar uma boa piada.
 - Loop aberto principal com selo no ecrã até à revelação; loops curtos a cada 8–10 s.
-- Uma piada a cada ~10–15 s, cada uma com visual próprio.
+- Uma piada a cada ~10–15 s, cada uma com visual próprio. **Piadas relatable sempre que der** (pedido do dono): situações do dia a dia da maioria das pessoas (chefe, segunda-feira, renda, despertador, reuniões chatas, chat de família, bateria do telemóvel), ligadas ao tema; evitar piadas de nicho.
 - Sem espaços mortos: pausas da narração cortadas para ≤0,12 s e voz +10% (atempo, sem mudar o tom).
 - Último frame igual ao primeiro (loop). Sem ecrã final.
 - Estilo: ilustração plana e/ou animação só por código (pycairo). **Sem paleta fixa nem cor de marca** (decisão do dono, 21/11/2026): cada vídeo usa as cores que o tema pedir; não forçar azul/ciano.
