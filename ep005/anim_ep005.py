@@ -17,7 +17,7 @@ MUSIC = f"{ROOT}/../music/track01_cosmic_ambient.mp3"
 SFX = f"{ROOT}/../lib/sfx"
 OUT = f"{ROOT}/whatifaholic_ep005_blink.mp4"
 DUR = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", NARR]))
-T_END = round(DUR + 0.12, 2)
+T_END = round(DUR, 2)   # acaba logo a seguir a "…because" e liga ao "Every time you blink" do início
 random.seed(5)
 
 # ---------- cores (tema dinheiro: verdes + dourados) ----------
@@ -46,6 +46,10 @@ for i, w in enumerate(words):
         out[-1]["w"] = "Best-paid"; out[-1]["e"] = w["e"]; continue
     out.append(w)
 words = out
+# fim do loop: "…because" (reaproveitado; o Whisper ignora a palavra isolada no fim)
+LM = json.load(open(f"{BLD}/loop_meta.json"))
+words = [w for w in words if w["s"] < LM["because_s"] - 0.2]
+words.append({"w": "because…", "s": LM["because_s"], "e": LM["because_e"]})
 
 
 def idx(tok, n=1):
@@ -83,7 +87,7 @@ T = dict(
     wait=at("but"), oneyear=at("after"), sleeping=at("sleeping"), zero=at("zero"), alarm=at("your", 4),
     boss=at("boss"), sneezing=at("sneezing"), eyes=at("eyes"), so=at("so"), snorting=at("snorting"),
     lineof=at("line"), black=words[i_bl]["s"], free=words[i_fr]["s"], andyear=words[i_and]["s"],
-    big=at("$5,256,000"), blinkq=at("blink", 3), oneword=at("one", 5), loop=at("every", 3),
+    big=at("$5,256,000"), blinkq=at("blink", 3), oneword=at("one", 5), loop=LM["because_s"],
 )
 T["cough"] = C_AT
 LOOP_START = T["loop"] - 0.08
