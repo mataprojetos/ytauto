@@ -48,8 +48,11 @@ for i, w in enumerate(words):
 words = out
 # fim do loop: "…because" (reaproveitado; o Whisper ignora a palavra isolada no fim)
 LM = json.load(open(f"{BLD}/loop_meta.json"))
-words = [w for w in words if w["s"] < LM["because_s"] - 0.2]
-words.append({"w": "because…", "s": LM["because_s"], "e": LM["because_e"]})
+words = [w for w in words if w["s"] < LM["now_s"] - 0.25]   # tudo depois do número final sai
+_n, _b, _s, _c = LM["now_s"], LM["blink_s"], LM["sneeze_s"], LM["because_s"]
+words += [{"w": "Now", "s": _n, "e": _n + 0.2}, {"w": "tell", "s": _n + 0.2, "e": _n + 0.38}, {"w": "me:", "s": _n + 0.38, "e": _b - 0.15},
+          {"w": "blink,", "s": _b, "e": _b + 0.3}, {"w": "or", "s": _b + 0.3, "e": _s - 0.1}, {"w": "sneeze?", "s": _s, "e": _c - 0.22},
+          {"w": "because…", "s": _c, "e": LM["because_e"]}]
 
 
 def idx(tok, n=1):
@@ -87,7 +90,7 @@ T = dict(
     wait=at("but"), oneyear=at("after"), sleeping=at("sleeping"), zero=at("zero"), alarm=at("your", 4),
     boss=at("boss"), sneezing=at("sneezing"), eyes=at("eyes"), so=at("so"), snorting=at("snorting"),
     lineof=at("line"), black=words[i_bl]["s"], free=words[i_fr]["s"], andyear=words[i_and]["s"],
-    big=at("$5,256,000"), blinkq=at("blink", 3), oneword=at("one", 5), loop=LM["because_s"],
+    big=at("$5,256,000"), blinkq=LM["now_s"], bl=LM["blink_s"], sn=LM["sneeze_s"], loop=LM["because_s"],
 )
 T["cough"] = C_AT
 LOOP_START = T["loop"] - 0.08
@@ -728,10 +731,12 @@ def s_year(c, t):
 def s_ask(c, t):
     t0 = T["blinkq"]; u = t - t0
     background(c, t, ga=0.4)
-    fl = int(u * 4) % 2
+    starts = (T["bl"], T["sn"])
+    both = t >= T["sn"] + 0.25
+    fl = int((t - T["sn"]) * 5) % 2 if both else (0 if t < T["sn"] else 1)
     for i, (lab, x, col) in enumerate((("BLINK", 300, MINT), ("SNEEZE", 780, GOLD))):
-        on = (fl == i)
-        s = popin(t, t0 + i * 0.25, 0.22) * (1.08 if on else 0.95)
+        on = (fl == i) and t >= starts[i] - 0.03
+        s = popin(t, t0 + 0.1 * i, 0.22) * (1.08 if on else 0.95) * (1 + 0.12 * math.exp(-max(0, t - starts[i]) * 10) * (t >= starts[i]))
         if s <= 0: continue
         c.save(); c.translate(x, 800); c.scale(s, s)
         c.set_source_rgba(*(col if on else (0.2, 0.3, 0.25)), 1); rr(c, -220, -240, 440, 480, 50); c.fill()
@@ -740,12 +745,9 @@ def s_ask(c, t):
             c.save(); c.translate(x, 720); c.scale(s, s); eye(c, 0, 0, 140, blink_open(u, [0.5, 1.3]), lashes=True); c.restore()
         else:
             c.save(); c.translate(x, 700); c.scale(s * 0.7, s * 0.7); shaker(c, 0, 0, 1.0, 0.25 * math.sin(t * 20), label=False); c.restore()
-        text(c, lab, x, 800 + 170 * s, 84, DARK if on else INK, popin(t, t0 + i * 0.25, 0.22) and 1, outline=not on)
-    text(c, "OR", 540, 800, 80, INK, seg(t, t0 + 0.2, t0 + 0.35))
-    text(c, "BLINK OR SNEEZE?", 540, 340, 96, INK, seg(t, t0, t0 + 0.15))
-    ok = T["oneword"]
-    n = int(clamp((t - ok) / 0.3) * 9)
-    text(c, "ONE WORD."[:n], 540, 1210, 110, GOLD, 1 if n else 0)
+        text(c, lab, x, 800 + 170 * s, 84, DARK if on else INK, 1, outline=not on)
+    text(c, "OR", 540, 800, 80, INK, seg(t, t0 + 0.2, t0 + 0.3))
+    text(c, "NOW TELL ME:", 540, 340, 104, GOLD, seg(t, t0, t0 + 0.12), scale=popin(t, t0, 0.2))
 
 
 def s_loop(c, t):
@@ -967,7 +969,7 @@ def mix(raw_video):
     E += [(tick, x, 0.4) for x in days]
     E += [(boom, T["big"] - 0.02, 0.5)]   # sem ka-ching: a seguir ao número vem logo "Blink money"
     E += [(pop, SUB_T0 + 1.0, 0.3)]
-    E += [(pop, T["blinkq"] + x, 0.3) for x in (0.0, 0.25)]
+    E += [(pop, x, 0.3) for x in (T["bl"], T["sn"])]
     E += [(a("kaching"), LOOP_START + 0.0, 0.0)]  # placeholder silencioso
     ins, ch, lab = [], [], []
     for n, (f, x, v) in enumerate(E):
