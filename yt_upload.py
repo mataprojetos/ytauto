@@ -14,7 +14,8 @@ Autenticação (por ordem):
 Uso:
   python3 yt_upload.py --whoami
   python3 yt_upload.py --video ep001/whatifaholic_ep001_moon.mp4 --metadata ep001/publish/metadata.json --dry-run
-  python3 yt_upload.py --video ... --metadata ...                 # privado
+  python3 yt_upload.py --video ... --metadata ... --thumbnail thumbnails/epXXX_thumb.jpg   # privado + capa verificada
+  python3 yt_upload.py --thumbnail-only VIDEO_ID --thumbnail thumbnails/epXXX_thumb.jpg      # só a capa
   python3 yt_upload.py --video ... --metadata ... --public        # só quando já revisto
 """
 from __future__ import annotations
@@ -137,6 +138,39 @@ def upload(video: str, meta: dict) -> dict:
     sys.exit("Upload terminou sem resposta final do YouTube.")
 
 
+def set_thumbnail(vid: str, path: str, tries: int = 8) -> None:
+    """Aplica a capa e CONFIRMA a versão vertical (shortsAspectRatio = sardefault), que é a que aparece no feed
+    de Shorts. Se a capa for aplicada enquanto o vídeo ainda processa, o YouTube só faz a 16:9 e o feed mostra
+    um frame do vídeo (falhou assim no EP005). Por isso: esperar pelo processamento, aplicar, verificar, repetir."""
+    if os.path.getsize(path) >= 2 * 1024 * 1024:
+        sys.exit(f"capa com {os.path.getsize(path)/1e6:.1f} MB; o YouTube aceita < 2 MB")
+    for i in range(30):  # até ~10 min à espera do processamento
+        st = requests.get(f"{API}/videos", params={"part": "status,processingDetails", "id": vid},
+                          headers=auth_headers(), timeout=30).json()["items"][0]
+        if st["status"].get("uploadStatus") == "processed":
+            break
+        print(f"  à espera do processamento ({st['status'].get('uploadStatus')})...", file=sys.stderr)
+        time.sleep(20)
+    for k in range(tries):
+        h = {**auth_headers(), "Content-Type": "image/jpeg"}
+        r = requests.post(f"https://{HOST}/upload/youtube/v3/thumbnails/set", params={"videoId": vid},
+                          headers=h, data=open(path, "rb").read(), timeout=60)
+        if r.status_code != 200:
+            sys.exit(f"thumbnails.set falhou: HTTP {r.status_code}: {r.text[:300]}")
+        time.sleep(15)
+        th = requests.get(f"{API}/videos", params={"part": "snippet,contentDetails", "id": vid},
+                          headers=auth_headers(), timeout=30).json()["items"][0]
+        sar = requests.get(f"https://i.ytimg.com/vi/{vid}/sardefault.jpg", timeout=30)
+        ok = th["contentDetails"].get("hasCustomThumbnail") and "shortsAspectRatio" in th["snippet"]["thumbnails"] \
+            and sar.status_code == 200
+        if ok:
+            print(f"CAPA OK: personalizada + versão vertical do feed de Shorts ({vid})")
+            return
+        print(f"  capa aplicada mas ainda sem versão vertical; nova tentativa {k + 2}/{tries}...", file=sys.stderr)
+        time.sleep(30)
+    sys.exit("ERRO: a capa não ficou com versão vertical; verificar no Studio")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--video")
@@ -145,10 +179,16 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--whoami", action="store_true")
     ap.add_argument("--log", default="uploaded.json")
+    ap.add_argument("--thumbnail", help="capa JPG (< 2 MB): aplicada e verificada depois do processamento")
+    ap.add_argument("--thumbnail-only", metavar="VIDEO_ID", help="só (re)aplicar e verificar a capa num vídeo já enviado")
     a = ap.parse_args()
 
     if a.whoami:
         whoami(); return
+    if a.thumbnail_only:
+        if not a.thumbnail:
+            ap.error("--thumbnail-only precisa de --thumbnail")
+        set_thumbnail(a.thumbnail_only, a.thumbnail); return
     if not (a.video and a.metadata):
         ap.error("--video e --metadata são obrigatórios")
     meta = json.load(open(a.metadata, encoding="utf-8"))
@@ -172,6 +212,10 @@ def main() -> None:
     log.append({"id": vid, "title": meta["snippet"]["title"], "privacy": res["status"].get("privacyStatus"),
                 "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
     json.dump(log, open(a.log, "w"), indent=2)
+    if a.thumbnail:
+        set_thumbnail(vid, a.thumbnail)
+    else:
+        print("AVISO: enviado SEM capa (--thumbnail). Todos os vídeos levam capa.", file=sys.stderr)
 
 
 if __name__ == "__main__":
