@@ -7,10 +7,10 @@
   "estado": "público",
   "creditos": 2.85,
   "duracao_s": 48,
-  "visualizacoes": 1418,
+  "visualizacoes": 1417,
   "gostos": 20,
   "comentarios": 9,
-  "retencao_pct": 91.6
+  "retencao_pct": 86.7
  },
  {
   "episodio": "EP002",
@@ -46,7 +46,7 @@
   "estado": "público",
   "creditos": 18.4,
   "duracao_s": 46,
-  "visualizacoes": 501,
+  "visualizacoes": 532,
   "gostos": 6,
   "comentarios": 1,
   "retencao_pct": null
@@ -59,6 +59,19 @@
   "estado": "público",
   "creditos": 4.28,
   "duracao_s": 43,
+  "visualizacoes": 1343,
+  "gostos": 11,
+  "comentarios": 5,
+  "retencao_pct": null
+ },
+ {
+  "episodio": "EP006",
+  "data": "2026-11-22",
+  "titulo": "What If You Fell Into a Black Hole? 🕳️",
+  "link": "https://www.youtube.com/shorts/QoJLgJB3rzs",
+  "estado": "privado",
+  "creditos": 1.95,
+  "duracao_s": 39,
   "visualizacoes": 0,
   "gostos": 0,
   "comentarios": 0,

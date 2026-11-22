@@ -51,7 +51,7 @@ def main() -> None:
             "estado": {"private": "privado", "public": "público", "unlisted": "não listado"}.get(
                 s.get("status", {}).get("privacyStatus", ""), e["estado"]),
             "creditos": float(e["creditos_higgsfield"]) if e["creditos_higgsfield"] else None,
-            "duracao_s": int(e["duracao_s"]) if e["duracao_s"] else None,
+            "duracao_s": round(float(e["duracao_s"])) if e["duracao_s"] else None,
             "visualizacoes": int(st.get("viewCount", 0)), "gostos": int(st.get("likeCount", 0)),
             "comentarios": int(st.get("commentCount", 0)),
             "retencao_pct": round(ret[e["video_id"]], 1) if e["video_id"] in ret else None,

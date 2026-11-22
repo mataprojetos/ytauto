@@ -160,9 +160,10 @@ def set_thumbnail(vid: str, path: str, tries: int = 8) -> None:
         time.sleep(15)
         th = requests.get(f"{API}/videos", params={"part": "snippet,contentDetails", "id": vid},
                           headers=auth_headers(), timeout=30).json()["items"][0]
-        sar = requests.get(f"https://i.ytimg.com/vi/{vid}/sardefault.jpg", timeout=30)
-        ok = th["contentDetails"].get("hasCustomThumbnail") and "shortsAspectRatio" in th["snippet"]["thumbnails"] \
-            and sar.status_code == 200
+        # URL assinado devolvido pela API (o i.ytimg.com público dá 404 enquanto o vídeo é privado; EP006)
+        sar_url = th["snippet"]["thumbnails"].get("shortsAspectRatio", {}).get("url")
+        sar = requests.get(sar_url, timeout=30) if sar_url else None
+        ok = th["contentDetails"].get("hasCustomThumbnail") and sar is not None and sar.status_code == 200
         if ok:
             print(f"CAPA OK: personalizada + versão vertical do feed de Shorts ({vid})")
             return
