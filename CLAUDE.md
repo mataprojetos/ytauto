@@ -25,7 +25,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio em nada do que é público (ecrã, título, descrição, etiquetas): é irrelevante para quem vê. EPxxx só nos ficheiros internos.
 - **Frase de marca em todos os vídeos:** "That one made me scratch my head." (escolha do dono). **Obrigatória cedo, no desenvolvimento (~3–8 s, logo a seguir ao gancho)**; pode repetir-se na viragem. Sempre com a mesma assinatura visual curta (mão a coçar a cabeça) e o mesmo som curto.
 - **Final com gatilhos até ao último segundo** (pedido do dono, 21/11/2026): guardar a maior revelação/número para os últimos ~5 s, anunciada antes com um loop aberto ("wait until you see…"); nada de abrandar no fim.
-- **Pedido de comentário original e curtíssimo (≤6 palavras)**, colado à revelação final e com animação própria (ex.: "Blink or sneeze money? One word."); nunca o genérico "Tell me below" com pausa. Logo a seguir, a frase do loop.
+- **Pedido de comentário: opcional** (decisão do dono, 22/11/2026): só quando o dono quiser ou o tipo de vídeo pedir. Quando houver, original e curtíssimo (≤6 palavras), colado à revelação final; nunca o genérico "Tell me below". Alternativa preferida para fechar: frase final incompleta que o início do vídeo completa (loop de frase, ex.: "Which means, right now…" → "You're falling into a black hole.").
 - Factos sempre verificados em fontes abertas; fontes na descrição de cada vídeo.
 
 ## Ferramentas e custos
