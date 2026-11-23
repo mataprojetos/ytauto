@@ -10,7 +10,7 @@
   "visualizacoes": 1417,
   "gostos": 20,
   "comentarios": 9,
-  "retencao_pct": 86.7
+  "retencao_pct": 86.6
  },
  {
   "episodio": "EP002",
@@ -46,10 +46,10 @@
   "estado": "público",
   "creditos": 18.4,
   "duracao_s": 46,
-  "visualizacoes": 532,
+  "visualizacoes": 572,
   "gostos": 6,
   "comentarios": 1,
-  "retencao_pct": null
+  "retencao_pct": 56.0
  },
  {
   "episodio": "EP005",
@@ -59,7 +59,7 @@
   "estado": "público",
   "creditos": 4.28,
   "duracao_s": 43,
-  "visualizacoes": 1343,
+  "visualizacoes": 1344,
   "gostos": 11,
   "comentarios": 5,
   "retencao_pct": null
@@ -69,9 +69,22 @@
   "data": "2026-11-22",
   "titulo": "What If You Fell Into a Black Hole? 🕳️",
   "link": "https://www.youtube.com/shorts/QoJLgJB3rzs",
-  "estado": "privado",
+  "estado": "público",
   "creditos": 1.95,
   "duracao_s": 39,
+  "visualizacoes": 1410,
+  "gostos": 14,
+  "comentarios": 6,
+  "retencao_pct": null
+ },
+ {
+  "episodio": "EP007",
+  "data": "2026-11-23",
+  "titulo": "What If Earth Had Rings Like Saturn? 💍",
+  "link": "https://www.youtube.com/shorts/CXKyU9wS_hc",
+  "estado": "privado",
+  "creditos": 13.8,
+  "duracao_s": 34,
   "visualizacoes": 0,
   "gostos": 0,
   "comentarios": 0,
