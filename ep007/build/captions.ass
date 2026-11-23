@@ -1,0 +1,119 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,Inter Display,80,&H00FFFFFF,&H00FFFFFF,&H00101010,&H78000000,-1,0,0,0,100,100,0,0,1,7,3,2,90,140,430,1
+Style: Mark,Inter Display,38,&H8CFFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,2,0,1,3,0,7,60,60,110,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:00.18,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}LOOK{\c&H00FFFFFF&} UP.
+Dialogue: 0,0:00:00.18,0:00:00.68,Cap,,0,0,0,,LOOK {\c&H0040D8FF&}UP.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:00.68,0:00:00.78,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}EARTH{\c&H00FFFFFF&} HAS RINGS
+Dialogue: 0,0:00:00.78,0:00:01.06,Cap,,0,0,0,,EARTH {\c&H0040D8FF&}HAS{\c&H00FFFFFF&} RINGS
+Dialogue: 0,0:00:01.06,0:00:01.36,Cap,,0,0,0,,EARTH HAS {\c&H0040D8FF&}RINGS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:01.36,0:00:01.84,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}NOW.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:01.84,0:00:01.98,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}AND{\c&H00FFFFFF&} THEY'RE
+Dialogue: 0,0:00:01.98,0:00:02.30,Cap,,0,0,0,,AND {\c&H0040D8FF&}THEY'RE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.30,0:00:03.08,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}EVERYWHERE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:03.08,0:00:03.28,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}FROM{\c&H00FFFFFF&} EUROPE,
+Dialogue: 0,0:00:03.28,0:00:03.88,Cap,,0,0,0,,FROM {\c&H0040D8FF&}EUROPE,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:03.88,0:00:03.96,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}A{\c&H00FFFFFF&} GIANT GLOWING
+Dialogue: 0,0:00:03.96,0:00:04.40,Cap,,0,0,0,,A {\c&H0040D8FF&}GIANT{\c&H00FFFFFF&} GLOWING
+Dialogue: 0,0:00:04.40,0:00:04.78,Cap,,0,0,0,,A GIANT {\c&H0040D8FF&}GLOWING{\c&H00FFFFFF&}
+Dialogue: 0,0:00:04.78,0:00:05.14,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}ARCH{\c&H00FFFFFF&} CUTS ACROSS
+Dialogue: 0,0:00:05.14,0:00:05.46,Cap,,0,0,0,,ARCH {\c&H0040D8FF&}CUTS{\c&H00FFFFFF&} ACROSS
+Dialogue: 0,0:00:05.46,0:00:05.82,Cap,,0,0,0,,ARCH CUTS {\c&H0040D8FF&}ACROSS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:05.82,0:00:06.02,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THE{\c&H00FFFFFF&} WHOLE SKY.
+Dialogue: 0,0:00:06.02,0:00:06.32,Cap,,0,0,0,,THE {\c&H0040D8FF&}WHOLE{\c&H00FFFFFF&} SKY.
+Dialogue: 0,0:00:06.32,0:00:06.94,Cap,,0,0,0,,THE WHOLE {\c&H0040D8FF&}SKY.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:06.94,0:00:07.16,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THAT{\c&H00FFFFFF&} ONE MADE
+Dialogue: 0,0:00:07.16,0:00:07.32,Cap,,0,0,0,,THAT {\c&H0040D8FF&}ONE{\c&H00FFFFFF&} MADE
+Dialogue: 0,0:00:07.32,0:00:07.48,Cap,,0,0,0,,THAT ONE {\c&H0040D8FF&}MADE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:07.48,0:00:07.64,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}ME{\c&H00FFFFFF&} SCRATCH
+Dialogue: 0,0:00:07.64,0:00:07.86,Cap,,0,0,0,,ME {\c&H0040D8FF&}SCRATCH{\c&H00FFFFFF&}
+Dialogue: 0,0:00:07.86,0:00:08.10,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}MY{\c&H00FFFFFF&} HEAD.
+Dialogue: 0,0:00:08.10,0:00:08.50,Cap,,0,0,0,,MY {\c&H0040D8FF&}HEAD.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:08.50,0:00:08.60,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}AT{\c&H00FFFFFF&} NIGHT,
+Dialogue: 0,0:00:08.60,0:00:09.14,Cap,,0,0,0,,AT {\c&H0040D8FF&}NIGHT,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:09.14,0:00:09.24,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THE{\c&H00FFFFFF&} RINGS SHINE
+Dialogue: 0,0:00:09.24,0:00:09.50,Cap,,0,0,0,,THE {\c&H0040D8FF&}RINGS{\c&H00FFFFFF&} SHINE
+Dialogue: 0,0:00:09.50,0:00:09.82,Cap,,0,0,0,,THE RINGS {\c&H0040D8FF&}SHINE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:09.82,0:00:10.22,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}SO{\c&H00FFFFFF&} BRIGHT,
+Dialogue: 0,0:00:10.22,0:00:10.74,Cap,,0,0,0,,SO {\c&H0040D8FF&}BRIGHT,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:10.74,0:00:10.82,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THE{\c&H00FFFFFF&} SKY NEVER
+Dialogue: 0,0:00:10.82,0:00:11.10,Cap,,0,0,0,,THE {\c&H0040D8FF&}SKY{\c&H00FFFFFF&} NEVER
+Dialogue: 0,0:00:11.10,0:00:11.46,Cap,,0,0,0,,THE SKY {\c&H0040D8FF&}NEVER{\c&H00FFFFFF&}
+Dialogue: 0,0:00:11.46,0:00:11.74,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}GETS{\c&H00FFFFFF&} TRULY DARK.
+Dialogue: 0,0:00:11.74,0:00:12.10,Cap,,0,0,0,,GETS {\c&H0040D8FF&}TRULY{\c&H00FFFFFF&} DARK.
+Dialogue: 0,0:00:12.10,0:00:12.66,Cap,,0,0,0,,GETS TRULY {\c&H0040D8FF&}DARK.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:12.66,0:00:12.88,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}STAND{\c&H00FFFFFF&} AT
+Dialogue: 0,0:00:12.88,0:00:13.02,Cap,,0,0,0,,STAND {\c&H0040D8FF&}AT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.02,0:00:13.16,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THE{\c&H00FFFFFF&} EQUATOR,
+Dialogue: 0,0:00:13.16,0:00:13.54,Cap,,0,0,0,,THE {\c&H0040D8FF&}EQUATOR,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.54,0:00:13.82,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}AND{\c&H00FFFFFF&} THEY SHRINK
+Dialogue: 0,0:00:13.82,0:00:13.98,Cap,,0,0,0,,AND {\c&H0040D8FF&}THEY{\c&H00FFFFFF&} SHRINK
+Dialogue: 0,0:00:13.98,0:00:14.18,Cap,,0,0,0,,AND THEY {\c&H0040D8FF&}SHRINK{\c&H00FFFFFF&}
+Dialogue: 0,0:00:14.18,0:00:14.42,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}TO{\c&H00FFFFFF&} ONE THIN
+Dialogue: 0,0:00:14.42,0:00:14.78,Cap,,0,0,0,,TO {\c&H0040D8FF&}ONE{\c&H00FFFFFF&} THIN
+Dialogue: 0,0:00:14.78,0:00:15.18,Cap,,0,0,0,,TO ONE {\c&H0040D8FF&}THIN{\c&H00FFFFFF&}
+Dialogue: 0,0:00:15.18,0:00:15.60,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}SILVER{\c&H00FFFFFF&} LINE,
+Dialogue: 0,0:00:15.60,0:00:16.00,Cap,,0,0,0,,SILVER {\c&H0040D8FF&}LINE,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.00,0:00:16.48,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}STRAIGHT{\c&H00FFFFFF&} ABOVE
+Dialogue: 0,0:00:16.48,0:00:16.70,Cap,,0,0,0,,STRAIGHT {\c&H0040D8FF&}ABOVE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.70,0:00:16.88,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}YOUR{\c&H00FFFFFF&} HEAD.
+Dialogue: 0,0:00:16.88,0:00:17.26,Cap,,0,0,0,,YOUR {\c&H0040D8FF&}HEAD.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:17.26,0:00:17.36,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}IN{\c&H00FFFFFF&} WINTER,
+Dialogue: 0,0:00:17.36,0:00:18.04,Cap,,0,0,0,,IN {\c&H0040D8FF&}WINTER,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.04,0:00:18.16,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THEIR{\c&H00FFFFFF&} SHADOW
+Dialogue: 0,0:00:18.16,0:00:18.46,Cap,,0,0,0,,THEIR {\c&H0040D8FF&}SHADOW{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.46,0:00:18.78,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}FALLS{\c&H00FFFFFF&} OVER
+Dialogue: 0,0:00:18.78,0:00:19.12,Cap,,0,0,0,,FALLS {\c&H0040D8FF&}OVER{\c&H00FFFFFF&}
+Dialogue: 0,0:00:19.12,0:00:19.44,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}YOUR{\c&H00FFFFFF&} HALF
+Dialogue: 0,0:00:19.44,0:00:19.70,Cap,,0,0,0,,YOUR {\c&H0040D8FF&}HALF{\c&H00FFFFFF&}
+Dialogue: 0,0:00:19.70,0:00:19.86,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}OF{\c&H00FFFFFF&} THE PLANET.
+Dialogue: 0,0:00:19.86,0:00:19.98,Cap,,0,0,0,,OF {\c&H0040D8FF&}THE{\c&H00FFFFFF&} PLANET.
+Dialogue: 0,0:00:19.98,0:00:20.66,Cap,,0,0,0,,OF THE {\c&H0040D8FF&}PLANET.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:20.66,0:00:20.86,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}COLDER{\c&H00FFFFFF&} DAYS.
+Dialogue: 0,0:00:20.86,0:00:21.56,Cap,,0,0,0,,COLDER {\c&H0040D8FF&}DAYS.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:21.58,0:00:21.64,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}LONGER{\c&H00FFFFFF&} NIGHTS.
+Dialogue: 0,0:00:21.64,0:00:22.36,Cap,,0,0,0,,LONGER {\c&H0040D8FF&}NIGHTS.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.36,0:00:22.62,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}EVERY{\c&H00FFFFFF&} SUNSET
+Dialogue: 0,0:00:22.62,0:00:22.96,Cap,,0,0,0,,EVERY {\c&H0040D8FF&}SUNSET{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.96,0:00:23.46,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}GLOWS{\c&H00FFFFFF&} ORANGE
+Dialogue: 0,0:00:23.46,0:00:23.84,Cap,,0,0,0,,GLOWS {\c&H0040D8FF&}ORANGE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:23.84,0:00:24.12,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THROUGH{\c&H00FFFFFF&} A SKY
+Dialogue: 0,0:00:24.12,0:00:24.28,Cap,,0,0,0,,THROUGH {\c&H0040D8FF&}A{\c&H00FFFFFF&} SKY
+Dialogue: 0,0:00:24.28,0:00:24.64,Cap,,0,0,0,,THROUGH A {\c&H0040D8FF&}SKY{\c&H00FFFFFF&}
+Dialogue: 0,0:00:24.64,0:00:25.00,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}FULL{\c&H00FFFFFF&} OF ICE.
+Dialogue: 0,0:00:25.00,0:00:25.22,Cap,,0,0,0,,FULL {\c&H0040D8FF&}OF{\c&H00FFFFFF&} ICE.
+Dialogue: 0,0:00:25.22,0:00:25.74,Cap,,0,0,0,,FULL OF {\c&H0040D8FF&}ICE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:25.74,0:00:25.84,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}BUT{\c&H00FFFFFF&} WAIT UNTIL
+Dialogue: 0,0:00:25.84,0:00:26.06,Cap,,0,0,0,,BUT {\c&H0040D8FF&}WAIT{\c&H00FFFFFF&} UNTIL
+Dialogue: 0,0:00:26.06,0:00:26.28,Cap,,0,0,0,,BUT WAIT {\c&H0040D8FF&}UNTIL{\c&H00FFFFFF&}
+Dialogue: 0,0:00:26.28,0:00:26.42,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}YOU{\c&H00FFFFFF&} HEAR
+Dialogue: 0,0:00:26.42,0:00:26.60,Cap,,0,0,0,,YOU {\c&H0040D8FF&}HEAR{\c&H00FFFFFF&}
+Dialogue: 0,0:00:26.60,0:00:26.78,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}THE{\c&H00FFFFFF&} STRANGEST
+Dialogue: 0,0:00:26.78,0:00:27.36,Cap,,0,0,0,,THE {\c&H0040D8FF&}STRANGEST{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.36,0:00:27.70,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}PART.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.70,0:00:28.20,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}SCIENTISTS{\c&H00FFFFFF&} THINK
+Dialogue: 0,0:00:28.20,0:00:28.52,Cap,,0,0,0,,SCIENTISTS {\c&H0040D8FF&}THINK{\c&H00FFFFFF&}
+Dialogue: 0,0:00:28.52,0:00:28.78,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}EARTH{\c&H00FFFFFF&} REALLY DID
+Dialogue: 0,0:00:28.78,0:00:29.18,Cap,,0,0,0,,EARTH {\c&H0040D8FF&}REALLY{\c&H00FFFFFF&} DID
+Dialogue: 0,0:00:29.18,0:00:29.52,Cap,,0,0,0,,EARTH REALLY {\c&H0040D8FF&}DID{\c&H00FFFFFF&}
+Dialogue: 0,0:00:29.52,0:00:29.80,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}HAVE{\c&H00FFFFFF&} RINGS…
+Dialogue: 0,0:00:29.80,0:00:30.16,Cap,,0,0,0,,HAVE {\c&H0040D8FF&}RINGS…{\c&H00FFFFFF&}
+Dialogue: 0,0:00:30.16,0:00:30.54,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}AROUND{\c&H00FFFFFF&} 466
+Dialogue: 0,0:00:30.54,0:00:31.62,Cap,,0,0,0,,AROUND {\c&H0040D8FF&}466{\c&H00FFFFFF&}
+Dialogue: 0,0:00:31.62,0:00:32.04,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}MILLION{\c&H00FFFFFF&} YEARS
+Dialogue: 0,0:00:32.04,0:00:32.40,Cap,,0,0,0,,MILLION {\c&H0040D8FF&}YEARS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:32.40,0:00:32.86,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}AGO.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:32.86,0:00:32.94,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}WHICH{\c&H00FFFFFF&} MEANS,
+Dialogue: 0,0:00:32.94,0:00:33.60,Cap,,0,0,0,,WHICH {\c&H0040D8FF&}MEANS,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:33.60,0:00:33.80,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0040D8FF&}ONE{\c&H00FFFFFF&} DAY…
+Dialogue: 0,0:00:33.80,0:00:34.20,Cap,,0,0,0,,ONE {\c&H0040D8FF&}DAY…{\c&H00FFFFFF&}
+Dialogue: 2,0:00:00.00,0:00:34.30,Mark,,0,0,0,,@whatifaholics
