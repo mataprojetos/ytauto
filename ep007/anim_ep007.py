@@ -59,7 +59,7 @@ T = dict(earth=at("earth"), every=at("everywhere"), frm=at("from"), europe=at("e
          stand=at("stand") - 0.12, thin=at("thin"), above=at("above"), inw=at("in") - 0.12, shadow=at("shadow"),
          half=at("half"), colder=at("colder"), longer=at("longer"), every2=at("every") - 0.12, sunset=at("sunset"),
          ice=at("ice"), but=at("but") - 0.1, wait=at("wait"), strangest=at("strangest"), scientists=at("scientists") - 0.1,
-         really=at("really"), rings2=at("rings", 3), n466=at("466"), ago=at("ago"), which=at("which") - 0.08, day=at("day"))
+         really=at("really"), shrink=at("shrink"), eqimg=at("thin") - 0.35, sky=at("sky", 3) - 0.15, rings2=at("rings", 3), n466=at("466"), ago=at("ago"), which=at("which") - 0.08, day=at("day"))
 
 
 def clamp(x, a=0.0, b=1.0): return max(a, min(b, x))
@@ -106,31 +106,87 @@ def sparkle(c, x, y, r, col, a):
     c.curve_to(x, y, x, y, x - r, y); c.curve_to(x, y, x, y, x, y - r); c.fill()
 
 
-# ---------- imagens ----------
+# ---------- imagens em camadas (parallax 2.5D a partir de mapas de profundidade) ----------
+# Cada ilustração é cortada em 4 camadas pela profundidade (build/depth.py, Depth Anything V2 Small).
+# As camadas de trás têm os objetos da frente "apagados" (preenchimento pull-push), para que, quando a
+# camada da frente se mexe mais do que a de trás, não apareçam duplicados.
 _KEEP = []
+NL = 4
 
 
-def load(name):
-    im = Image.open(f"{ROOT}/anim/{name}.png").convert("RGB")
-    a = np.array(im); h, w, _ = a.shape
-    buf = np.zeros((h, w, 4), np.uint8); buf[..., 0] = a[..., 2]; buf[..., 1] = a[..., 1]; buf[..., 2] = a[..., 0]; buf[..., 3] = 255
+def _pool(a):
+    h, w = a.shape[:2]
+    a = a[:h - h % 2, :w - w % 2]
+    return 0.25 * (a[0::2, 0::2] + a[1::2, 0::2] + a[0::2, 1::2] + a[1::2, 1::2])
+
+
+def _fill(img, w):
+    """preenche os píxeis com peso 0 a partir dos vizinhos (pirâmide pull-push), a 1/4 da resolução"""
+    small = np.array(Image.fromarray(img.astype(np.uint8)).resize((img.shape[1] // 4, img.shape[0] // 4), Image.BILINEAR), np.float32)
+    ws = np.array(Image.fromarray((w * 255).astype(np.uint8)).resize((img.shape[1] // 4, img.shape[0] // 4), Image.BILINEAR), np.float32) / 255
+    A, Wt = [small * ws[..., None]], [ws]
+    while min(A[-1].shape[:2]) > 4:
+        A.append(_pool(A[-1])); Wt.append(_pool(Wt[-1]))
+    col = A[-1] / np.maximum(Wt[-1], 1e-4)[..., None]
+    for a, wt in zip(reversed(A[:-1]), reversed(Wt[:-1])):
+        up = np.array(Image.fromarray(np.clip(col, 0, 255).astype(np.uint8)).resize((a.shape[1], a.shape[0]), Image.BILINEAR), np.float32)
+        own = a / np.maximum(wt, 1e-4)[..., None]
+        k = np.clip(wt * 4, 0, 1)[..., None]
+        col = own * k + up * (1 - k)
+    return np.array(Image.fromarray(np.clip(col, 0, 255).astype(np.uint8)).resize((img.shape[1], img.shape[0]), Image.BILINEAR), np.float32)
+
+
+def _surf(rgb, alpha):
+    h, w = alpha.shape
+    buf = np.zeros((h, w, 4), np.uint8)
+    pm = rgb * alpha[..., None]
+    buf[..., 0] = pm[..., 2]; buf[..., 1] = pm[..., 1]; buf[..., 2] = pm[..., 0]; buf[..., 3] = alpha * 255
     s = cairo.ImageSurface.create_for_data(buf, cairo.FORMAT_ARGB32, w, h)
     _KEEP.append(buf)
     return s
 
 
-IMG = {k: load(k) for k in ("city", "night", "equator", "sunset")}
+def load_layers(name):
+    im = np.array(Image.open(f"{ROOT}/anim/{name}.png").convert("RGB"), np.float32)
+    d = np.array(Image.open(f"{ROOT}/anim/{name}_depth.png").convert("L"), np.float32) / 255
+    ths = [0.0] + list(np.quantile(d, [0.5, 0.75, 0.9]))
+    out = []
+    for k in range(NL):
+        alpha = np.ones_like(d) if k == 0 else np.clip((d - ths[k]) / 0.025 + 0.5, 0, 1)
+        if k < NL - 1:
+            keep = (d < ths[k + 1] + 0.035).astype(np.float32)   # píxeis originais por baixo da borda suave da camada seguinte
+            rgb = im * keep[..., None] + _fill(im, keep) * (1 - keep[..., None])
+        else:
+            rgb = im
+        out.append(_surf(rgb, alpha))
+    return out
 
 
-def draw_img(c, s, zoom, fx, fy, a=1.0):
-    """desenha a imagem a cobrir o ecrã: zoom ≥1 e ponto focal (fx, fy em 0..1 da imagem) no centro do ecrã"""
-    iw, ih = s.get_width(), s.get_height()
-    base = max(W / iw, H / ih) * zoom
+NAMES = ("city", "europe", "night", "bedroom", "equator", "winter", "sunset", "ordovician")
+LAY = {}
+
+
+def layers(name):
+    if name not in LAY: LAY[name] = load_layers(name)
+    return LAY[name]
+
+
+def draw_par(c, name, zoom, fx, fy, px=0.0, py=0.0, push=0.0, a=1.0):
+    """ilustração em camadas: zoom e ponto focal como numa câmara; px/py = deslocamento (px de ecrã) da camada
+    mais próxima (as outras deslocam-se proporcionalmente); push = zoom extra da camada mais próxima (dolly)."""
+    L = layers(name)
+    px, py, push = px * 0.6, py * 0.6, push * 0.6     # amplitude moderada: menos artefactos nas bordas
+    iw, ih = L[0].get_width(), L[0].get_height()
+    base = max(W / iw, H / ih) * zoom * 1.06            # margem para o parallax não mostrar bordas
     vw, vh = W / base, H / base
     x0 = clamp(fx * iw - vw / 2, 0, iw - vw); y0 = clamp(fy * ih - vh / 2, 0, ih - vh)
-    c.save(); c.scale(base, base); c.translate(-x0, -y0)
-    c.set_source_surface(s, 0, 0); c.get_source().set_filter(cairo.FILTER_GOOD)
-    c.paint_with_alpha(a); c.restore()
+    for k, s in enumerate(L):
+        f = k / (NL - 1)
+        sc = 1 + push * f
+        c.save(); c.translate(W / 2 + px * f, H / 2 + py * f); c.scale(sc, sc); c.translate(-W / 2, -H / 2)
+        c.scale(base, base); c.translate(-x0, -y0)
+        c.set_source_surface(s, 0, 0); c.get_source().set_filter(cairo.FILTER_GOOD)
+        c.paint_with_alpha(a); c.restore()
     return base, x0, y0
 
 
@@ -283,148 +339,312 @@ def space_bg(c, t, top=(0.03, 0.02, 0.09), bot=(0.0, 0.0, 0.02), stars=1.0):
 
 
 # ---------- cenas ----------
+def proj_pt(cx, cy, R, rot, lon, lat, tilt=0.41):
+    ct, st = math.cos(tilt), math.sin(tilt)
+    lo = math.radians(lon) + rot; la = math.radians(lat)
+    x = math.cos(la) * math.sin(lo); y = -math.sin(la); z = math.cos(la) * math.cos(lo)
+    return cx + R * x, cy + R * (y * ct - z * st * 0.35), z
+
+
+def pin(c, x, y, k, col=RED):
+    if k <= 0: return
+    c.save(); c.translate(x, y); c.scale(k, k)
+    c.set_source_rgba(0, 0, 0, 0.35); c.arc(0, 4, 14, 0, 2 * math.pi); c.fill()
+    c.set_source_rgba(*col, 1); c.arc(0, -46, 26, math.pi * 0.85, math.pi * 2.15); c.line_to(0, 0); c.close_path(); c.fill()
+    c.set_source_rgba(1, 1, 1, 1); c.arc(0, -46, 10, 0, 2 * math.pi); c.fill()
+    c.restore()
+
+
+def dashed(c, x0, y0, x1, y1, col, a, w=4, dash=18, off=0):
+    c.save(); c.set_source_rgba(*col, a); c.set_line_width(w); c.set_dash([dash, dash * 0.7], off)
+    c.move_to(x0, y0); c.line_to(x1, y1); c.stroke(); c.restore()
+
+
 def cam_hook(t):
-    """câmara do gancho: 'Look up' (sobe da rua para o arco) e depois aproxima-se do arco; t<0 = estado do frame 0"""
+    """câmara do gancho: 'Look up' (sobe da rua para o arco); t<0 = estado do frame 0"""
     up = smooth(t / 1.6)
-    z = 1.10 + 0.10 * smooth((t - 0.4) / 6.4)
-    fy = lerp(0.56, 0.36, up) + 0.04 * smooth((t - 1.6) / 5.0)
-    fx = 0.5 + 0.06 * smooth((t - 1.6) / 5.0)
-    return z, fx, fy
+    return 1.10 + 0.05 * smooth((t - 0.4) / 2.0), 0.5, lerp(0.56, 0.38, up)
 
 
 def s_hook(c, t):
     z, fx, fy = cam_hook(t)
-    draw_img(c, IMG["city"], z, fx, fy)
-    # brilho a percorrer o arco (de baixo-esquerda para cima-direita)
+    up = smooth(t / 1.6)
+    draw_par(c, "city", z, fx, fy, px=0, py=lerp(-30, 60, up), push=0.05 * smooth(t / 2.3))
     for k in range(3):
         p = ((t * 0.35 + k / 3) % 1.0)
         glow(c, lerp(150, 1150, p), lerp(1350, -150, p), 170, (1, 0.95, 0.8), 0.22)
     particles(c, t, (1, 0.95, 0.85), 0.55, vx=-10, vy=-6, size=0.8)
     k = popin(t, T["earth"] - 0.05, 0.25)
-    text(c, "EARTH HAS RINGS", 540, 300, 96, INK, 1 - seg(t, T["frm"] - 0.1, T["frm"] + 0.15), ow=0.14, scale=k)
-    if T["europe"] - 0.05 < t:
-        k2 = popin(t, T["europe"] - 0.05, 0.25)
-        c.save(); c.translate(250, 520); c.scale(k2, k2)
-        c.set_source_rgba(*RED, 1); c.arc(0, -10, 26, math.pi, 2 * math.pi); c.line_to(0, 40); c.close_path(); c.fill()
-        c.set_source_rgba(1, 1, 1, 1); c.arc(0, -10, 10, 0, 2 * math.pi); c.fill()
-        c.restore()
-        text(c, "EUROPE", 300, 515, 62, INK, 1, align="l", scale=k2, ow=0.16)
+    text(c, "EARTH HAS RINGS", 540, 300, 96, INK, 1, ow=0.14, scale=k)
     vignette(c, 0.35)
+
+
+def s_everywhere(c, t):
+    """'And they're everywhere': corte para o espaço, a câmara afasta-se depressa da Terra com anéis"""
+    u = t - T["every"] + 0.25; d = T["frm"] - T["every"] + 0.25
+    space_bg(c, t)
+    R = lerp(620, 250, ease(u / d))
+    globe(c, 540, 860, R, 1.2 + u * 0.9, t, ring=1.0, ring_tilt=-0.22 + 0.1 * u, sun=(-1, -0.3))
+    text(c, "EVERYWHERE", 540, 300, 100, GOLD, 1, scale=popin(t, T["every"]), ow=0.14)
+
+
+def s_europe_map(c, t):
+    """esquema: o globo roda até à Europa; linhas de visão do pin até ao anel = o arco que se vê"""
+    u = t - T["frm"]; d = T["arch"] - 0.35 - T["frm"]
+    space_bg(c, t)
+    rot = lerp(1.4, -0.17, smooth(u / (d * 0.7)))
+    cx, cy, R = 540, 900, 330
+    globe(c, cx, cy, R, rot, t, ring=1.0, ring_tilt=0.0, sun=(-1, -0.3))
+    px, py, z = proj_pt(cx, cy, R, rot, 10, 47)
+    k = popin(t, T["europe"] - 0.05, 0.25) if z > 0 else 0
+    if k > 0:
+        # ponto do anel visto da Europa: arco frontal do anel (a sul), realçado
+        a = seg(u, 0.55, 0.9)
+        c.save(); c.translate(cx, cy); c.scale(1, 0.2)
+        c.set_source_rgba(1, 0.95, 0.6, 0.85 * a); c.set_line_width(28)
+        c.arc(0, 0, R * 1.75, math.pi * 0.18, math.pi * 0.82); c.stroke(); c.restore()
+        for ang in (0.18, 0.5, 0.82):
+            rx, ry = cx + R * 1.75 * math.cos(math.pi * ang), cy + R * 1.75 * 0.2 * math.sin(math.pi * ang)
+            dashed(c, px, py - 46, rx, ry, (1, 0.95, 0.6), 0.9 * a, off=-t * 60)
+        pin(c, px, py, k)
+        text(c, "EUROPE", px, py - 120, 64, INK, 1, scale=k, ow=0.16)
+        text(c, "YOU SEE THIS PART", 540, 1230, 54, GOLD, a, ow=0.16)
+
+
+def s_europe(c, t):
+    u = t - T["arch"] + 0.35; d = T["brand"] - T["arch"] + 0.35
+    p = smooth(u / d)
+    draw_par(c, "europe", 1.06 + 0.06 * p, 0.5, 0.42 - 0.06 * p, px=lerp(40, -40, p), py=lerp(0, 30, p), push=0.08 * p)
+    for k in range(3):
+        q = ((t * 0.3 + k / 3) % 1.0)
+        glow(c, lerp(120, 1180, q), lerp(1250, -100, q) + 0 * k, 150, (1, 0.95, 0.85), 0.2)
+    particles(c, t, (1, 0.93, 0.8), 0.45, vx=-8, vy=-4, size=0.7)
+    text(c, "HORIZON TO HORIZON", 540, 300, 74, INK, 1, scale=popin(t, T["arch"] + 0.9), ow=0.15)
+    vignette(c, 0.3)
 
 
 def s_brand(c, t):
     u = t - T["brand"]
-    z, fx, fy = cam_hook(t)
-    draw_img(c, IMG["city"], z + 0.02 * u, fx, fy)
+    draw_par(c, "europe", 1.12 + 0.02 * u, 0.5, 0.36, px=-40 - 20 * u, py=30, push=0.08)
     c.set_source_rgba(0.05, 0.03, 0.12, 0.62); c.paint()
     draw_scratch(c, u, 540, 760, scale=0.95, skin=(1.0, 0.8, 0.62), accent=GOLD, ink=INK, hair=(0.2, 0.13, 0.1))
 
 
 def s_night(c, t):
-    u = t - T["night"]; d = T["stand"] - T["night"]
-    draw_img(c, IMG["night"], 1.16 - 0.1 * smooth(u / d), 0.5 + 0.04 * u / d, 0.42 + 0.06 * smooth(u / d))
-    # o céu "nunca escurece": brilho a pulsar
+    u = t - T["night"]; d = T["bright"] - T["night"]
+    p = smooth(u / d)
+    draw_par(c, "night", 1.12 - 0.06 * p, 0.5, 0.45, px=lerp(-50, 50, p), py=0, push=0.06 * p)
     glow(c, 640, 520, 700, (0.85, 0.95, 1), 0.18 + 0.06 * math.sin(t * 2.4))
     particles(c, t, SILVER, 0.5, vx=-14, vy=4, size=0.7)
-    # medidor de escuridão: nunca passa de 'DIM'
-    if u > 0.3:
-        a = seg(u, 0.3, 0.6)
-        x0, y0 = 120, 300
-        c.set_source_rgba(0.05, 0.06, 0.15, 0.8 * a); rr(c, x0, y0, 560, 92, 46); c.fill()
-        text(c, "DARKNESS", x0 + 40, y0 + 46, 34, SILVER, a, align="l", outline=False)
-        lv = 0.08 + 0.05 * math.sin(t * 9) if t < T["dark"] else 0.06
-        c.set_source_rgba(0.2, 0.22, 0.35, a); rr(c, x0 + 240, y0 + 30, 280, 32, 16); c.fill()
-        c.set_source_rgba(*ICE, a); rr(c, x0 + 240, y0 + 30, 280 * lv * 3, 32, 16); c.fill()
-    # piada: o despertador / dormir com o céu aceso
-    card(c, t, T["dark"] - 0.15, [("SLEEP SCHEDULE:", INK), ("CANCELLED", RED)], 470, 760, 520, RED, t1=T["stand"] - 0.05)
+    a = seg(u, 0.3, 0.6)
+    x0, y0 = 260, 300
+    c.set_source_rgba(0.05, 0.06, 0.15, 0.8 * a); rr(c, x0, y0, 560, 92, 46); c.fill()
+    text(c, "DARKNESS", x0 + 40, y0 + 46, 34, SILVER, a, align="l", outline=False)
+    lv = 0.06 + 0.04 * math.sin(t * 9)
+    c.set_source_rgba(0.2, 0.22, 0.35, a); rr(c, x0 + 240, y0 + 30, 280, 32, 16); c.fill()
+    c.set_source_rgba(*ICE, a); rr(c, x0 + 240, y0 + 30, 280 * lv * 3, 32, 16); c.fill()
+    text(c, "0%", x0 + 590, y0 + 46, 40, INK, a, align="l") if False else None
     vignette(c, 0.35)
 
 
+def s_bedroom(c, t):
+    u = t - T["bright"]; d = T["stand"] - T["bright"]
+    p = smooth(u / d)
+    draw_par(c, "bedroom", 1.05 + 0.1 * p, 0.55, 0.55, px=lerp(30, -30, p), py=lerp(-20, 20, p), push=0.1 * p)
+    # a janela pisca de luz (o céu nunca escurece)
+    glow(c, 420, 520, 520, (0.92, 0.96, 1), 0.2 + 0.08 * math.sin(t * 5))
+    card(c, t, T["bright"] + 0.7, [("SLEEP SCHEDULE:", INK), ("CANCELLED", RED)], 120, 300, 560, RED, t1=T["stand"] - 0.05)
+    vignette(c, 0.4)
+
+
+def s_cross(c, t):
+    """esquema em corte: a Terra de lado, o anel no plano do equador. O observador desce da Europa (45°N)
+    até ao equador: a fatia de anel que vê passa de um arco largo a uma linha fina por cima da cabeça."""
+    u = t - T["stand"]
+    space_bg(c, t, top=(0.02, 0.05, 0.12), bot=(0.0, 0.01, 0.04))
+    cx, cy, R = 360, 940, 250
+    lat = lerp(45, 0, smooth((t - T["stand"] - 0.3) / (T["shrink"] - T["stand"])))
+    # anel de perfil (dos dois lados)
+    for sgn in (1, -1):
+        x0, x1 = cx + sgn * R * 1.4, cx + sgn * R * 2.6
+        c.set_source_rgba(*SILVER, 0.95); c.set_line_width(14); c.move_to(x0, cy); c.line_to(x1, cy); c.stroke()
+    # planeta
+    g = cairo.RadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R)
+    g.add_color_stop_rgb(0, 0.2, 0.55, 0.9); g.add_color_stop_rgb(1, 0.05, 0.2, 0.5)
+    c.set_source(g); c.arc(cx, cy, R, 0, 2 * math.pi); c.fill()
+    dashed(c, cx - R * 1.1, cy, cx + R * 1.1, cy, (1, 1, 1), 0.35, w=3)
+    text(c, "EQUATOR", cx - R * 0.55, cy + 30, 30, INK, 0.7, outline=False)
+    # observador
+    la = math.radians(lat)
+    ox, oy = cx + R * math.cos(la), cy - R * math.sin(la)
+    nx, ny = math.cos(la), -math.sin(la)
+    # fatia do anel que vê (cunha de visão até às duas pontas do anel do seu lado)
+    ex0, ex1 = cx + R * 1.4, cx + R * 2.6
+    c.set_source_rgba(1, 0.85, 0.35, 0.28); c.move_to(ox, oy); c.line_to(ex0, cy); c.line_to(ex1, cy); c.close_path(); c.fill()
+    for ex in (ex0, ex1): dashed(c, ox, oy, ex, cy, GOLD, 0.95, w=4, off=-t * 50)
+    # boneco
+    c.save(); c.translate(ox, oy); c.rotate(math.atan2(ny, nx) + math.pi / 2)
+    c.set_source_rgba(*RED, 1); c.set_line_width(8); c.set_line_cap(cairo.LINE_CAP_ROUND)
+    c.move_to(0, 0); c.line_to(0, -44); c.stroke(); c.arc(0, -58, 13, 0, 2 * math.pi); c.fill(); c.restore()
+    text(c, f"{int(round(lat))}°N" if lat > 0.5 else "0°", ox + nx * 110 - 10, oy + ny * 110 - 10, 46, INK, 1, ow=0.16)
+    # o que vê: ícone do céu (arco → linha)
+    k = clamp(lat / 45)
+    bx, by = 540, 380
+    c.set_source_rgba(0.1, 0.2, 0.4, 0.85); rr(c, bx - 240, by - 150, 480, 260, 40); c.fill()
+    c.set_source_rgba(*SILVER, 1); c.set_line_width(lerp(6, 34, k))
+    if k > 0.05:
+        c.save(); c.translate(bx, by + 90); c.scale(1, max(0.05, k))
+        c.arc(0, 0, 190, math.pi * 1.05, math.pi * 1.95); c.restore(); c.stroke()
+    else:
+        c.move_to(bx, by + 100); c.line_to(bx, by - 140); c.stroke()
+    c.set_source_rgba(0.35, 0.6, 0.35, 1); c.rectangle(bx - 240, by + 70, 480, 40); c.fill()
+    text(c, "ARCH" if k > 0.35 else ("THIN LINE" if k < 0.08 else "…"), bx, by - 190, 56, GOLD, 1, ow=0.16)
+
+
 def s_equator(c, t):
-    u = t - T["stand"]; d = T["inw"] - T["stand"]
-    # câmara a descer do céu para a praia e voltar a olhar para cima
-    fy = 0.62 - 0.25 * smooth(u / d)
-    draw_img(c, IMG["equator"], 1.12 + 0.04 * smooth(u / d), 0.5, fy)
-    base = max(W / 1536, H / 2752) * (1.12 + 0.04 * smooth(u / d))
-    # brilho a correr ao longo da linha prateada (x≈768 na imagem)
-    iw, ih = 1536, 2752
-    vw, vh = W / base, H / base
-    x0 = clamp(0.5 * iw - vw / 2, 0, iw - vw); y0 = clamp(fy * ih - vh / 2, 0, ih - vh)
+    u = t - T["eqimg"]; d = T["inw"] - T["eqimg"]
+    p = smooth(u / d)
+    fy = 0.55 - 0.2 * p
+    base, x0, y0 = draw_par(c, "equator", 1.06 + 0.06 * p, 0.5, fy, px=lerp(20, -20, p), py=lerp(-40, 40, p), push=0.06 * p)
     lx = (768 - x0) * base
-    ytop, ybot = (380 - y0) * base, (2190 - y0) * base
-    a = seg(t, T["thin"] - 0.2, T["thin"] + 0.2)
-    c.set_source_rgba(1, 1, 1, 0.75 * a); c.set_line_width(4); c.move_to(lx, -10); c.line_to(lx, ybot); c.stroke()
+    a = 0.8
+    c.set_source_rgba(1, 1, 1, 0.6 * a); c.set_line_width(4); c.move_to(lx, -10); c.line_to(lx, (2190 - y0) * base); c.stroke()
     for k in range(2):
-        p = (t * 0.6 + k / 2) % 1
-        glow(c, lx, lerp(ybot, -50, p), 60, (1, 1, 1), 0.55 * a)
+        q = (t * 0.6 + k / 2) % 1
+        glow(c, lx, lerp((2190 - y0) * base, -50, q), 60, (1, 1, 1), 0.55 * a)
     particles(c, t, (1, 1, 1), 0.35, vx=-12, vy=0, size=0.6)
-    if t > T["thin"]:
-        k = popin(t, T["thin"], 0.25)
-        text(c, "THE RINGS", lx - 30, 560, 58, INK, 1, align="r", scale=k, ow=0.16)
-        c.save(); c.set_source_rgba(1, 1, 1, min(1, k)); c.set_line_width(6); c.set_line_cap(cairo.LINE_CAP_ROUND)
-        c.move_to(lx - 40, 610); c.line_to(lx - 12, 650); c.stroke(); c.restore()
+    k = popin(t, T["eqimg"] + 0.15, 0.25)
+    text(c, "STRAIGHT ABOVE YOU", 540, 300, 70, INK, 1, scale=k, ow=0.16)
     card(c, t, T["above"] - 0.1, [("EQUATOR PEOPLE:", INK), ("\"WHAT RINGS?\"", GOLD)], 90, 820, 560, GOLD,
          bg=(0.02, 0.25, 0.4), t1=T["inw"] - 0.05, rot=0.03)
     vignette(c, 0.25)
 
 
-def s_winter(c, t):
+def s_season(c, t):
+    """esquema: o Sol à esquerda, raios; no inverno do norte o anel tapa o Sol a metade do planeta"""
     u = t - T["inw"]
     space_bg(c, t)
-    sh = seg(t, T["shadow"], T["shadow"] + 1.0)
-    R = 300 + 20 * smooth(u / 5)
-    globe(c, 540, 760, R, -0.25 + u * 0.12, t, shadow=sh, ring=1.0, ring_tilt=-0.18, sun=(-1, 0.05))
-    # pin "YOU" na Europa (dentro da sombra)
-    if t > T["half"] - 0.1:
-        k = popin(t, T["half"] - 0.1, 0.25)
-        px, py = 540 + 40, 760 - R * 0.55
-        c.save(); c.translate(px, py); c.scale(k, k)
-        c.set_source_rgba(*RED, 1); c.arc(0, -40, 24, math.pi, 2 * math.pi); c.line_to(0, 0); c.close_path(); c.fill()
-        c.restore()
-        text(c, "YOU", px, py - 100, 52, INK, 1, scale=k, ow=0.16)
-    text(c, "COLDER DAYS", 540, 1170, 80, ICE, 1, scale=popin(t, T["colder"] - 0.05), ow=0.14)
-    text(c, "LONGER NIGHTS", 540, 1265, 80, (0.75, 0.7, 1.0), 1, scale=popin(t, T["longer"] - 0.05), ow=0.14)
-    # piada: a conta do aquecimento
-    card(c, t, T["longer"] + 0.25, [("HEATING BILL:", INK), ("x3", RED)], 600, 330, 400, RED, t1=T["every2"] - 0.05, rot=0.04)
-    if t > T["colder"]:
-        particles(c, t, (0.9, 0.95, 1), 0.6, vx=-4, vy=22, size=0.8)   # neve
+    glow(c, -60, 820, 520, (1, 0.85, 0.4), 0.85, r0=60)
+    c.set_source_rgba(1, 0.9, 0.5, 1); c.arc(-60, 820, 150, 0, 2 * math.pi); c.fill()
+    text(c, "SUN", 70, 560, 50, GOLD, 1, ow=0.16)
+    cx, cy, R = 660, 820, 250
+    sh = seg(t, T["shadow"], T["shadow"] + 0.8)
+    # raios
+    for i in range(9):
+        y = cy - R * 1.1 + i * R * 0.28
+        blocked = y < cy - R * 0.05 and sh > 0
+        xend = cx - R * 1.35 if blocked else cx - R * math.sqrt(max(0, 1 - ((y - cy) / R) ** 2))
+        off = (t * 300 + i * 40) % 80
+        c.save(); c.set_source_rgba(1, 0.9, 0.5, 0.75); c.set_line_width(5); c.set_dash([40, 40], -off)
+        c.move_to(110, y); c.line_to(xend, y); c.stroke(); c.restore()
+        if blocked:
+            c.set_source_rgba(1, 0.9, 0.5, 0.9 * sh); c.arc(xend, y, 9, 0, 2 * math.pi); c.fill()
+    globe(c, cx, cy, R, -0.3 + u * 0.15, t, shadow=sh, ring=1.0, ring_tilt=-0.35, sun=(-1, 0.0))
+    text(c, "RING SHADOW", cx, cy - R - 120, 58, ICE, sh, ow=0.16)
+    text(c, "WINTER", 540, 300, 96, ICE, 1, scale=popin(t, T["inw"] + 0.1), ow=0.14)
+
+
+def s_you(c, t):
+    u = t - T["half"] + 0.3
+    space_bg(c, t)
+    R = 380 + 30 * u
+    rot = -0.17 + 0.05 * u
+    globe(c, 540, 880, R, rot, t, shadow=1.0, ring=1.0, ring_tilt=-0.18, sun=(-1, 0.05))
+    px, py, z = proj_pt(540, 880, R, rot, 10, 47)
+    k = popin(t, T["half"] - 0.1, 0.25)
+    pin(c, px, py, k)
+    text(c, "YOU", px, py - 130, 64, INK, 1, scale=k, ow=0.16)
+
+
+def s_winterimg(c, t):
+    u = t - T["colder"] + 0.05; d = T["every2"] - T["colder"] + 0.05
+    p = smooth(u / d)
+    draw_par(c, "winter", 1.06 + 0.08 * p, 0.5, 0.5, px=lerp(-30, 30, p), py=0, push=0.1 * p)
+    # sombra dos anéis: riscas diagonais escuras a deslizar
+    c.save(); c.rotate(-0.35)
+    for i in range(-3, 9):
+        y = i * 300 + (t * 25) % 300
+        c.set_source_rgba(0.05, 0.06, 0.18, 0.3); c.rectangle(-600, y, 2600, 120); c.fill()
+    c.restore()
+    particles(c, t, (0.95, 0.97, 1), 0.85, vx=-6, vy=30, size=0.9)
+    text(c, "COLDER DAYS", 540, 300, 84, ICE, 1, scale=popin(t, T["colder"] - 0.05), ow=0.15)
+    text(c, "LONGER NIGHTS", 540, 405, 84, (0.8, 0.75, 1.0), 1, scale=popin(t, T["longer"] - 0.05), ow=0.15)
+    card(c, t, T["longer"] + 0.2, [("HEATING BILL:", INK), ("x3", RED)], 560, 560, 420, RED, rot=0.04)
+    vignette(c, 0.35)
 
 
 def s_sunset(c, t):
-    u = t - T["every2"]; d = T["but"] - T["every2"]
-    draw_img(c, IMG["sunset"], 1.08 + 0.1 * smooth(u / d), 0.45 + 0.08 * smooth(u / d), 0.4)
+    u = t - T["every2"]; d = T["sky"] - T["every2"]
+    p = smooth(u / d)
+    draw_par(c, "sunset", 1.06 + 0.06 * p, 0.45, 0.45, px=lerp(-40, 30, p), py=0, push=0.06 * p)
     particles(c, t, (1, 0.9, 0.6), 0.75, vx=-16, vy=-8, size=0.9)
     glow(c, 820, 900, 300, (1, 0.6, 0.3), 0.18 + 0.05 * math.sin(t * 3))
     chat(c, t, T["sunset"] + 0.15, 90, 640)
     vignette(c, 0.3)
 
 
+def hexa(c, x, y, r, rot, col, a):
+    c.save(); c.translate(x, y); c.rotate(rot); c.set_source_rgba(*col, a); c.set_line_width(max(2, r * 0.12))
+    for i in range(6):
+        ang = i * math.pi / 3
+        c.move_to(0, 0); c.line_to(r * math.cos(ang), r * math.sin(ang))
+        for s in (0.5,):
+            bx, by = r * s * math.cos(ang), r * s * math.sin(ang)
+            c.move_to(bx, by); c.line_to(bx + r * 0.25 * math.cos(ang + 0.8), by + r * 0.25 * math.sin(ang + 0.8))
+            c.move_to(bx, by); c.line_to(bx + r * 0.25 * math.cos(ang - 0.8), by + r * 0.25 * math.sin(ang - 0.8))
+    c.stroke(); c.restore()
+
+
+def s_ice(c, t):
+    """grande plano dos anéis ao pôr do sol: são feitos de gelo"""
+    u = t - T["sky"]; d = T["but"] - T["sky"]
+    p = smooth(u / d)
+    draw_par(c, "sunset", 2.1 + 0.3 * p, 0.72, 0.2, px=lerp(30, -30, p), py=0, push=0.1 * p)
+    rnd = random.Random(4)
+    for i in range(14):
+        x = rnd.random() * W; y = rnd.random() * 1300 + 150; r = 30 + rnd.random() * 60
+        k = seg(t, T["ice"] - 0.6 + i * 0.04, T["ice"] - 0.3 + i * 0.04)
+        hexa(c, x + 20 * math.sin(t + i), y - 30 * u, r * k, t * 0.6 + i, (0.92, 0.97, 1), 0.85 * k)
+    text(c, "ICE", 540, 560, 130, ICE, 1, scale=popin(t, T["ice"] - 0.05), ow=0.12)
+    vignette(c, 0.3)
+
+
 def s_tease(c, t):
-    """'But wait until you hear the strangest part': o pôr do sol escurece e a câmara sai para o espaço"""
+    """'But wait until you hear the strangest part': a Terra gira para trás e o contador de anos dispara"""
     u = t - T["but"]; d = T["scientists"] - T["but"]
     space_bg(c, t)
-    R = lerp(900, 300, smooth(u / d))
-    globe(c, 540, lerp(1500, 860, smooth(u / d)), R, 0.6 + u * 0.2, t, ring=0.0, sun=(-1, -0.2))
-    c.set_source_rgba(0, 0, 0, 0.25); c.paint()
-    text(c, "?", 540, 860, 260, GOLD, 0.9 * seg(u, 0.3, 0.6), ow=0.08, scale=1 + 0.05 * math.sin(t * 6))
+    globe(c, 540, 800, 300, 0.6 - u * 3.0 * (1 + u), t, ring=0.0, sun=(-1, -0.2))
+    c.set_source_rgba(0, 0, 0, 0.2); c.paint()
+    # contador a andar para trás (sem revelar o número)
+    yr = int(2026 - (10 ** (1 + 7.5 * smooth(u / d))))
+    s = f"{yr:,}" if yr > 0 else f"{-yr:,} BC"
+    text(c, "REWINDING…", 540, 1185, 50, GOLD, seg(u, 0.1, 0.3), ow=0.16)
+    text(c, s, 540, 1270, 76, INK, seg(u, 0.1, 0.3), ow=0.14)
+
+
+def s_ordo(c, t):
+    u = t - T["scientists"]; d = T["rings2"] - T["scientists"]
+    p = smooth(u / d)
+    draw_par(c, "ordovician", 1.06 + 0.08 * p, 0.5, lerp(0.6, 0.4, p), px=lerp(30, -30, p), py=lerp(-30, 30, p), push=0.1 * p)
+    particles(c, t, (0.9, 1, 1), 0.35, vx=6, vy=-14, size=0.6)
+    text(c, "IT WAS REAL", 540, 340, 100, GOLD, 1, scale=popin(t, T["really"] - 0.05), ow=0.14)
+    vignette(c, 0.3)
 
 
 def s_reveal(c, t):
     """Terra do Ordovícico com anel; '466 MILLION YEARS AGO'"""
-    u = t - T["scientists"]
+    u = t - T["rings2"]
     space_bg(c, t, top=(0.06, 0.03, 0.08), bot=(0.01, 0.0, 0.02))
-    ring = seg(t, T["really"], T["rings2"] + 0.3)
-    R = 290 + 30 * smooth(u / 5)
+    ring = seg(t, T["rings2"], T["rings2"] + 0.4)
+    R = 300 + 30 * smooth(u / 3)
     globe(c, 540, 740, R, 0.3 + u * 0.15, t, land=(0.62, 0.48, 0.32), sea1=(0.15, 0.48, 0.6), sea2=(0.04, 0.16, 0.25),
           conts=CONT_OLD, ring=ring, ring_col=(0.95, 0.85, 0.7), ring_tilt=0.12, glowc=(1.0, 0.7, 0.4), ice_caps=False)
-    # detritos do anel a cintilar
-    if ring > 0:
-        rnd = random.Random(9)
-        for _ in range(60):
-            ang = rnd.random() * 6.28 + t * 0.3; rr_ = R * (1.4 + rnd.random() * 0.9)
-            x = 540 + math.cos(ang) * rr_; y = 740 + math.sin(ang) * rr_ * 0.2 + math.cos(ang) * rr_ * 0.12
-            sparkle(c, x, y, 4 + rnd.random() * 7, (1, 0.95, 0.85), ring * (0.4 + 0.6 * abs(math.sin(t * 4 + ang))))
-    text(c, "IT WAS REAL", 540, 330, 92, GOLD, 1, scale=popin(t, T["really"] - 0.05), ow=0.14)
+    rnd = random.Random(9)
+    for _ in range(60):
+        ang = rnd.random() * 6.28 + t * 0.3; rr_ = R * (1.4 + rnd.random() * 0.9)
+        x = 540 + math.cos(ang) * rr_; y = 740 + math.sin(ang) * rr_ * 0.2 + math.cos(ang) * rr_ * 0.12
+        sparkle(c, x, y, 4 + rnd.random() * 7, (1, 0.95, 0.85), ring * (0.4 + 0.6 * abs(math.sin(t * 4 + ang))))
+    text(c, "IT WAS REAL", 540, 340, 92, GOLD, 1, ow=0.14)
     if t >= T["n466"] - 0.05:
         k = popin(t, T["n466"] - 0.05, 0.3)
         text(c, "466", 540, 1130, 220, INK, 1, scale=k, ow=0.1)
@@ -432,8 +652,8 @@ def s_reveal(c, t):
 
 
 def s_end(c, t):
-    """'Which means, one day…': a Terra de hoje com um anel fantasma; a câmara mergulha na Europa e,
-    nos últimos frames, a rua do frame 0 abre-se (último frame = frame 0, cam_hook em t negativo)."""
+    """'Which means, one day…': a Terra de hoje com um anel fantasma; a câmara mergulha e, nos últimos
+    frames, a rua do frame 0 abre-se (último frame = frame 0, cam_hook em t negativo)."""
     u = t - T["which"]
     TR = 0.5
     tr0 = T_END - TR
@@ -453,11 +673,17 @@ def s_end(c, t):
 
 
 SCENES = [
-    (0.0, T["brand"], s_hook), (T["brand"], T["night"], s_brand), (T["night"], T["stand"], s_night),
-    (T["stand"], T["inw"], s_equator), (T["inw"], T["every2"], s_winter), (T["every2"], T["but"], s_sunset),
-    (T["but"], T["scientists"], s_tease), (T["scientists"], T["which"], s_reveal), (T["which"], 99, s_end),
+    (0.0, T["every"] - 0.25, s_hook), (T["every"] - 0.25, T["frm"], s_everywhere), (T["frm"], T["arch"] - 0.35, s_europe_map),
+    (T["arch"] - 0.35, T["brand"], s_europe), (T["brand"], T["night"], s_brand), (T["night"], T["bright"], s_night),
+    (T["bright"], T["stand"], s_bedroom), (T["stand"], T["eqimg"], s_cross), (T["eqimg"], T["inw"], s_equator),
+    (T["inw"], T["half"] - 0.3, s_season), (T["half"] - 0.3, T["colder"] - 0.05, s_you),
+    (T["colder"] - 0.05, T["every2"], s_winterimg), (T["every2"], T["sky"], s_sunset), (T["sky"], T["but"], s_ice),
+    (T["but"], T["scientists"], s_tease), (T["scientists"], T["rings2"], s_ordo), (T["rings2"], T["which"], s_reveal),
+    (T["which"], 99, s_end),
 ]
 NO_PUNCH = {s_brand, s_end}
+CHAPTERS = [T["frm"], T["night"], T["stand"], T["inw"], T["every2"], T["but"], T["scientists"]]
+
 
 # ---------- sobreposições ----------
 SUB_T0 = T["but"] - 2.65            # pop-up de subscrição antes de "But wait until you hear" (sobre o pôr do sol)
@@ -533,11 +759,11 @@ def frame_surface(t):
         if a <= t < b:
             cur = render_scene(fn, t)
             x = (t - a) / 0.25
-            if i > 0 and x < 1 and fn not in NO_PUNCH:   # entrada com zoom (mudança de capítulo)
+            if i > 0 and x < 1 and fn not in NO_PUNCH:   # entrada com zoom em cada corte
                 z = 1.08 - 0.08 * ease(x)
                 ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(z, z); ctx.translate(-W / 2, -H / 2)
                 ctx.set_source_surface(cur, 0, 0); ctx.paint(); ctx.restore()
-                ctx.set_source_rgba(1, 1, 1, 0.35 * (1 - ease(x))); ctx.paint()
+                ctx.set_source_rgba(1, 1, 1, 0.18 * (1 - ease(x))); ctx.paint()
             else:
                 ctx.set_source_surface(cur, 0, 0); ctx.paint()
             break
@@ -633,14 +859,14 @@ def mix(raw_video):
     t_ = np.arange(int(1.6 * SR)) / SR
     shimmer = wav("shimmer", 0.25 * sum(np.sin(2 * np.pi * f * t_) for f in (880, 1320, 1760, 2640)) / 4 * np.exp(-t_ * 2.2) * np.minimum(1, t_ / 0.01))
     E = [(shimmer, 0.0, 0.55), (boom, 0.0, 0.25)]                          # impacto no frame 0 (o arco já está lá)
-    E += [(pop, T["earth"] - 0.05, 0.25), (a("scratch_head"), T["brand"], 0.7)]
-    E += [(swish, T["night"] - 0.12, 0.3), (ding, T["dark"] - 0.15, 0.3)]
-    E += [(swish, T["stand"] - 0.12, 0.3), (shimmer, T["thin"] - 0.1, 0.35), (ding, T["above"] - 0.1, 0.3)]
-    E += [(swish, T["inw"] - 0.12, 0.3), (whoosh, T["shadow"], 0.3), (ding, T["longer"] + 0.25, 0.3)]
-    E += [(swish, T["every2"] - 0.12, 0.3)]
+    E += [(pop, T["earth"] - 0.05, 0.25), (whoosh, T["every"] - 0.35, 0.3), (a("scratch_head"), T["brand"], 0.7)]
+    E += [(swish, x - 0.12, 0.3) for x in CHAPTERS]
+    E += [(pop, T["europe"] - 0.05, 0.25), (shimmer, T["arch"] - 0.35, 0.3)]
+    E += [(ding, T["bright"] + 0.7, 0.3), (ding, T["above"] - 0.1, 0.3), (ding, T["longer"] + 0.2, 0.3)]
+    E += [(shimmer, T["eqimg"], 0.3), (whoosh, T["shadow"], 0.25)]
     E += [(pop, T["sunset"] + 0.15 + 0.32 * k, 0.18) for k in range(4)] + [(ding, T["sunset"] + 1.15, 0.25)]
-    E += [(pop, SUB_T0 + 1.0, 0.25)]
-    E += [(whoosh, T["but"], 0.35), (swish, T["scientists"] - 0.12, 0.3), (shimmer, T["really"], 0.4)]
+    E += [(shimmer, T["ice"] - 0.3, 0.35), (pop, SUB_T0 + 1.0, 0.25)]
+    E += [(whoosh, T["but"], 0.35), (shimmer, T["really"], 0.4)]
     E += [(boom, T["n466"] - 0.03, 0.5), (pop, T["n466"] - 0.05, 0.35)]
     E += [(whoosh, T_END - 0.9, 0.3)]
     ins, ch, lab = [], [], []

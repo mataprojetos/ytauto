@@ -1,21 +1,28 @@
 # EP007 · What If Earth Had Rings Like Saturn?
 
-- **Privado:** https://www.youtube.com/shorts/CXKyU9wS_hc (34,2 s) · capa aplicada e confirmada (personalizada + versão vertical do feed de Shorts)
+- **Privado (v2):** https://www.youtube.com/shorts/REjC6o6cW4E (34,2 s) · capa aplicada e confirmada (personalizada + versão vertical do feed de Shorts)
+- **Apagar no Studio:** v1 https://www.youtube.com/shorts/CXKyU9wS_hc
 - **Montagem:** `ep007/anim_ep007.py` · cortes de áudio `ep007/build/audio_cut.py` · palavras `ep007/build/words.json` (faster-whisper, 105/105 palavras) · limpeza das imagens `ep007/build/fix_images.py` · capa `ep007/thumb_ep007.py` → `thumbnails/ep007_thumb.jpg` · folha de controlo `ep007/folha_controlo_ep007.jpg` (frame 0, pop-up 23,4/24,3 s, último frame)
 - Guião aprovado pelo dono, narração sem alterações. Sem pedido de comentário.
 
-## Créditos (23/11/2026, saldo real 1 596,50 → 1 582,70)
+## Créditos (23/11/2026, saldo real 1 596,50 → 1 574,70)
 | Geração | Modelo | Créditos |
 |---|---|---|
 | 4 ilustrações: rua europeia com arco (frame 0), noite clara sobre casas, praia no equador, pôr do sol com anéis de gelo (referências de estilo: `ep001/anim/sky_city.png` e `ep003/anim/orbit.png`) | nano_banana_pro | 8 |
 | Refação do equador (a v1 trazia o astronauta da referência do EP003) — saiu pior, não usada | nano_banana_pro | 2 |
 | Imagem da capa (rapaz em choque + arco sobre a rua) | nano_banana_pro | 2 |
 | Narração (1 tentativa, guião fechado, stability 0,5) | elevenlabs_v4_turbo, voz Bram | 1,8 |
-| **Total** | | **13,8** |
+| v2: 4 ilustrações novas (miradouro sobre cidade europeia, quarto com a janela a brilhar, rua com neve, costa do Ordovícico) | nano_banana_pro | 8 |
+| **Total** | | **21,8** |
 
 Música reaproveitada (`music/track01_cosmic_ambient.mp3`, com ducking). Swish, whoosh, pop, ding, brilho e boom sintetizados por código; som da frase de marca `lib/sfx/scratch_head.wav` e assinatura visual `lib/brand_scratch.py`.
 
-## Estrutura (tempos)
+## v2 (pedido do dono: mais imersivo, mais planos, esquemas dinâmicos, fotos animadas)
+18 planos (corte a cada ~1,5–2,5 s, com zoom de entrada): rua (frame 0, "Look up") · "EVERYWHERE": corte para o espaço, a câmara afasta-se da Terra com anéis · **"From Europe": esquema** — o globo roda até à Europa, pin, linhas de visão até à parte do anel que se vê ("YOU SEE THIS PART") · miradouro sobre a cidade europeia com o arco de horizonte a horizonte · frase de marca · noite clara (medidor DARKNESS) · quarto: alguém sem conseguir dormir com a janela a brilhar ("SLEEP SCHEDULE: CANCELLED") · **esquema em corte**: o observador desce de 45°N ao equador e a vista passa de ARCH a THIN LINE · praia no equador ("STRAIGHT ABOVE YOU", "EQUATOR PEOPLE") · **esquema das estações**: Sol, raios tapados pelo anel, sombra no hemisfério norte · globo com pin YOU na sombra · rua com neve (riscas de sombra a deslizar, neve, "COLDER DAYS / LONGER NIGHTS", "HEATING BILL x3") · pôr do sol + chat de família · grande plano dos anéis com cristais de gelo ("ICE") · Terra a girar para trás com contador "REWINDING…" · costa do Ordovícico com nautiloides e trilobites ("IT WAS REAL") · globo antigo com anel e "466 MILLION YEARS AGO" · final em loop.
+
+**Fotos animadas (parallax 2.5D):** cada ilustração é cortada em 4 camadas pela profundidade (`ep007/build/depth.py`, Depth Anything V2 Small no CPU, 0 créditos); as camadas da frente mexem-se e aproximam-se mais do que as de trás (dolly + pan), com preenchimento por trás para não haver duplicados. Versão anterior do script em `ep007/build/anim_ep007_v1.py`.
+
+## Estrutura da v1 (tempos)
 Gancho 0 s: o arco gigante já está no frame 0, brilho + boom suave; câmara sobe da rua para o céu em "Look up" e aproxima-se do arco; "EARTH HAS RINGS" 0,6 s · pin "EUROPE" 3,3 s · frase de marca 6,9 s (mão a coçar + som) · noite 8,4 s: medidor "DARKNESS" que nunca enche, piada "SLEEP SCHEDULE: CANCELLED" (12 s) · equador 12,5 s: a câmara sobe da praia, linha prateada a brilhar com "THE RINGS", piada "EQUATOR PEOPLE: 'WHAT RINGS?'" (16,4 s) · inverno 17,1 s: globo por código, sombra dos anéis a cobrir o hemisfério norte, pin "YOU", "COLDER DAYS / LONGER NIGHTS", piada "HEATING BILL: x3", neve · pôr do sol 22,2 s: piada do chat de família cheio de fotos do pôr do sol · pop-up de subscrição 23,0–25,6 s (67 %, antes de "But wait") · selo "THE STRANGEST PART · COMING UP" 25,8–30,5 s · Terra do Ordovícico com anel, "IT WAS REAL" 28,8 s, "466 MILLION YEARS AGO" 30,5 s (boom) · "Which means, one day…": Terra de hoje com anel fantasma, a câmara mergulha e nos últimos 0,5 s a rua do frame 0 abre-se (último frame = frame 0 a menos de 1 frame de movimento das partículas; diferença média 0,6/255).
 
 Câmara sempre em movimento em todas as ilustrações (zoom e pan lentos) + partículas em três camadas de velocidade (parallax).
