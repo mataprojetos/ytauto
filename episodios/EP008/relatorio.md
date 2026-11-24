@@ -1,6 +1,8 @@
 # EP008 · What If You Jumped Into a Hole Through the Earth?
 
-- **Privado:** https://www.youtube.com/shorts/n1jCVaDkhkw (39,2 s) · capa aplicada e confirmada (personalizada + versão vertical do feed de Shorts)
+- **Privado (v2, som limpo):** https://www.youtube.com/shorts/wsYw5ghP6eA (39,2 s)
+- **Apagar no Studio:** v1 https://www.youtube.com/shorts/n1jCVaDkhkw
+- **v2:** capa aplicada e confirmada (personalizada + versão vertical do feed de Shorts)
 - **Montagem:** `ep008/anim_ep008.py` (base do EP007) · cortes de áudio `ep008/build/audio_cut.py` · palavras `ep008/build/words.json` (faster-whisper + pontuação do guião, `build/fix_words.py`, 130/130 palavras) · recorte do boneco `ep008/build/sprite.py` · oceano sem boneco `ep008/build/ocean_clean.py` · profundidade `ep008/build/depth.py` · capa `ep008/thumb_ep008.py` → `thumbnails/ep008_thumb.jpg` · folha de controlo `ep008/folha_controlo_ep008.jpg` (frame 0, pop-up, último frame)
 - Guião aprovado pelo dono, narração sem alterações. Sem pedido de comentário. Loop de frase "Which means, right now…" → "You just jumped…".
 
@@ -34,6 +36,8 @@ Sem refações. Música reaproveitada (`music/track01_cosmic_ambient.mp3`, com d
 Câmara sempre em movimento (parallax 2.5D por profundidade nas 4 ilustrações, zooms, pans).
 
 ## Áudio
+**v2 (pedido do dono, 24/11/2026):** o início estava confuso e os efeitos repetitivos cansavam. Tirados o alarme de dois tons e as bordas vermelhas do gancho; efeitos reduzidos de ~40 para 13: um whoosh suave no início, 3 swishes (só nas grandes mudanças), frase de marca, um vento contínuo e grave durante a queda (em vez de whooshes repetidos), 3 pops (5,000 · 28,000 · toque da subscrição) + 1 no relógio de 42 min, whoosh antes de "But wait", boom + brilho só na revelação do Índico e whoosh de saída para o loop. Sem dings nas piadas. Volumes mais baixos.
+
 Pausas cortadas por energia (silêncios abaixo de −36 dB do pico encurtados para 0,08 s, 9,0 s removidos) e atempo 1,10. Duração 39,2 s.
 
 ## Fontes

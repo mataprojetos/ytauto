@@ -387,7 +387,6 @@ def s_hook(c, t):
     text(c, "12,742 KM", 540, 330, 130, INK, 1, ow=0.13, scale=k)
     text(c, "STRAIGHT DOWN", 540, 455, 60, GOLD, 1, ow=0.16, scale=popin(t, 0.55, 0.25))
     vignette(c, 0.4)
-    border(c, t)
 
 
 def s_normal(c, t):
@@ -909,23 +908,21 @@ def mix(raw_video):
     boom = wav("boom", 0.9 * np.sin(2 * np.pi * (38 + 50 * np.exp(-t_ * 5)) * t_) * np.exp(-t_ * 1.8))
     t_ = np.arange(int(1.6 * SR)) / SR
     shimmer = wav("shimmer", 0.25 * sum(np.sin(2 * np.pi * f * t_) for f in (880, 1320, 1760, 2640)) / 4 * np.exp(-t_ * 2.2) * np.minimum(1, t_ / 0.01))
-    # alarme de emergência de dois tons (regra do canal para o gancho), até à revelação do túnel
-    da = T["fr"]; t_ = np.arange(int(da * SR)) / SR
-    f = np.where((t_ // 0.28) % 2 == 0, 880.0, 660.0)
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    al = np.tanh(2.5 * np.sin(ph)) * np.minimum(1, t_ / 0.02) * np.minimum(1, (da - t_) / 0.25)
-    alarm = wav("alarm", 0.3 * al)
-    # vento da queda (ruído grave, sobe com a velocidade)
-    E = [(alarm, 0.0, 0.3), (whoosh, 0.0, 0.35), (boom, T["fr"] - 0.05, 0.3), (a("scratch_head"), T["brand"], 0.7)]
-    E += [(swish, x - 0.12, 0.3) for x in CHAPTERS]
-    E += [(pop, 0.25, 0.25), (pop, T["bottom"] - 0.05, 0.3), (ding, T["fr"] + 0.3, 0.3)]
-    E += [(shimmer, T["magic"] - 0.05, 0.35), (pop, T["noair"] - 0.05, 0.22), (pop, T["noheat"] - 0.05, 0.22)]
-    E += [(pop, T["n5000"] - 0.05, 0.3), (whoosh, T["fall"], 0.4), (whoosh, T["fall"] + 1.4, 0.45), (whoosh, T["center"] - 0.4, 0.5)]
-    E += [(pop, T["n28"] - 0.05, 0.3), (boom, T["n28"] - 0.03, 0.3), (ding, T["feel"] + 0.2, 0.3), (shimmer, T["weightless"] - 0.05, 0.35)]
-    E += [(whoosh, T["flips"] - 0.2, 0.35), (pop, T["flips"], 0.25), (ding, T["slow"] + 0.4, 0.3), (pop, SUB_T0 + 1.0, 0.25)]
-    E += [(whoosh, T["but"], 0.35), (pop, T["united"] - 0.05, 0.25), (pop, T["n42"] - 0.15, 0.3)]
-    E += [(boom, T["indian"] - 0.03, 0.55), (shimmer, T["indian"], 0.4), (pop, T["indian"] - 0.02, 0.3)]
-    E += [(whoosh, T["andthen"], 0.35), (ding, T["again1"] - 0.1, 0.3), (shimmer, T["forever"] - 0.05, 0.35), (whoosh, T_END - 0.9, 0.3)]
+    # Som limpo (pedido do dono, 24/11/2026): sem alarme no gancho e poucos efeitos, só nos momentos-chave.
+    # vento da queda: um único som contínuo e grave, em vez de whooshes repetidos
+    def wind(d, rise=0.6, seed=5):
+        n = int(d * SR); tt = np.arange(n) / SR
+        nz = np.random.default_rng(seed).standard_normal(n)
+        X = np.fft.rfft(nz); fq = np.fft.rfftfreq(n, 1 / SR); X[(fq < 80) | (fq > 900)] = 0; nz = np.fft.irfft(X, n)
+        env = np.minimum(1, tt / rise) * np.minimum(1, (d - tt) / 0.5) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.7 * tt))
+        return nz * env / np.abs(nz * env).max() * 0.6
+    fall_wind = wind(T["feel"] - T["fall"] + 0.4, rise=1.2)
+    E = [(whoosh, 0.0, 0.22), (a("scratch_head"), T["brand"], 0.6)]
+    E += [(swish, x - 0.12, 0.18) for x in (T["fr"], T["then"], T["jump"])]
+    E += [(wav("fall_wind", fall_wind), T["fall"], 0.25)]
+    E += [(pop, T["n5000"] - 0.05, 0.18), (pop, T["n28"] - 0.05, 0.2), (pop, SUB_T0 + 1.0, 0.18)]
+    E += [(whoosh, T["but"], 0.2), (pop, T["n42"] - 0.15, 0.16)]
+    E += [(boom, T["indian"] - 0.03, 0.4), (shimmer, T["indian"], 0.22), (whoosh, T_END - 0.9, 0.18)]
     ins, ch, lab = [], [], []
     for f_, x, v in E:
         i = 3 + len(lab); ins += ["-i", f_]; d = int(max(0, x) * 1000)
