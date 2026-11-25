@@ -346,7 +346,9 @@ def snowfall(c, t, a=1.0, n=70, seed=7):
 # EP010: o mesmo rapaz de capuz (ref. ep009/anim/s1_queda_aviao.png) em 6 ilustrações; tudo o resto por código.
 # =====================================================================
 IW, IH = 1536, 2752
-def WS(i): return words[i]["s"]
+def WS(i):
+    # índices do guião original; cada "who are very smart…" (25/11/2026) tem mais uma palavra do que "being a genius…"
+    return words[i + sum(1 for a in (20, 54, 93, 131) if i >= a)]["s"]
 G = [WS(15), WS(49), WS(88), WS(126)]          # "And you, being a genius…"
 A = [WS(20), WS(54), WS(93), WS(131)]          # decide / land / paint / park
 FAIL = [WS(29), WS(66), WS(122), WS(146)]      # doesn't work / doesn't work either / don't have / same problem
