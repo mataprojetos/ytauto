@@ -568,7 +568,7 @@ def s_wash(c, t):
         c.set_source_rgba(0.95, 0.96, 0.98, 1); c.arc(kx + 20, 265, 50, 0, 6.283); c.fill()
         c.save(); c.translate(kx + 20, 265); c.rotate(u * (2 + i) + i)
         c.set_source_rgba(0.4, 0.43, 0.5, 1); c.set_line_width(10); c.move_to(0, 0); c.line_to(0, -38); c.stroke(); c.restore()
-    CX, CY, R = 540, 870, 410 * (0.85 + 0.15 * zin)
+    CX, CY, R = 540, 930, 370 * (0.85 + 0.15 * zin)
     c.set_source_rgba(0, 0, 0, 0.18); c.arc(CX + 10, CY + 16, R + 70, 0, 6.283); c.fill()
     c.set_source_rgba(0.62, 0.65, 0.71, 1); c.arc(CX, CY, R + 70, 0, 6.283); c.fill()
     c.set_source_rgba(0.96, 0.97, 0.99, 1); c.arc(CX, CY, R + 40, 0, 6.283); c.fill()
@@ -592,7 +592,7 @@ def s_wash(c, t):
     c.set_source(gl); c.paint(); c.restore()
     c.set_source_rgba(0.5, 0.53, 0.6, 1); c.set_line_width(10); c.arc(CX, CY, R, 0, 6.283); c.stroke()
     if t >= T["washing"]:
-        text(c, "WASHING MACHINE MODE", 540, 1375, 66, (0.15, 0.2, 0.32), 1, ow=0.0, outline=False, scale=popin(t, T["washing"]))
+        text(c, "WASHING MACHINE MODE", 540, 455, 58, (0.15, 0.2, 0.32), 1, ow=0.0, outline=False, scale=popin(t, T["washing"]))
 
 
 def make_react(label, xt):
