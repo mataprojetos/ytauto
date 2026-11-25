@@ -198,23 +198,82 @@ def layers(name):
     return LAY[name]
 
 
+# ---------- v2 (pedido do dono, 25/11/2026: "não tem profundidade nenhuma"): maquete 2.5D a sério ----------
+# Cada ilustração é separada em 3 camadas recortadas (build/layers.py): fundo desfocado, objetos, personagem.
+# A câmara anda sempre (deriva contínua + movimentos de cada cena); cada camada desloca-se e aproxima-se
+# segundo a sua distância; cada camada projeta sombra suave na de trás; brilhos desfocados em primeiro plano.
+DEPTH = {   # fator de parallax por camada (fundo, objetos, personagem); personagem em cima de um objeto = valores próximos
+    "a1_panico": (0.18, 0.55, 1.0), "a2_genio": (0.18, 0.5, 1.0), "a3_foguetes": (0.18, 0.82, 1.0),
+    "a4_pintar": (0.18, 0.82, 1.0), "a5_impacto": (0.18, 0.5, 1.0), "a6_alivio": (0.18, 0.85, 1.0)}
+DRIFT_T = 0.0; DRIFT_MIX = 0.0; LAST = (0.0, 0.0, 0.0)
+LAY3 = {}
+
+
+def _load_rgba(path, gain=1.0, shadow=False):
+    im = np.array(Image.open(path).convert("RGBA"), np.float32)
+    rgb, al = im[..., :3] * gain, im[..., 3] / 255
+    s = _surf(np.clip(rgb, 0, 255), al)
+    if not shadow: return s, None
+    from scipy import ndimage as _nd
+    sh = _nd.gaussian_filter(al[::4, ::4], 5.0)
+    return s, (_surf(np.zeros(sh.shape + (3,), np.float32), np.clip(sh * 1.15, 0, 1)), 4)
+
+
+def layers3(name):
+    if name not in LAY3:
+        L0, _ = _load_rgba(f"{ROOT}/anim/{name}_L0.png", 0.80)
+        L1, S1 = _load_rgba(f"{ROOT}/anim/{name}_L1.png", 0.97, True)
+        L2, S2 = _load_rgba(f"{ROOT}/anim/{name}_L2.png", 1.0, True)
+        LAY3[name] = [(L0, None), (L1, S1), (L2, S2)]
+    return LAY3[name]
+
+
+def drift(t):
+    dx = 60 * math.sin(0.55 * t) + 18 * math.sin(1.30 * t + 1.0)
+    dy = 32 * math.sin(0.42 * t + 0.7) + 9 * math.sin(1.1 * t)
+    dz = 0.025 * math.sin(0.33 * t + 0.4)
+    return dx, dy, dz
+
+
 def draw_par(c, name, zoom, fx, fy, px=0.0, py=0.0, push=0.0, a=1.0):
-    """ilustração em camadas: zoom e ponto focal como numa câmara; px/py = deslocamento (px de ecrã) da camada
-    mais próxima (as outras deslocam-se proporcionalmente); push = zoom extra da camada mais próxima (dolly)."""
-    L = layers(name)
-    px, py, push = px * 0.6, py * 0.6, push * 0.6     # amplitude moderada: menos artefactos nas bordas
-    iw, ih = L[0].get_width(), L[0].get_height()
-    base = max(W / iw, H / ih) * zoom * 1.06            # margem para o parallax não mostrar bordas
+    """maquete 2.5D: px/py = deslocação da câmara (px de ecrã, amplificada), push = dolly (aproxima mais as camadas da frente)"""
+    L = layers3(name); f = DEPTH[name]
+    d1 = drift(DRIFT_T); d0 = drift(0.0)
+    dx, dy, dz = [lerp(u, v, DRIFT_MIX) for u, v in zip(d1, d0)]
+    ox, oy, oz = px * 1.9 + dx, py * 1.9 + dy, push * 1.6 + dz
+    iw, ih = L[0][0].get_width(), L[0][0].get_height()
+    base = max(W / iw, H / ih) * zoom * 1.12            # margem para o parallax não mostrar bordas
     vw, vh = W / base, H / base
     x0 = clamp(fx * iw - vw / 2, 0, iw - vw); y0 = clamp(fy * ih - vh / 2, 0, ih - vh)
-    for k, s in enumerate(L):
-        f = k / (NL - 1)
-        sc = 1 + push * f
-        c.save(); c.translate(W / 2 + px * f, H / 2 + py * f); c.scale(sc, sc); c.translate(-W / 2, -H / 2)
+    def tf(k, extra=(0, 0)):
+        sc = 1 + oz * f[k]
+        c.translate(W / 2 + ox * f[k] + extra[0], H / 2 + oy * f[k] + extra[1]); c.scale(sc, sc); c.translate(-W / 2, -H / 2)
         c.scale(base, base); c.translate(-x0, -y0)
+    for k, (s, sh) in enumerate(L):
+        if sh is not None:   # sombra suave na camada de trás (luz de cima à esquerda)
+            ss, dn = sh
+            c.save(); tf(k, (16 + 10 * k, 26 + 12 * k)); c.scale(dn, dn)
+            c.set_source_surface(ss, 0, 0); c.get_source().set_filter(cairo.FILTER_BILINEAR); c.paint_with_alpha(0.5 * a); c.restore()
+        c.save(); tf(k)
         c.set_source_surface(s, 0, 0); c.get_source().set_filter(cairo.FILTER_GOOD)
         c.paint_with_alpha(a); c.restore()
+    global LAST
+    LAST = (ox * f[1], oy * f[1], oz * f[1])
+    bokeh(c, ox, oy, a)
     return base, x0, y0
+
+
+BOK = [(random.random(), random.random(), random.uniform(40, 120), random.choice(((1, 0.85, 0.6), (1, 1, 1), (0.7, 0.8, 1)))) for _ in range(9)]
+
+
+def bokeh(c, ox, oy, a=1.0):
+    """partículas grandes e desfocadas MUITO perto da câmara (mexem-se mais do que a personagem)"""
+    for (bx, by, r, col) in BOK:
+        x = (bx * (W + 400) + ox * 1.7 + DRIFT_T * 9 * (1 - DRIFT_MIX)) % (W + 400) - 200
+        y = (by * (H + 400) + oy * 1.7) % (H + 400) - 200
+        g = cairo.RadialGradient(x, y, r * 0.2, x, y, r)
+        g.add_color_stop_rgba(0, *col, 0.16 * a); g.add_color_stop_rgba(0.7, *col, 0.08 * a); g.add_color_stop_rgba(1, *col, 0)
+        c.set_source(g); c.arc(x, y, r, 0, 6.283); c.fill()
 
 
 
@@ -310,8 +369,10 @@ def view(c, name, z, fx, fy, t, px=0.0, py=0.0, push=0.0, rot=0.0, shake=0.0, a=
     c.save(); c.translate(W / 2 + sx, H / 2 + sy); c.rotate(rot); c.translate(-W / 2, -H / 2)
     base, x0, y0 = draw_par(c, name, z, fx, fy, px=px, py=py, push=push, a=a)
     c.restore()
+    lx, ly, lz = LAST
     def P(ix, iy):
         x, y = to_scr(base, x0, y0, ix, iy); x -= W / 2; y -= H / 2
+        x, y = x * (1 + lz) + lx, y * (1 + lz) + ly
         cr, sr = math.cos(rot), math.sin(rot)
         return W / 2 + sx + x * cr - y * sr, H / 2 + sy + x * sr + y * cr
     return P
@@ -809,10 +870,13 @@ def s_brand(c, t):
 
 # ---------- final: "Which means, next time an asteroid is heading for Earth…" → frame 0 ----------
 def s_end(c, t):
+    global DRIFT_T, DRIFT_MIX
     if t >= T_END - 1.5 / FPS:   # último frame = frame 0
+        DRIFT_T, DRIFT_MIX = 0.0, 0.0
         s_hook(c, 0.0); return
     TR0 = T["which"]; D = T_END - 1 / FPS - TR0
     e = smooth(clamp((t - TR0) / D))
+    DRIFT_MIX = e
     c0 = hook_cam(0.0)
     cs = dict(z=1.35, fx=0.5, fy=0.40, px=0, py=0, push=0.0, rot=0.0, shake=3)
     cm = {k: lerp(cs[k], c0[k], e) for k in c0}
@@ -886,6 +950,8 @@ def subscribe(c, t):
 
 
 def render_scene(fn, t):
+    global DRIFT_T, DRIFT_MIX
+    DRIFT_T, DRIFT_MIX = t, 0.0
     s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H); c = cairo.Context(s); c.set_antialias(cairo.ANTIALIAS_GOOD)
     fn(c, t); return s
 
