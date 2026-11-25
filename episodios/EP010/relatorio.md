@@ -1,9 +1,13 @@
 # EP010 · What If YOU Had to Stop an Asteroid? ☄️
 
-- **Privado:** https://www.youtube.com/shorts/I_kDWqBwOYo (67,2 s), capa aplicada com `thumbnails.set`
+- **Privado (v2):** https://www.youtube.com/shorts/yRKvGPcnUmA (67,2 s), capa aplicada com `thumbnails.set`. A v1 (I_kDWqBwOYo) é para apagar no Studio.
 - **Formato livre** (pedido do dono): ~65 s, tom com humor, sem alarme. Guião do dono, narração sem alterações; a última frase ("Which means, next time an asteroid is heading for Earth…") liga à primeira (loop de frase; último frame = frame 0).
 - **Base:** EP009 (estilo maquete, parallax 2.5D por profundidade). A mesma personagem (rapaz de capuz): as 7 ilustrações foram geradas com `ep009/anim/s1_queda_aviao.png` como referência.
 - **Montagem:** `ep010/anim_ep010.py` · cortes de áudio `ep010/build/audio_cut.py` (silêncios para 0,10 s, 8,9 s removidos, atempo 1,10) · palavras `ep010/build/words.json` (faster-whisper + texto exato do guião, 232/232) · profundidade `ep010/build/depth.py` · capa `ep010/thumb_ep010.py` → `thumbnails/ep010_thumb.jpg` · folha de controlo `ep010/folha_controlo_ep010.jpg` (frame 0, os "genius", pop-up, último frame)
+
+## v2 (25/11/2026, pedido do dono: "não tem profundidade nenhuma, tudo em 2D")
+O dono escolheu resolver só por código (0 créditos). Cada ilustração passa a ser uma maquete em 3 camadas recortadas (`ep010/build/layers.py`: saliência rembg isnet + GrabCut guiado por zonas da personagem):
+fundo (espaço, desfocado e mais escuro), objetos (asteroide, Terra, nave, foguetes) e personagem. A câmara está sempre a mexer (deriva contínua + movimentos de cada cena) e cada camada desloca-se e aproxima-se conforme a distância; cada camada projeta sombra suave na de trás; brilhos desfocados em primeiro plano. Quando o rapaz está em cima de um objeto (foguetes, pintar, Terra), ele e o objeto mexem-se juntos (sem costuras). O loop mantém-se (a deriva converge para a do frame 0).
 
 ## Créditos (saldo real 869,35 → 851,45)
 | Geração | Modelo | Créditos |
