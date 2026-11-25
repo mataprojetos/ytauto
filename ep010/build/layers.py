@@ -10,8 +10,9 @@ from scipy import ndimage
 sys.path.insert(0, "build")
 # caixas da personagem (frações x0,y0,x1,y1) e zonas que de certeza NÃO são a personagem (elipses cx,cy,rx,ry)
 CFG = {
-    "a1_panico":   dict(box=(0.30, 0.375, 0.70, 0.85), notc=[(0.48, 0.22, 0.30, 0.15), (0.5, 0.93, 0.6, 0.07), (0.5, 0.76, 0.035, 0.05)],
-                        fg=[], earth=0.79),
+    "a1_panico":   dict(box=(0.30, 0.36, 0.70, 0.85), notc=[(0.48, 0.22, 0.30, 0.13), (0.5, 0.93, 0.6, 0.07), (0.5, 0.76, 0.035, 0.05)],
+                        fg=[(0.505, 0.405, 0.06, 0.02), (0.505, 0.43, 0.075, 0.015)], earth=0.79,
+                        allow=[("e", 0.505, 0.447, 0.083, 0.072), ("r", 0.28, 0.47, 0.72, 0.86)]),
     "a2_genio":    dict(box=(0.25, 0.25, 0.90, 0.82), notc=[(0.27, 0.22, 0.22, 0.10), (0.5, 0.99, 0.6, 0.08)],
                         fg=[(0.41, 0.64, 0.022, 0.06), (0.52, 0.66, 0.022, 0.08)], earth=0.85),
     "a3_foguetes": dict(box=(0.32, 0.12, 0.68, 0.56), notc=[(0.5, 0.72, 0.40, 0.17), (0.37, 0.535, 0.05, 0.03), (0.65, 0.535, 0.04, 0.03), (0.505, 0.55, 0.022, 0.02)],
@@ -74,6 +75,14 @@ for name, cf in CFG.items():
         sizes = ndimage.sum(C, lab, range(1, n + 1))
         keep = [i + 1 for i, s in enumerate(sizes) if s > sizes.max() * 0.04]
         C = np.isin(lab, keep).astype(np.uint8)
+    if cf.get("allow"):   # a personagem só pode estar nestas zonas (evita apanhar a borda do asteroide)
+        al = np.zeros_like(C, bool)
+        for sh in cf["allow"]:
+            if sh[0] == "e":
+                _, cx, cy, rx, ry = sh; al |= ((xx - cx * ws) / (rx * ws)) ** 2 + ((yy - cy * hs) / (ry * hs)) ** 2 < 1
+            else:
+                _, ax0, ay0, ax1, ay1 = sh; al |= (xx > ax0 * ws) & (xx < ax1 * ws) & (yy > ay0 * hs) & (yy < ay1 * hs)
+        C = C * al
     C = ndimage.binary_fill_holes(C).astype(np.float32)
     C = cv2.resize(C, (W, H), interpolation=cv2.INTER_LINEAR)
     C = cv2.GaussianBlur(np.clip((C - 0.5) * 3 + 0.5, 0, 1), (0, 0), 1.2)
@@ -92,12 +101,13 @@ for name, cf in CFG.items():
     L0 = fill(im, keep0)
     L0 = cv2.GaussianBlur(L0, (0, 0), 3.0)
     # L1: objetos, com a personagem preenchida por baixo
-    notC = (cv2.dilate((C > 0.05).astype(np.uint8), np.ones((15, 15))) == 0)
+    notC = (cv2.dilate((C > 0.02).astype(np.uint8), np.ones((41, 41))) == 0)
     L1rgb = fill(im, notC * (Sf > 0.5))
-    L1rgb = np.where(notC[..., None], im, L1rgb)
+    L1rgb = np.where((C < 0.02)[..., None], im, L1rgb)   # preenchido só por baixo da personagem (sem halo à volta)
     a1 = np.clip(Sf, 0, 1)
     obj = np.clip(Sf - C, 0, 1)
-    a1 = np.maximum(obj, C * (cv2.GaussianBlur(obj, (0, 0), 25) > 0.08))   # por baixo da personagem só onde havia objeto à volta
+    Cd = cv2.GaussianBlur(cv2.dilate((C > 0.02).astype(np.uint8), np.ones((25, 25))).astype(np.float32), (0, 0), 3)
+    a1 = np.maximum(obj, Cd * (cv2.GaussianBlur(obj, (0, 0), 25) > 0.08))   # por baixo da personagem (sem anel transparente) onde havia objeto à volta
     def save(rgb, a, fn):
         out = np.dstack([np.clip(rgb, 0, 255), np.clip(a * 255, 0, 255)]).astype(np.uint8)
         Image.fromarray(out, "RGBA").save(fn)

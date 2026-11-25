@@ -203,8 +203,8 @@ def layers(name):
 # A câmara anda sempre (deriva contínua + movimentos de cada cena); cada camada desloca-se e aproxima-se
 # segundo a sua distância; cada camada projeta sombra suave na de trás; brilhos desfocados em primeiro plano.
 DEPTH = {   # fator de parallax por camada (fundo, objetos, personagem); personagem em cima de um objeto = valores próximos
-    "a1_panico": (0.18, 0.55, 1.0), "a2_genio": (0.18, 0.5, 1.0), "a3_foguetes": (0.18, 0.82, 1.0),
-    "a4_pintar": (0.18, 0.82, 1.0), "a5_impacto": (0.18, 0.5, 1.0), "a6_alivio": (0.18, 0.85, 1.0)}
+    "a1_panico": (0.18, 0.65, 1.0), "a2_genio": (0.18, 0.5, 1.0), "a3_foguetes": (0.18, 0.9, 0.9),
+    "a4_pintar": (0.18, 0.9, 0.9), "a5_impacto": (0.18, 0.5, 1.0), "a6_alivio": (0.18, 0.9, 0.9)}
 DRIFT_T = 0.0; DRIFT_MIX = 0.0; LAST = (0.0, 0.0, 0.0)
 LAY3 = {}
 
@@ -252,8 +252,8 @@ def draw_par(c, name, zoom, fx, fy, px=0.0, py=0.0, push=0.0, a=1.0):
     for k, (s, sh) in enumerate(L):
         if sh is not None:   # sombra suave na camada de trás (luz de cima à esquerda)
             ss, dn = sh
-            c.save(); tf(k, (16 + 10 * k, 26 + 12 * k)); c.scale(dn, dn)
-            c.set_source_surface(ss, 0, 0); c.get_source().set_filter(cairo.FILTER_BILINEAR); c.paint_with_alpha(0.5 * a); c.restore()
+            c.save(); tf(k, (10 + 6 * k, 16 + 8 * k)); c.scale(dn, dn)
+            c.set_source_surface(ss, 0, 0); c.get_source().set_filter(cairo.FILTER_BILINEAR); c.paint_with_alpha(0.38 * a); c.restore()
         c.save(); tf(k)
         c.set_source_surface(s, 0, 0); c.get_source().set_filter(cairo.FILTER_GOOD)
         c.paint_with_alpha(a); c.restore()
@@ -583,7 +583,7 @@ def s_rockets(c, t):
     u = t - A[1]
     sp = max(0, t - T["asteroid"])
     rot = 0.25 * sp * sp
-    P = view(c, "a3_foguetes", 1.06 + 0.03 * u, 0.5, 0.50, t, px=6 * u, py=-8 * u, push=0.04 * u, rot=rot, shake=3)
+    P = view(c, "a3_foguetes", 1.06 + 0.03 * u, 0.5, 0.46, t, px=6 * u, py=8 * u, push=0.04 * u, rot=rot, shake=3)
     cx, cy = P(*AC3)
     if t >= T["rockets"] - 0.2:
         a = seg(t, T["rockets"] - 0.2, T["rockets"] + 0.2)
