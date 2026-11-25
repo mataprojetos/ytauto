@@ -732,6 +732,301 @@ def s_record(c, t):
     vignette(c, 0.35)
 
 
+# =====================================================================
+# v3 (pedido do dono, 25/11/2026): a MESMA personagem do início ao fim, sempre dentro das ilustrações
+# (o rapaz do avião). 1944 e 1972 aparecem dentro de um balão de pensamento dele.
+# =====================================================================
+from scipy import ndimage  # noqa: E402
+
+IW, IH = 1536, 2752
+
+
+def to_scr(base, x0, y0, fx, fy):
+    """ponto da ilustração (fração da largura/altura) → ecrã"""
+    return (fx * IW - x0) * base, (fy * IH - y0) * base
+
+
+def surf_alpha(path, erode=0, tint=(1, 1, 1)):
+    m = np.array(Image.open(path).convert("L")) > 127
+    if erode: m = ndimage.binary_erosion(m, iterations=erode)
+    a = ndimage.gaussian_filter(m.astype(np.float32), 2.0)
+    return _surf(np.ones(a.shape + (3,), np.float32) * np.array(tint, np.float32) * 255, a)
+
+
+def scene_surface(fn, *args):
+    s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H); cc = cairo.Context(s); fn(cc, *args); return s
+
+
+def masked(c, content, mask_surf, base, x0, y0, a=1.0):
+    """pinta 'content' (superfície do ecrã) só dentro da máscara (coordenadas da ilustração)"""
+    pat = cairo.SurfacePattern(mask_surf)
+    m = cairo.Matrix(xx=1 / base, yy=1 / base, x0=x0, y0=y0); pat.set_matrix(m)
+    c.save(); c.set_source_surface(content, 0, 0)
+    if a < 1:
+        c.push_group(); c.mask(pat); c.pop_group_to_source(); c.paint_with_alpha(a)
+    else:
+        c.mask(pat)
+    c.restore()
+
+
+# ---------- frio e desmaio (v3_frio → v3_sono → v3_frio) ----------
+def s_cold(c, t):
+    u = t - T["first"]
+    ks = seg(t, T["pass_"], T["pass_"] + 0.45) * (1 - seg(t, T["wake"], T["wake"] + 0.15))
+    z = 1.08 + 0.012 * u
+    shiver = (1 - ks) * seg(t, T["fifty"], T["fifty"] + 0.3)
+    jx = 9 * math.sin(t * 47) * shiver; jy = 5 * math.cos(t * 39) * shiver
+    bob = 14 * math.sin(t * 1.6)
+    base, x0, y0 = draw_par(c, "v3_frio", z, 0.5, 0.47, px=jx, py=bob + jy, push=0.04 * u / 8)
+    if ks > 0.003:
+        sl = scene_surface(lambda cc: draw_par(cc, "v3_sono", z, 0.5, 0.47, px=0, py=bob, push=0.04 * u / 8))
+        c.set_source_surface(sl, 0, 0); c.paint_with_alpha(ks)
+    frost(c, seg(t, T["fifty"], T["fifty"] + 0.4) * (1 - seg(t, T["wake"] + 0.3, T["now"])))
+    # Zzz a sair da cabeça enquanto dorme
+    hx, hy = to_scr(base, x0, y0, 0.55, 0.30)
+    if ks > 0.2:
+        for i in range(3):
+            ph = ((t - T["pass_"]) * 0.8 + i / 3) % 1
+            text(c, "Z", hx + 120 + 80 * ph, hy + 20 - 150 * ph, 70 + 40 * ph, INK, (1 - ph) * ks, ow=0.14, rot=0.2)
+    wake = seg(t, T["wake"], T["wake"] + 0.15)
+    if wake > 0 and t < T["now"]:
+        text(c, "!", hx + 190, hy - 40, 170, GOLD, 1, ow=0.12, scale=popin(t, T["wake"], 0.25), rot=0.2)
+        c.set_source_rgba(1, 1, 1, 0.35 * (1 - seg(t, T["wake"], T["wake"] + 0.25))); c.paint()
+    # altímetro e termómetro
+    ka = popin(t, T["ten"] - 0.08, 0.25)
+    if ka > 0:
+        alt = 10.0 if t < T["wake"] else lerp(10.0, 4.0, smooth((t - T["wake"]) / (T["now"] - T["wake"] + 0.3)))
+        c.save(); c.translate(270, 330); c.scale(ka, ka)
+        c.set_source_rgba(0.04, 0.07, 0.16, 0.85); rr(c, -200, -95, 400, 190, 40); c.fill()
+        c.set_source_rgba(*SKY, 1); c.set_line_width(5); rr(c, -200, -95, 400, 190, 40); c.stroke(); c.restore()
+        text(c, "ALTITUDE", 270, 330 - 52 * ka, 34, SKY, 1, outline=False, scale=ka)
+        text(c, f"{alt:.0f} KM" if alt >= 9.95 else f"{alt:.1f} KM", 270, 330 + 25 * ka, 88, INK, 1, outline=False, scale=ka)
+    kt = popin(t, T["fifty"] - 0.08, 0.25)
+    if kt > 0:
+        thermo(c, 930, 380, seg(t, T["fifty"] - 0.1, T["fifty"] + 0.5), 1)
+        text(c, "-50°C", 730, 330, 92, ICE, 1, ow=0.15, scale=kt)
+    if T["air"] - 0.1 <= t < T["best"]:
+        k = popin(t, T["air"] - 0.1, 0.22) * (1 - seg(t, T["best"] - 0.3, T["best"] - 0.05))
+        lvl = 1 - 0.8 * seg(t, T["air"] - 0.1, T["air"] + 0.6)
+        if k > 0.01:
+            c.save(); c.translate(270, 490); c.scale(k, k)
+            c.set_source_rgba(0.04, 0.07, 0.16, 0.85); rr(c, -200, -38, 400, 76, 38); c.fill()
+            c.set_source_rgba(*(RED if lvl < 0.4 else LIME), 1); rr(c, -60, -16, 230 * lvl, 32, 16); c.fill()
+            c.set_source_rgba(1, 1, 1, 0.6); c.set_line_width(3); rr(c, -60, -16, 230, 32, 16); c.stroke(); c.restore()
+            text(c, "AIR", 270 - 125 * k, 490, 40, INK, 1, outline=False, scale=k)
+    card(c, t, T["best"] - 0.05, [("BEST NAP", GOLD), ("OF YOUR LIFE", INK)], 210, 1170, 660, GOLD,
+         bg=(0.05, 0.07, 0.2), t1=T["wake"] - 0.1, size=60, rot=0.03)
+    vignette(c, 0.4)
+
+
+# ---------- 200 km/h em estrela (v3_estrela) ----------
+def s_star3(c, t):
+    u = t - T["now"]; D = T["water"] - T["now"]
+    p = smooth(u / D)
+    sh = 6 * math.sin(t * 25) * (1 - seg(t, T["spread"], T["spread"] + 0.6))
+    c.save(); c.translate(sh, 0)
+    base, x0, y0 = draw_par(c, "v3_estrela", 1.06 + 0.16 * p, 0.5, lerp(0.42, 0.45, p), px=12 * math.sin(u), py=-50 * p, push=0.14 * p)
+    c.restore()
+    wind_lines(c, t, 0.6, 1.6, n=30, seed=3)
+    v = 200 * ease((t - T["now"]) / (T["n200"] + 0.3 - T["now"]))
+    gauge(c, 540, 1250, v, 1 - seg(t, T["water"] - 0.3, T["water"]))
+    gx, gy = to_scr(base, x0, y0, 0.5, 0.36)
+    star_outline(c, gx + sh, gy, 430, seg(t, T["spread"] + 0.2, T["starfish"] + 0.2), u)
+    for lab, t0, t1, col in (("TOP SPEED", T["top"] - 0.05, T["starfish"] - 0.1, RED), ("STARFISH MODE", T["starfish"], T["slows"] - 0.1, GOLD)):
+        if t0 <= t < t1 + 0.2:
+            k = popin(t, t0, 0.25) * (1 - seg(t, t1, t1 + 0.2))
+            if k > 0.01:
+                c.save(); c.translate(540, 1000); c.rotate(-0.05); c.scale(k, k)
+                c.set_source_rgba(*col, 0.92); rr(c, -270, -52, 540, 104, 22); c.fill(); c.restore()
+                text(c, lab, 540, 1000, 64, INK if col == RED else DARK, 1, outline=False, scale=k, rot=-0.05)
+    if t >= T["slows"] - 0.1:   # o ar a empurrar para cima (setas debaixo dos braços e pernas)
+        k = seg(t, T["slows"] - 0.1, T["slows"] + 0.3)
+        for dx in (-300, 0, 300):
+            ax, ay = gx + dx, gy + 260 - 40 * k + 18 * math.sin(t * 8 + dx)
+            c.set_source_rgba(*SKY, 0.95 * k); c.set_line_width(14); c.set_line_cap(cairo.LINE_CAP_ROUND)
+            c.move_to(ax, ay + 90); c.line_to(ax, ay); c.stroke()
+            c.move_to(ax - 30, ay + 30); c.line_to(ax, ay); c.line_to(ax + 30, ay + 30); c.stroke()
+        text(c, "AIR PUSHES BACK", 540, 1000, 70, SKY, k, ow=0.16)
+    vignette(c, 0.35)
+
+
+# ---------- escolher onde aterrar (v3_escolha): marcas em cima da própria paisagem ----------
+LAKE = None
+REGIONS = dict(water=(0.2, 0.66), snow=(0.56, 0.64), trees=(0.8, 0.6), hill=(0.6, 0.88))
+
+
+def s_menu3(c, t):
+    global LAKE
+    if LAKE is None:
+        LAKE = surf_alpha(f"{ROOT}/anim/v3_escolha_lago.png", tint=(0.6, 0.6, 0.62))
+    u = t - T["water"]; D = T["sounds"] + 0.45 - T["water"]
+    p = smooth(u / D)
+    base, x0, y0 = draw_par(c, "v3_escolha", 1.04 + 0.1 * p, 0.5, 0.55, px=0, py=-30 * p, push=0.08 * p)
+    # a água transforma-se em cimento (pintado só por cima do lago da ilustração)
+    morph = seg(t, T["concrete"] - 0.1, T["concrete"] + 0.35)
+    if morph > 0:
+        c.save(); c.scale(base, base); c.translate(-x0, -y0)
+        c.set_source_surface(LAKE, 0, 0); c.paint_with_alpha(0.92 * morph)
+        c.set_source_rgba(0.28, 0.28, 0.3, morph); c.set_line_width(9)
+        for pts in (((80, 1600), (230, 1750), (190, 1900), (330, 2050)), ((480, 1550), (380, 1720), (450, 1850))):
+            c.move_to(*pts[0])
+            for q in pts[1:]: c.line_to(*q)
+            c.stroke()
+        c.restore()
+    text(c, "PICK YOUR LANDING", 540, 300, 80, INK, 1 - seg(t, T["concrete"] - 0.2, T["concrete"]), ow=0.15, scale=popin(t, T["water"], 0.25))
+    times = dict(water=T["water"], snow=T["snow"] - 0.1, trees=T["trees"] - 0.1, hill=T["really"] - 0.1)
+    marks = dict(water=T["bad"], snow=T["snow"] + 0.15, trees=T["trees"] + 0.15, hill=T["soft"])
+    for kind, (fx, fy) in REGIONS.items():
+        if t < times[kind]: continue
+        x, y = to_scr(base, x0, y0, fx, fy)
+        k = popin(t, times[kind], 0.25)
+        lab = {"water": "CONCRETE" if morph > 0.5 else "WATER", "snow": "SNOW", "trees": "TREES", "hill": "SOFT HILL"}[kind]
+        c.save(); c.translate(x, y + 70); c.scale(k, k)
+        c.set_source_rgba(0.03, 0.05, 0.14, 0.85); rr(c, -150, -34, 300, 68, 34); c.fill(); c.restore()
+        text(c, lab, x, y + 70, 42, INK, 1, outline=False, scale=k)
+        mt = marks[kind]
+        if t >= mt:
+            q = seg(t, mt, mt + 0.25)
+            c.set_source_rgba(*(RED if kind == "water" else (0.15, 0.7, 0.3)), 1); c.arc(x, y - 10, 46 * popin(t, mt, 0.2), 0, 2 * math.pi); c.fill()
+            c.set_source_rgba(1, 1, 1, 1); c.set_line_width(5); c.arc(x, y - 10, 46 * popin(t, mt, 0.2), 0, 2 * math.pi); c.stroke()
+            if kind == "water": xmark(c, x, y - 10, 18, INK, q, w=10)
+            else: check(c, x + 4, y - 14, 52, INK, 1, q)
+    card(c, t, T["concrete"], [("SPLASH?", INK), ("MORE LIKE CRUNCH", GOLD)], 170, 220, 740, GOLD, bg=(0.05, 0.07, 0.2), t1=T["snow"] - 0.2, size=50)
+    card(c, t, T["soft"], [("LIKE YOUR BED", INK), ("ON A MONDAY MORNING", GOLD)], 130, 220, 820, GOLD, bg=(0.05, 0.07, 0.2), t1=T["sounds"] - 0.05, size=48)
+    if t >= T["sounds"]:
+        k = popin(t, T["sounds"], 0.2)
+        c.set_source_rgba(0, 0, 0, 0.3 * min(1, k)); c.paint()
+        text(c, "IMPOSSIBLE?", 540, 860, 130, GOLD, 1, ow=0.14, scale=k, rot=-0.05)
+    vignette(c, 0.35)
+
+
+# ---------- o rapaz imagina: 1944 e 1972 dentro do balão de pensamento (v3_pensa) ----------
+BUBBLE = None
+S3 = None
+
+
+def pensa_cam(t):
+    u = t - T["sounds"]
+    return 1.0 + 0.006 * u, 0.0, 10 * math.sin(t * 1.3)
+
+
+def draw_pensa(c, t, dim=0.0):
+    z, fy, bob = pensa_cam(t)
+    base, x0, y0 = draw_par(c, "v3_pensa", z, 0.5, fy, px=0, py=0, push=0)
+    return base, x0, y0
+
+
+def bubble_1944(cc, t):
+    """o piloto na neve (ilustração s3), dentro do balão; zoom lento"""
+    global S3
+    if S3 is None:
+        im = np.array(Image.open(f"{ROOT}/anim/s3_piloto_neve.png").convert("RGB"), np.float32)
+        S3 = _surf(im, np.ones(im.shape[:2], np.float32))
+    u = t - T["sounds"] - 0.45
+    sc = 0.95 + 0.02 * u
+    cc.save(); cc.translate(540, 330); cc.scale(sc, sc); cc.translate(-0.6 * IW, -0.62 * IH)
+    cc.set_source_surface(S3, 0, 0); cc.get_source().set_filter(cairo.FILTER_GOOD); cc.paint(); cc.restore()
+    snowfall(cc, t, 0.7, n=50)
+
+
+def bubble_1972(cc, t):
+    """régua de altitude até 10 160 m, Everest, sobreviveu, troféu — sem acidente nem destroços"""
+    g = cairo.LinearGradient(0, 0, 0, 640); g.add_color_stop_rgb(0, 0.03, 0.04, 0.16); g.add_color_stop_rgb(0.75, 0.2, 0.25, 0.55)
+    g.add_color_stop_rgb(1, 0.95, 0.55, 0.35); cc.set_source(g); cc.paint()
+    rnd = random.Random(8)
+    for _ in range(60):
+        x, y, r = rnd.random() * W, rnd.random() * 500, rnd.random() * 2 + 0.6
+        cc.set_source_rgba(1, 1, 1, 0.3 + 0.4 * abs(math.sin(t * 2 + x))); cc.arc(x, y, r, 0, 2 * math.pi); cc.fill()
+    out = seg(t, T["survived"] - 0.15, T["survived"] + 0.2)
+    a = (1 - out) * seg(t, T["n1972"] + 0.2, T["n1972"] + 0.6)
+    if a > 0:
+        y0, y1, X = 560, 210, 330
+        def ym(m): return y0 - (y0 - y1) * m / REC
+        cc.set_source_rgba(1, 1, 1, 0.85 * a); cc.set_line_width(5); cc.move_to(X, y0); cc.line_to(X, y1 - 20); cc.stroke()
+        for m in range(0, REC + 1, 2000):
+            cc.move_to(X - 18, ym(m)); cc.line_to(X + 18, ym(m)); cc.stroke()
+            text(cc, f"{m // 1000} KM", X - 30, ym(m), 26, INK, 0.85 * a, align="r", outline=False)
+        ex = 680
+        cc.set_source_rgba(0.75, 0.82, 0.95, 0.9 * a); cc.move_to(ex - 220, y0); cc.line_to(ex - 30, ym(EVEREST)); cc.line_to(ex + 10, ym(EVEREST) + 35)
+        cc.line_to(ex + 50, ym(EVEREST) + 15); cc.line_to(ex + 240, y0); cc.close_path(); cc.fill()
+        cc.set_source_rgba(1, 1, 1, a); cc.move_to(ex - 85, ym(EVEREST) + 100); cc.line_to(ex - 30, ym(EVEREST)); cc.line_to(ex + 10, ym(EVEREST) + 35)
+        cc.line_to(ex + 50, ym(EVEREST) + 15); cc.line_to(ex + 100, ym(EVEREST) + 110); cc.close_path(); cc.fill()
+        dashed(cc, X, ym(EVEREST), ex + 260, ym(EVEREST), INK, 0.5 * a, w=3)
+        text(cc, "EVEREST 8,849 M", ex + 170, ym(EVEREST) + 60, 30, INK, 0.95 * a, ow=0.18)
+        m = REC * ease((t - T["ten2"] + 0.1) / (T["trapped"] + 0.5 - T["ten2"]))
+        yy = ym(m)
+        cc.set_source_rgba(*GOLD, a); cc.move_to(X + 4, yy); cc.line_to(X + 36, yy - 18); cc.line_to(X + 36, yy + 18); cc.close_path(); cc.fill()
+        cc.set_source_rgba(*GOLD, 0.9 * a); cc.set_line_width(8); cc.move_to(X, y0); cc.line_to(X, yy); cc.stroke()
+        text(cc, f"{int(round(m / 10) * 10):,} M", X + 50, yy, 60, GOLD, a, align="l", ow=0.15)
+        if m > EVEREST:
+            text(cc, "HIGHER THAN EVEREST", X + 50, yy + 55, 34, INK, a * seg(t, T["trapped"], T["trapped"] + 0.25), align="l", ow=0.2)
+    if t >= T["survived"] - 0.15:
+        k = popin(t, T["survived"] - 0.15, 0.25) * (1 - seg(t, T["world"] - 0.25, T["world"]))
+        if k > 0.01:
+            cc.set_source_rgba(0.15, 0.7, 0.3, 1); cc.arc(540, 300, 90 * k, 0, 2 * math.pi); cc.fill()
+            check(cc, 550, 290, 110 * k, INK, 1, seg(t, T["survived"], T["survived"] + 0.3))
+            text(cc, "SHE SURVIVED", 540, 470, 90, LIME, 1, ow=0.13, scale=k)
+    if t >= T["world"] - 0.2:
+        k = popin(t, T["world"] - 0.2, 0.3)
+        glow(cc, 540, 330, 380, GOLD, 0.5 * min(1, k))
+        for i in range(10):
+            an = i * math.pi / 5 + t * 0.6
+            sparkle(cc, 540 + 300 * math.cos(an), 330 + 190 * math.sin(an), 18, GOLD, 0.8 * min(1, k))
+        cc.save(); cc.translate(540, 370); cc.scale(0.62 * k, 0.62 * k)
+        cc.set_source_rgb(1.0, 0.78, 0.2)
+        cc.move_to(-150, -230); cc.line_to(150, -230); cc.curve_to(150, -40, 80, 30, 0, 40); cc.curve_to(-80, 30, -150, -40, -150, -230); cc.fill()
+        cc.set_line_width(26); cc.arc(-150, -150, 70, math.pi * 0.5, math.pi * 1.5); cc.stroke(); cc.arc(150, -150, 70, -math.pi * 0.5, math.pi * 0.5); cc.stroke()
+        cc.rectangle(-28, 30, 56, 100); cc.fill(); rr(cc, -120, 120, 240, 60, 14); cc.fill()
+        cc.set_source_rgb(0.75, 0.5, 0.08); rr(cc, -150, 180, 300, 70, 14); cc.fill()
+        cc.set_source_rgba(1, 1, 1, 0.45); cc.move_to(-100, -210); cc.curve_to(-100, -100, -70, -40, -30, -10); cc.set_line_width(14); cc.stroke()
+        cc.restore()
+        text(cc, "HIGHEST FALL SURVIVED · 10,160 M", 540, 555, 38, INK, 1, ow=0.2, scale=popin(t, T["world"] + 0.15, 0.25))
+
+
+def s_think(c, t):
+    global BUBBLE
+    if BUBBLE is None: BUBBLE = surf_alpha(f"{ROOT}/anim/v3_pensa_balao.png", erode=14)
+    base, x0, y0 = draw_pensa(c, t)
+    t44, t72 = T["sounds"] + 0.45, T["and72"]
+    grow = seg(t, t44, t44 + 0.45)    # o pensamento "aparece" dentro do balão
+    if t < t72:
+        masked(c, scene_surface(bubble_1944, t), BUBBLE, base, x0, y0, a=grow)
+    if t >= t72:
+        masked(c, scene_surface(bubble_1972, t), BUBBLE, base, x0, y0, a=seg(t, t72, t72 + 0.35))
+    # textos fora do balão, ao lado do rapaz
+    if t < t72:
+        if t >= T["n1944"] - 0.1:
+            text(c, "1944", 540, 690, 150, GOLD, 1, ow=0.12, scale=popin(t, T["n1944"] - 0.1, 0.28))
+        if t >= T["six"] - 0.1:
+            text(c, "18,000 FT FALL", 270, 890, 52, INK, 1, ow=0.18, scale=popin(t, T["six"] - 0.1, 0.25))
+        if t < T["sprained"] - 0.1:
+            chip(c, t, T["pine"] - 0.05, "PINE TREES", 820, 1160, LIME, w=400, size=42)
+            chip(c, t, T["deep"] - 0.05, "DEEP SNOW", 820, 1280, LIME, w=380, size=42)
+        if t >= T["sprained"] - 0.1:
+            k = popin(t, T["sprained"] - 0.1, 0.25)
+            c.save(); c.translate(540, 1180); c.rotate(-0.03); c.scale(k, k)
+            c.set_source_rgba(0.05, 0.07, 0.2, 0.92); rr(c, -370, -64, 740, 128, 34); c.fill()
+            c.set_source_rgba(*GOLD, 1); c.set_line_width(5); rr(c, -370, -64, 740, 128, 34); c.stroke(); c.restore()
+            text(c, "DAMAGE: 1 SPRAINED LEG", 540, 1180, 46, INK, 1, outline=False, scale=k, rot=-0.03)
+    else:
+        if t >= T["n1972"] - 0.1 and t < T["world"]:
+            k = popin(t, T["n1972"] - 0.1, 0.28) * (1 - seg(t, T["world"] - 0.25, T["world"] - 0.05))
+            if k > 0.01: text(c, "1972", 540, 690, 150, GOLD, 1, ow=0.12, scale=k)
+        if t >= T["world"] - 0.05:
+            text(c, "WORLD RECORD", 540, 690, 104, GOLD, 1, ow=0.13, scale=popin(t, T["world"] - 0.05, 0.28))
+    vignette(c, 0.3)
+
+
+def s_brand3(c, t):
+    u = t - T["brand"]
+    global BUBBLE
+    if BUBBLE is None: BUBBLE = surf_alpha(f"{ROOT}/anim/v3_pensa_balao.png", erode=14)
+    base, x0, y0 = draw_pensa(c, t)
+    masked(c, scene_surface(bubble_1944, t), BUBBLE, base, x0, y0)
+    c.set_source_rgba(0.03, 0.04, 0.12, 0.6); c.paint()
+    draw_scratch(c, u, 540, 760, scale=0.95, skin=(0.98, 0.8, 0.64), accent=(0.82, 0.62, 0.74), ink=INK, hair=(0.45, 0.27, 0.14))   # cores do rapaz (capuz malva, cabelo castanho)
+
+
 # ---------- final: de volta ao avião, lista de verificação, loop para o frame 0 ----------
 def s_end(c, t):
     """'So next time…': de volta ao avião com a lista; em '…if you…' a câmara volta continuamente à do frame 0."""
@@ -769,12 +1064,13 @@ def s_end(c, t):
 
 
 SCENES = [
-    (0.0, T["first"], s_hook), (T["first"], T["now"], s_altitude), (T["now"], T["water"], s_star),
-    (T["water"], T["sounds"] + 0.45, s_menu), (T["sounds"] + 0.45, T["brand"], s_pilot), (T["brand"], T["and72"], s_brand),
-    (T["and72"], T["so"], s_record), (T["so"], 99, s_end),
+    (0.0, T["first"], s_hook), (T["first"], T["now"], s_cold), (T["now"], T["water"], s_star3),
+    (T["water"], T["sounds"] + 0.45, s_menu3), (T["sounds"] + 0.45, T["brand"], s_think), (T["brand"], T["and72"], s_brand3),
+    (T["and72"], T["so"], s_think), (T["so"], 99, s_end),
 ]
-NO_PUNCH = {s_brand, s_end}
-SUB_T0 = T["and72"] + 0.05          # pop-up logo a seguir a "That one made me scratch my head", no topo (fora do essencial)
+NO_PUNCH = {s_brand3, s_end}
+SUB_T0 = T["and72"] + 0.05          # pop-up logo a seguir a "That one made me scratch my head"
+SUB_Y = 1220                        # por baixo do rapaz, acima das legendas (o balão ocupa o topo)
 
 
 def badge(c, t): pass
@@ -797,7 +1093,7 @@ def subscribe(c, t):
     if u < 0 or u > 2.6: return
     inn = seg(u, 0, 0.35); out = seg(u, 2.2, 2.55); a = inn * (1 - out)
     done = u > 1.0
-    w, h = 660, 104; x = (W - w) / 2; y = 330 - 40 * (1 - inn) - 30 * out
+    w, h = 660, 104; x = (W - w) / 2; y = SUB_Y - 40 * (1 - inn) - 30 * out
     sc = 0.92 + 0.08 * inn - 0.05 * math.sin(math.pi * clamp((u - 0.85) / 0.25))
     c.save(); c.translate(W / 2, y + h / 2); c.scale(sc, sc); c.translate(-W / 2, -(y + h / 2))
     c.set_source_rgba(0.03, 0.06, 0.18, 0.9 * a); rr(c, x, y, w, h, h / 2); c.fill()
@@ -956,7 +1252,7 @@ def mix(raw_video):
     # v2 (pedido do dono, 25/11/2026): sem vento de fundo contínuo — afastava as pessoas do vídeo
     E = [(a("scratch_head"), T["brand"], 0.6)]
     E += [(swish, x - 0.12, 0.16) for x in (T["now"], T["water"], T["sounds"] + 0.45, T["and72"])]
-    E += [(ding, x, 0.13) for x in (T["best"], T["concrete"] + 0.1, T["soft"] + 0.05)]   # piadas (pedido do guião), baixo
+    # sem ding nas piadas (regra do canal, 24/11/2026)
     E += [(pop, T["n200"] - 0.05, 0.18), (pop, T["n1944"] - 0.05, 0.16), (pop, SUB_T0 + 1.0, 0.16)]
     E += [(boom, T["world"] - 0.2, 0.32), (shimmer, T["world"] - 0.15, 0.22)]
     ins, ch, lab = [], [], []
