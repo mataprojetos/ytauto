@@ -1,6 +1,6 @@
 # EP009 · What If You Fell Out of a Plane Without a Parachute?
 
-- **Privado:** https://www.youtube.com/shorts/L0KWjrkJWWk (48,2 s), capa aplicada e confirmada (personalizada + versão vertical do feed de Shorts)
+- **Privado (v2):** https://www.youtube.com/shorts/CmjneUs37Xg (48,2 s), capa aplicada e confirmada (personalizada + versão vertical do feed de Shorts)
 - **Formato livre** (pedido do dono): até ~60 s, sem alarme no gancho, tom com humor. Guião do dono, narração sem alterações.
 - **Montagem:** `ep009/anim_ep009.py` (base do EP008) · cortes de áudio `ep009/build/audio_cut.py` (silêncios encurtados para 0,10 s, 7,2 s removidos, atempo 1,10) · palavras `ep009/build/words.json` (faster-whisper + texto exato do guião, `build/fix_words.py`, 171/171) · profundidade `ep009/build/depth.py` · capa `ep009/thumb_ep009.py` → `thumbnails/ep009_thumb.jpg` · folha de controlo `ep009/folha_controlo_ep009.jpg` (frame 0, pop-up, último frame)
 
@@ -25,7 +25,10 @@ Sem refações. Música reaproveitada (`music/track01_cosmic_ambient.mp3`, com d
 - 36,8 s código: "1972", régua de altitude a subir até 10,160 M, Everest como referência, "HIGHER THAN EVEREST", "SHE SURVIVED", troféu "WORLD RECORD" (boom + brilho). Sem acidente nem destroços.
 - 44,6 s de volta à s1 com a lista "FALL PLAN" a marcar; em "…if you…" a câmara volta continuamente à do frame 0 e o cronómetro reaparece em 3:00.00 (último frame = frame 0, diferença 0 no render de teste).
 
-## Áudio
+## v2 (25/11/2026, pedido do dono)
+O dono apagou a v1 (L0KWjrkJWWk): o som de fundo afastava as pessoas. Tirado o vento contínuo e baixada a música (0,2 → 0,12, com ducking); efeitos e imagem iguais. Capa com o texto ao centro (como no EP007). Sem créditos extra.
+
+## Áudio (v1)
 Vento contínuo do princípio ao fim, com volume/brilho a seguir a velocidade (baixa no desmaio, máximo nos 200 km/h, quase calado na neve e em 1972, volta no fim para ligar ao loop). 14 efeitos: vento, 4 swishes (capítulos), 3 dings baixos nas piadas (pedido do guião), 3 pops (200 · 1944 · toque da subscrição), frase de marca, boom + brilho no recorde. Loudness −15,8 LUFS, pico −1,4 dBTP.
 
 ## Fontes

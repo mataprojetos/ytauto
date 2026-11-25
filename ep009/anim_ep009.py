@@ -953,7 +953,8 @@ def mix(raw_video):
     wind = (low * 0.8 + high * 0.35 * g) * g * gust
     wind[:int(0.03 * SR)] *= np.linspace(0, 1, int(0.03 * SR)) * 0 + 1   # sem fade: o loop liga o fim ao início
     wind_p = wav("wind", wind / np.abs(wind).max() * 0.6)
-    E = [(wind_p, 0.0, 0.32), (a("scratch_head"), T["brand"], 0.6)]
+    # v2 (pedido do dono, 25/11/2026): sem vento de fundo contínuo — afastava as pessoas do vídeo
+    E = [(a("scratch_head"), T["brand"], 0.6)]
     E += [(swish, x - 0.12, 0.16) for x in (T["now"], T["water"], T["sounds"] + 0.45, T["and72"])]
     E += [(ding, x, 0.13) for x in (T["best"], T["concrete"] + 0.1, T["soft"] + 0.05)]   # piadas (pedido do guião), baixo
     E += [(pop, T["n200"] - 0.05, 0.18), (pop, T["n1944"] - 0.05, 0.16), (pop, SUB_T0 + 1.0, 0.16)]
@@ -967,7 +968,7 @@ def mix(raw_video):
                     "-filter_complex",
                     f"[0:v]subtitles={ASS},format=yuv420p[v];"
                     "[1:a]asplit=2[n1][nk];"
-                    f"[2:a]atrim=0:{T_END:.3f},volume=0.2[m];"
+                    f"[2:a]atrim=0:{T_END:.3f},volume=0.12[m];"
                     "[m][nk]sidechaincompress=threshold=0.04:ratio=5:attack=30:release=400[md];"
                     f"{sfx};[n1][md][sfx]amix=inputs=3:duration=longest:normalize=0,apad,"
                     f"loudnorm=I=-14:TP=-1.5:LRA=11,atrim=0:{T_END:.3f}[a]",
