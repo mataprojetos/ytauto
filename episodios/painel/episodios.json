@@ -10,7 +10,7 @@
   "visualizacoes": 1423,
   "gostos": 21,
   "comentarios": 9,
-  "retencao_pct": 86.5
+  "retencao_pct": 86.4
  },
  {
   "episodio": "EP002",
@@ -62,7 +62,7 @@
   "visualizacoes": 1346,
   "gostos": 11,
   "comentarios": 5,
-  "retencao_pct": 94.1
+  "retencao_pct": 93.9
  },
  {
   "episodio": "EP006",
@@ -72,10 +72,10 @@
   "estado": "público",
   "creditos": 1.95,
   "duracao_s": 39,
-  "visualizacoes": 1436,
+  "visualizacoes": 1437,
   "gostos": 14,
   "comentarios": 6,
-  "retencao_pct": 76.0
+  "retencao_pct": 74.8
  },
  {
   "episodio": "EP007",
@@ -85,10 +85,10 @@
   "estado": "público",
   "creditos": 21.8,
   "duracao_s": 34,
-  "visualizacoes": 1384,
+  "visualizacoes": 1383,
   "gostos": 18,
   "comentarios": 1,
-  "retencao_pct": null
+  "retencao_pct": 75.8
  },
  {
   "episodio": "EP008",
@@ -98,7 +98,7 @@
   "estado": "público",
   "creditos": 12.25,
   "duracao_s": 39,
-  "visualizacoes": 1427,
+  "visualizacoes": 1423,
   "gostos": 7,
   "comentarios": 1,
   "retencao_pct": null
@@ -111,6 +111,19 @@
   "estado": "privado",
   "creditos": 18.85,
   "duracao_s": 48,
+  "visualizacoes": 0,
+  "gostos": 0,
+  "comentarios": 0,
+  "retencao_pct": null
+ },
+ {
+  "episodio": "EP010",
+  "data": "2026-11-25",
+  "titulo": "What If YOU Had to Stop an Asteroid? ☄️",
+  "link": "https://www.youtube.com/shorts/I_kDWqBwOYo",
+  "estado": "privado",
+  "creditos": 17.9,
+  "duracao_s": 67,
   "visualizacoes": 0,
   "gostos": 0,
   "comentarios": 0,

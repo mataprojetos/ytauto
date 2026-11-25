@@ -1,6 +1,6 @@
 # EP010 · What If YOU Had to Stop an Asteroid? ☄️
 
-- **Privado:** https://www.youtube.com/shorts/VIDEO_ID (67,2 s), capa aplicada com `thumbnails.set`
+- **Privado:** https://www.youtube.com/shorts/I_kDWqBwOYo (67,2 s), capa aplicada com `thumbnails.set`
 - **Formato livre** (pedido do dono): ~65 s, tom com humor, sem alarme. Guião do dono, narração sem alterações; a última frase ("Which means, next time an asteroid is heading for Earth…") liga à primeira (loop de frase; último frame = frame 0).
 - **Base:** EP009 (estilo maquete, parallax 2.5D por profundidade). A mesma personagem (rapaz de capuz): as 7 ilustrações foram geradas com `ep009/anim/s1_queda_aviao.png` como referência.
 - **Montagem:** `ep010/anim_ep010.py` · cortes de áudio `ep010/build/audio_cut.py` (silêncios para 0,10 s, 8,9 s removidos, atempo 1,10) · palavras `ep010/build/words.json` (faster-whisper + texto exato do guião, 232/232) · profundidade `ep010/build/depth.py` · capa `ep010/thumb_ep010.py` → `thumbnails/ep010_thumb.jpg` · folha de controlo `ep010/folha_controlo_ep010.jpg` (frame 0, os "genius", pop-up, último frame)
