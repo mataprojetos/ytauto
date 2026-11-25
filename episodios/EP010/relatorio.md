@@ -9,13 +9,14 @@
 O dono escolheu resolver só por código (0 créditos). Cada ilustração passa a ser uma maquete em 3 camadas recortadas (`ep010/build/layers.py`: saliência rembg isnet + GrabCut guiado por zonas da personagem):
 fundo (espaço, desfocado e mais escuro), objetos (asteroide, Terra, nave, foguetes) e personagem. A câmara está sempre a mexer (deriva contínua + movimentos de cada cena) e cada camada desloca-se e aproxima-se conforme a distância; cada camada projeta sombra suave na de trás; brilhos desfocados em primeiro plano. Quando o rapaz está em cima de um objeto (foguetes, pintar, Terra), ele e o objeto mexem-se juntos (sem costuras). O loop mantém-se (a deriva converge para a do frame 0).
 
-## Créditos (saldo real 869,35 → 851,45)
+## Créditos (saldo real 869,35 → 849,45)
 | Geração | Modelo | Créditos |
 |---|---|---|
 | 6 ilustrações (pânico, pose de génio, foguetes, pintar, impacto da nave, alívio) | nano_banana_pro | 12 |
 | Narração (1 tentativa, guião fechado, stability 0,5) | elevenlabs_v4_turbo, voz Bram | 3,9 |
 | Capa v2 (rapaz a carregar no botão nuclear, asteroide em chamas) | nano_banana_pro | 2 |
-| **Total** | | **17,9** |
+| Ilustração em primeira pessoa para um gancho novo (não usada: o dono mudou de ideias) | nano_banana_pro | 2 |
+| **Total** | | **19,9** |
 
 Sem refações. Música reaproveitada (`music/track01_cosmic_ambient.mp3`, ducking; mais baixa na viragem). Efeitos sintetizados por código.
 

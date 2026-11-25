@@ -10,6 +10,8 @@ from scipy import ndimage
 sys.path.insert(0, "build")
 # caixas da personagem (frações x0,y0,x1,y1) e zonas que de certeza NÃO são a personagem (elipses cx,cy,rx,ry)
 CFG = {
+    "a0_pov":      dict(box=(0.0, 0.56, 1.0, 1.0), notc=[(0.48, 0.36, 0.45, 0.2), (0.5, 0.78, 0.12, 0.08)],
+                        fg=[(0.22, 0.70, 0.06, 0.04), (0.78, 0.70, 0.06, 0.04), (0.14, 0.93, 0.07, 0.05), (0.86, 0.93, 0.07, 0.05)], earth=0.64),
     "a1_panico":   dict(box=(0.30, 0.36, 0.70, 0.85), notc=[(0.48, 0.22, 0.30, 0.13), (0.5, 0.93, 0.6, 0.07), (0.5, 0.76, 0.035, 0.05)],
                         fg=[(0.505, 0.405, 0.06, 0.02), (0.505, 0.43, 0.075, 0.015)], earth=0.79,
                         allow=[("e", 0.505, 0.447, 0.083, 0.072), ("r", 0.28, 0.47, 0.72, 0.86)]),
@@ -43,6 +45,7 @@ def fill(img, keep):
 
 
 for name, cf in CFG.items():
+    if len(sys.argv) > 1 and name not in sys.argv[1:]: continue
     im = np.array(Image.open(f"anim/{name}.png").convert("RGB"))
     H, W = im.shape[:2]
     S = np.array(Image.open(f"anim/{name}_mask.png").convert("L"), np.float32) / 255
