@@ -17,7 +17,7 @@ def lerp(a, b, k): return a + (b - a) * k
 SPACE_TOP, SPACE_BOT = hexc("#0b1026"), hexc("#1b1440")
 OCEAN, OCEAN_D, LAND, LAND_D = hexc("#1f6fb2"), hexc("#134a7c"), hexc("#3f9b6b"), hexc("#2b7353")
 HOOD, HOOD_D, JEANS, JEANS_D, SKIN, SKIN_D, HAIR, SHOE = (hexc(x) for x in ("#8b5a7c", "#6a4060", "#2f4572", "#22345a", "#f0c39e", "#d29a7a", "#4a2c1a", "#7a2230"))
-ROCK, ROCK_L, ROCK_D = hexc("#9a5a34"), hexc("#c27a46"), hexc("#5e321d")
+ROCK, ROCK_L, ROCK_D = hexc("#6e6f76"), hexc("#a9abb2"), hexc("#3a3b42")
 FIRE1, FIRE2, FIRE3 = hexc("#ff4d1f"), hexc("#ff9a2e"), hexc("#ffe08a")
 
 rnd = random.Random(7)
@@ -69,7 +69,7 @@ def earth(c, cx, cy, R, rot, light=(-0.5, -0.8)):
 # ---------- asteroide (low-poly com facetas e crateras) ----------
 AP = [(i / 15 * 6.283, 1 + 0.22 * (random.Random(i * 3 + 1).random() - 0.5)) for i in range(15)]
 CRAT = [(random.Random(50 + i).uniform(-0.55, 0.55), random.Random(80 + i).uniform(-0.55, 0.55), random.Random(90 + i).uniform(0.08, 0.2)) for i in range(7)]
-def asteroid(c, cx, cy, R, rot):
+def asteroid(c, cx, cy, R, rot, heat=0.0):
     pts = [(cx + math.cos(a + rot) * R * k, cy + math.sin(a + rot) * R * k) for a, k in AP]
     def path():
         c.move_to((pts[-1][0] + pts[0][0]) / 2, (pts[-1][1] + pts[0][1]) / 2)
@@ -81,33 +81,50 @@ def asteroid(c, cx, cy, R, rot):
     c.save(); path(); c.clip()
     # planos grandes de luz (lado do fogo, cima-direita) e de sombra (baixo-esquerda)
     c.set_source_rgba(*ROCK_L[:3], 0.9); blob(c, cx + R * 0.35, cy - R * 0.35, R * 0.85, 9, 5, 0.3); c.fill()
-    c.set_source_rgba(1, 0.78, 0.5, 0.35); blob(c, cx + R * 0.55, cy - R * 0.55, R * 0.45, 8, 6, 0.3); c.fill()
+    c.set_source_rgba(0.85, 0.86, 0.9, 0.25); blob(c, cx + R * 0.55, cy - R * 0.55, R * 0.45, 8, 6, 0.3); c.fill()
     c.set_source_rgba(*ROCK_D[:3], 0.85); blob(c, cx - R * 0.55, cy + R * 0.5, R * 0.9, 9, 7, 0.3); c.fill()
     for (u, v, s) in CRAT:   # crateras: cova escura + sombra interior + borda clara do lado da luz
         a = math.atan2(v, u) + rot; d = math.hypot(u, v) * R
         x, y = cx + math.cos(a) * d, cy + math.sin(a) * d; r = s * R
         c.save(); c.translate(x, y); c.rotate(rot * 0.3)
-        c.set_source_rgba(1, 0.75, 0.45, 0.35); c.save(); c.scale(1, 0.82); c.arc(r * 0.12, -r * 0.12, r * 1.12, 0, 6.283); c.restore(); c.fill()
+        c.set_source_rgba(0.8, 0.82, 0.88, 0.35); c.save(); c.scale(1, 0.82); c.arc(r * 0.12, -r * 0.12, r * 1.12, 0, 6.283); c.restore(); c.fill()
         c.set_source_rgba(*ROCK_D[:3], 1); c.save(); c.scale(1, 0.82); c.arc(0, 0, r, 0, 6.283); c.restore(); c.fill()
-        c.set_source_rgba(0.18, 0.08, 0.05, 0.6); c.save(); c.scale(1, 0.82); c.arc(-r * 0.25, r * 0.2, r * 0.7, 0, 6.283); c.restore(); c.fill()
+        c.set_source_rgba(0.08, 0.08, 0.1, 0.6); c.save(); c.scale(1, 0.82); c.arc(-r * 0.25, r * 0.2, r * 0.7, 0, 6.283); c.restore(); c.fill()
         c.restore()
+    if heat > 0:   # borda incandescente DENTRO da silhueta (a face que rasga o ar)
+        g = cairo.RadialGradient(cx - R * 0.1, cy - R * 0.2, R * 0.55, cx, cy, R * 1.15)
+        g.add_color_stop_rgba(0, 1, 0.5, 0.1, 0); g.add_color_stop_rgba(1, 1, 0.5, 0.12, 0.7 * heat)
+        c.set_source(g); c.paint()
     c.restore()
 
-def fire(c, cx, cy, R, t, ang, L):
-    """cauda de fogo (camadas a ondular), atrás do asteroide, na direção ang"""
-    ux, uy = math.cos(ang), math.sin(ang); vx, vy = -uy, ux
-    for k, (col, w, ln) in enumerate(((FIRE1, 1.15, 1.0), (FIRE2, 0.9, 0.8), (FIRE3, 0.6, 0.55))):
-        n = 18; c.move_to(cx + vx * R * w, cy + vy * R * w)
+def corona(c, cx, cy, R, t, heat=1.0):
+    """asteroide quase de frente: cauda de fogo ESTREITA e curta a espreitar por trás (cima-direita) + brilho quente"""
+    glow(c, cx, cy, R * 1.35, FIRE1, 0.22 * heat)
+    ang = -0.8; ux, uy = math.cos(ang), math.sin(ang); vx, vy = -uy, ux
+    for k, (col, wk, lk) in enumerate(((FIRE1, 0.78, 1.9), (FIRE2, 0.6, 1.55), (FIRE3, 0.38, 1.15))):
+        n = 16; L = R * lk * heat; pts_a, pts_b = [], []
         for i in range(n + 1):
-            s = i / n; wv = math.sin(s * 9 - t * 14 + k) * 0.12 * s
-            width = R * w * (1 - s) ** 0.8
-            c.line_to(cx + ux * L * ln * s + vx * (width + wv * R), cy + uy * L * ln * s + vy * (width + wv * R))
-        for i in range(n, -1, -1):
-            s = i / n; wv = math.sin(s * 8 - t * 12 + k + 2) * 0.12 * s
-            width = R * w * (1 - s) ** 0.8
-            c.line_to(cx + ux * L * ln * s - vx * (width + wv * R), cy + uy * L * ln * s - vy * (width + wv * R))
-        c.close_path(); c.set_source_rgba(*col[:3], 0.95); c.fill()
-    glow(c, cx, cy, R * 2.4, FIRE2, 0.35)
+            s = i / n; wob = math.sin(s * 10 - t * 16 + k * 1.7) * 0.07 * s * R
+            w = R * wk * (1 - s) ** 1.3
+            pts_a.append((cx + ux * L * s + vx * (w + wob), cy + uy * L * s + vy * (w + wob)))
+            pts_b.append((cx + ux * L * s - vx * (w - wob), cy + uy * L * s - vy * (w - wob)))
+        c.move_to(*pts_a[0])
+        for pp in pts_a[1:]: c.line_to(*pp)
+        for pp in reversed(pts_b): c.line_to(*pp)
+        c.close_path(); c.set_source_rgba(*col[:3], 0.92); c.fill()
+    for i in range(10):   # faúlhas finas a soltar-se da cauda
+        rr = random.Random(400 + i); ph = (t * (1.2 + rr.random()) + rr.random()) % 1
+        s = 0.3 + ph * 1.4; off = (rr.random() - 0.5) * R * 0.9
+        x, y = cx + ux * R * s * 1.6 + vx * off, cy + uy * R * s * 1.6 + vy * off
+        c.set_source_rgba(1, 0.75, 0.3, (1 - ph) * 0.9); c.arc(x, y, R * 0.025 * (1 - ph) + 1.5, 0, 6.283); c.fill()
+
+
+def rim_heat(c, cx, cy, R, heat):
+    """borda incandescente do lado de baixo (a face que rasga o ar)"""
+    g = cairo.RadialGradient(cx, cy - R * 0.25, R * 0.75, cx, cy, R * 1.02)
+    g.add_color_stop_rgba(0, 1, 0.5, 0.1, 0); g.add_color_stop_rgba(1, 1, 0.55, 0.15, 0.75 * heat)
+    c.set_source(g); c.arc(cx, cy, R * 1.02, 0, 6.283); c.fill()
+
 
 # ---------- personagem (proporções normais, pequena na cena) ----------
 def guy(c, x, y, s, t, arms=0.0, look=0.0, lean=0.0, shake=0.0, rim=0.0):
@@ -157,7 +174,8 @@ def guy(c, x, y, s, t, arms=0.0, look=0.0, lean=0.0, shake=0.0, rim=0.0):
 def frame(t):
     s = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H); c = cairo.Context(s); c.set_antialias(cairo.ANTIALIAS_GOOD)
     # câmara: aproxima devagar, deriva
-    z = 1.0 + 0.10 * smooth(t / DUR); dx = 18 * math.sin(t * 0.7); dy = 10 * math.sin(t * 0.5)
+    k = clamp(t / DUR) ** 2; z = 1.0 + 0.06 * smooth(t / DUR)
+    dx = 14 * math.sin(t * 0.7) + 16 * k * math.sin(t * 61); dy = 8 * math.sin(t * 0.5) + 14 * k * math.cos(t * 53)
     g = cairo.LinearGradient(0, 0, 0, H); g.add_color_stop_rgba(0, *SPACE_TOP); g.add_color_stop_rgba(1, *SPACE_BOT); c.set_source(g); c.paint()
     # nebulosa suave
     glow(c, 820 + dx * 0.2, 500, 700, hexc("#5a2a7a"), 0.25); glow(c, 200, 1100, 600, hexc("#1e3a7a"), 0.25)
@@ -166,33 +184,35 @@ def frame(t):
         a = (0.35 + 0.5 * b) * (0.7 + 0.3 * math.sin(t * 2 + ph))
         c.set_source_rgba(1, 0.96, 0.9, a); c.arc(xx, yy, 0.8 + 1.6 * d * b, 0, 6.283); c.fill()
     c.save(); c.translate(W / 2 + dx, H / 2 + dy); c.scale(z, z); c.translate(-W / 2, -H / 2)
-    # asteroide: chega pela direita-cima, cresce (aproxima-se)
-    p = ease(t / DUR * 0.9)
-    ax, ay = lerp(900, 640, p), lerp(230, 560, p); AR = lerp(150, 330, p ** 1.4)
-    ang = math.atan2(230 - 560, 900 - 640)
-    # rastos de velocidade
-    for i in range(14):
-        rr = random.Random(i); off = (rr.random() - 0.5) * AR * 2.2; ln = 200 + rr.random() * 380
-        ph = (t * (1.5 + rr.random()) + rr.random()) % 1
-        ux, uy = math.cos(ang), math.sin(ang); vx, vy = -uy, ux
-        x0 = ax + vx * off + ux * (AR + ph * 900); y0 = ay + vy * off + uy * (AR + ph * 900)
-        c.set_source_rgba(1, 0.8, 0.55, 0.25 * (1 - ph)); c.set_line_width(2 + rr.random() * 3)
-        c.move_to(x0, y0); c.line_to(x0 + ux * ln, y0 + uy * ln); c.stroke()
-    fire(c, ax, ay, AR, t, ang, AR * 4.2)
-    asteroid(c, ax, ay, AR, t * 0.35)
-    # brasas a sair do asteroide em direção à Terra
-    for i in range(30):
-        rr = random.Random(100 + i); ph = (t * (0.4 + rr.random() * 0.5) + rr.random()) % 1
-        a = math.pi * 0.5 + (rr.random() - 0.5) * 1.6 + 0.3
-        d = AR * (0.9 + ph * 2.5)
-        c.set_source_rgba(1, lerp(0.85, 0.35, ph), 0.2, (1 - ph) * 0.9); c.arc(ax + math.cos(a) * d, ay + math.sin(a) * d, 3 + 4 * (1 - ph), 0, 6.283); c.fill()
+    # asteroide de frente: começa pequeno e longe e cresce em aceleração (vem contra a câmara)
+    q = clamp(t / DUR)
+    AR = 55 * math.exp(math.log(1150 / 55) * q ** 1.6)
+    ax, ay = 560 + 30 * math.sin(t * 0.9), lerp(560, 760, q ** 2)
+    heat = 0.6 + 0.4 * q
+    # rastos de velocidade radiais (a câmara a ser "atravessada")
+    for i in range(46):
+        rr = random.Random(i); a = rr.random() * 6.283; ph = (t * (0.7 + rr.random()) + rr.random()) % 1
+        d0 = AR * 1.2 + ph ** 2 * 1400; ln = 40 + ph * 260
+        c.set_source_rgba(1, 0.85, 0.65, 0.35 * ph * (0.4 + q)); c.set_line_width(1 + ph * 3)
+        c.move_to(ax + math.cos(a) * d0, ay + math.sin(a) * d0); c.line_to(ax + math.cos(a) * (d0 + ln), ay + math.sin(a) * (d0 + ln)); c.stroke()
+    corona(c, ax, ay, AR, t, heat)
+    asteroid(c, ax, ay, AR, t * 0.25, heat)
+    # pedaços a passar pela câmara
+    for i in range(22):
+        rr = random.Random(200 + i); a = rr.random() * 6.283; ph = (t * (0.35 + rr.random() * 0.3) + rr.random()) % 1
+        d = AR * (1.1 + ph ** 2 * 4.0); rs = (4 + rr.random() * 10) * (0.5 + ph * 3)
+        x, y = ax + math.cos(a) * d, ay + math.sin(a) * d
+        c.set_source_rgba(*ROCK[:3], 1); blob(c, x, y, rs, 6, 300 + i, 0.5); c.fill()
+        c.set_source_rgba(*ROCK_D[:3], 1); blob(c, x - rs * 0.25, y + rs * 0.25, rs * 0.65, 6, 500 + i, 0.5); c.fill()
+        c.set_source_rgba(1, 0.6, 0.2, 0.7); c.set_line_width(max(1, rs * 0.18)); c.arc(x, y, rs * 0.9, -2.0, -0.4); c.stroke()
+    p = q
     # Terra (grande, em baixo) + luz quente do asteroide a crescer
     ER = 1900; ecx, ecy = 540, 1380 + ER
     earth(c, ecx, ecy, ER, t * 0.03)
-    glow(c, ax, ecy - ER, 900, FIRE2, 0.12 + 0.18 * p)
+    glow(c, ax, ecy - ER, 1100, FIRE2, 0.1 + 0.3 * p)
     # o rapaz, pequeno, em cima do horizonte
     arms = smooth((t - 1.3) / 0.8); look = smooth((t - 0.2) / 0.6)
-    guy(c, 470, 1386, 185, t, arms=arms, look=look, lean=-0.06 * arms, shake=1.2 * arms, rim=0.4 + 0.6 * p)
+    guy(c, 330, 1392, 185, t, arms=arms, look=look, lean=-0.08 * arms, shake=1.2 * arms, rim=0.4 + 0.6 * p)
     c.restore()
     # vinheta + grão
     vg = cairo.RadialGradient(W / 2, H / 2, 600, W / 2, H / 2, 1300); vg.add_color_stop_rgba(0, 0, 0, 0, 0); vg.add_color_stop_rgba(1, 0, 0, 0.05, 0.55)
