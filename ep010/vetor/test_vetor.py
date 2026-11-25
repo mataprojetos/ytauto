@@ -186,7 +186,7 @@ def frame(t):
     c.save(); c.translate(W / 2 + dx, H / 2 + dy); c.scale(z, z); c.translate(-W / 2, -H / 2)
     # asteroide de frente: começa pequeno e longe e cresce em aceleração (vem contra a câmara)
     q = clamp(t / DUR)
-    AR = 55 * math.exp(math.log(1150 / 55) * q ** 1.6)
+    AR = 170 * math.exp(math.log(1300 / 170) * (t / 3.6))   # cresce depressa logo desde o frame 0
     ax, ay = 560 + 30 * math.sin(t * 0.9), lerp(560, 760, q ** 2)
     heat = 0.6 + 0.4 * q
     # rastos de velocidade radiais (a câmara a ser "atravessada")
@@ -197,14 +197,6 @@ def frame(t):
         c.move_to(ax + math.cos(a) * d0, ay + math.sin(a) * d0); c.line_to(ax + math.cos(a) * (d0 + ln), ay + math.sin(a) * (d0 + ln)); c.stroke()
     corona(c, ax, ay, AR, t, heat)
     asteroid(c, ax, ay, AR, t * 0.25, heat)
-    # pedaços a passar pela câmara
-    for i in range(22):
-        rr = random.Random(200 + i); a = rr.random() * 6.283; ph = (t * (0.35 + rr.random() * 0.3) + rr.random()) % 1
-        d = AR * (1.1 + ph ** 2 * 4.0); rs = (4 + rr.random() * 10) * (0.5 + ph * 3)
-        x, y = ax + math.cos(a) * d, ay + math.sin(a) * d
-        c.set_source_rgba(*ROCK[:3], 1); blob(c, x, y, rs, 6, 300 + i, 0.5); c.fill()
-        c.set_source_rgba(*ROCK_D[:3], 1); blob(c, x - rs * 0.25, y + rs * 0.25, rs * 0.65, 6, 500 + i, 0.5); c.fill()
-        c.set_source_rgba(1, 0.6, 0.2, 0.7); c.set_line_width(max(1, rs * 0.18)); c.arc(x, y, rs * 0.9, -2.0, -0.4); c.stroke()
     p = q
     # Terra (grande, em baixo) + luz quente do asteroide a crescer
     ER = 1900; ecx, ecy = 540, 1380 + ER
