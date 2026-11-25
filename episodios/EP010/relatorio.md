@@ -1,9 +1,13 @@
 # EP010 · What If YOU Had to Stop an Asteroid? ☄️
 
-- **Privado (v2):** https://www.youtube.com/shorts/yRKvGPcnUmA (67,2 s), capa aplicada com `thumbnails.set`. A v1 (I_kDWqBwOYo) é para apagar no Studio.
+- **Privado (v3, animação vetorial):** https://www.youtube.com/shorts/a75-vEKGNYk (67,2 s), capa vetorial com texto centrado. Para apagar no Studio: v1 I_kDWqBwOYo e v2 yRKvGPcnUmA.
 - **Formato livre** (pedido do dono): ~65 s, tom com humor, sem alarme. Guião do dono, narração sem alterações; a última frase ("Which means, next time an asteroid is heading for Earth…") liga à primeira (loop de frase; último frame = frame 0).
 - **Base:** EP009 (estilo maquete, parallax 2.5D por profundidade). A mesma personagem (rapaz de capuz): as 7 ilustrações foram geradas com `ep009/anim/s1_queda_aviao.png` como referência.
 - **Montagem:** `ep010/anim_ep010.py` · cortes de áudio `ep010/build/audio_cut.py` (silêncios para 0,10 s, 8,9 s removidos, atempo 1,10) · palavras `ep010/build/words.json` (faster-whisper + texto exato do guião, 232/232) · profundidade `ep010/build/depth.py` · capa `ep010/thumb_ep010.py` → `thumbnails/ep010_thumb.jpg` · folha de controlo `ep010/folha_controlo_ep010.jpg` (frame 0, os "genius", pop-up, último frame)
+
+## v3 (25/11/2026, pedido do dono: "acriançado, gigante, parece foto", sem vídeo IA)
+Refeito inteiro em **animação vetorial por código** (estilo motion design adulto, 0 créditos): `ep010/anim_ep010_v.py` + `ep010/vetor/vec.py` (Terra, asteroide cinzento low-poly, fogo fino, estrelas em profundidade, grão; o rapaz de capuz com proporções normais e várias poses/expressões). Gancho aprovado pelo dono depois de 3 testes: asteroide cinzento a vir contra a câmara desde o frame 0, cauda de fogo estreita, sem pedras a sair. Mesma voz, legendas, sons, frase de marca e pop-up. Capa refeita no mesmo estilo (`ep010/thumb_ep010_v.py`), texto centrado (regra adicionada ao CLAUDE.md).
+Testes que ficaram pelo caminho: 3D em Blender (`ep010/3d/`, render demasiado lento, ~4–5 h) e um gancho em primeira pessoa (ilustração `anim/a0_pov.png`, 2 créditos, não usada).
 
 ## v2 (25/11/2026, pedido do dono: "não tem profundidade nenhuma, tudo em 2D")
 O dono escolheu resolver só por código (0 créditos). Cada ilustração passa a ser uma maquete em 3 camadas recortadas (`ep010/build/layers.py`: saliência rembg isnet + GrabCut guiado por zonas da personagem):
