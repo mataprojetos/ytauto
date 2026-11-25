@@ -49,7 +49,7 @@
   "visualizacoes": 574,
   "gostos": 6,
   "comentarios": 1,
-  "retencao_pct": 56.3
+  "retencao_pct": 57.0
  },
  {
   "episodio": "EP005",
@@ -62,7 +62,7 @@
   "visualizacoes": 1346,
   "gostos": 11,
   "comentarios": 5,
-  "retencao_pct": 94.0
+  "retencao_pct": 94.1
  },
  {
   "episodio": "EP006",
@@ -72,10 +72,10 @@
   "estado": "público",
   "creditos": 1.95,
   "duracao_s": 39,
-  "visualizacoes": 1432,
+  "visualizacoes": 1433,
   "gostos": 14,
   "comentarios": 6,
-  "retencao_pct": null
+  "retencao_pct": 76.0
  },
  {
   "episodio": "EP007",
@@ -85,7 +85,7 @@
   "estado": "público",
   "creditos": 21.8,
   "duracao_s": 34,
-  "visualizacoes": 1396,
+  "visualizacoes": 1384,
   "gostos": 18,
   "comentarios": 1,
   "retencao_pct": null
@@ -95,9 +95,22 @@
   "data": "2026-11-24",
   "titulo": "What If You Jumped Into a Hole Through the Earth? 🌍",
   "link": "https://www.youtube.com/shorts/wsYw5ghP6eA",
-  "estado": "privado",
+  "estado": "público",
   "creditos": 12.25,
   "duracao_s": 39,
+  "visualizacoes": 1427,
+  "gostos": 7,
+  "comentarios": 1,
+  "retencao_pct": null
+ },
+ {
+  "episodio": "EP009",
+  "data": "2026-11-25",
+  "titulo": "What If You Fell Out of a Plane Without a Parachute? 🪂",
+  "link": "https://www.youtube.com/shorts/L0KWjrkJWWk",
+  "estado": "privado",
+  "creditos": 8.85,
+  "duracao_s": 48,
   "visualizacoes": 0,
   "gostos": 0,
   "comentarios": 0,

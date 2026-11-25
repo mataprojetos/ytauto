@@ -1,0 +1,185 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,Inter Display,80,&H00FFFFFF,&H00FFFFFF,&H00101010,&H78000000,-1,0,0,0,100,100,0,0,1,7,3,2,90,140,430,1
+Style: Mark,Inter Display,38,&H8CFFFFFF,&H00FFFFFF,&H00000000,&H00000000,-1,0,0,0,100,100,2,0,1,3,0,7,60,60,110,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:00.12,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU{\c&H00FFFFFF&} JUST FELL
+Dialogue: 0,0:00:00.12,0:00:00.38,Cap,,0,0,0,,YOU {\c&H0022D8FF&}JUST{\c&H00FFFFFF&} FELL
+Dialogue: 0,0:00:00.38,0:00:00.66,Cap,,0,0,0,,YOU JUST {\c&H0022D8FF&}FELL{\c&H00FFFFFF&}
+Dialogue: 0,0:00:00.66,0:00:00.82,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OUT{\c&H00FFFFFF&} OF
+Dialogue: 0,0:00:00.82,0:00:00.88,Cap,,0,0,0,,OUT {\c&H0022D8FF&}OF{\c&H00FFFFFF&}
+Dialogue: 0,0:00:00.88,0:00:01.00,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}A{\c&H00FFFFFF&} PLANE.
+Dialogue: 0,0:00:01.00,0:00:01.46,Cap,,0,0,0,,A {\c&H0022D8FF&}PLANE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:01.46,0:00:01.60,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}NO{\c&H00FFFFFF&} PARACHUTE.
+Dialogue: 0,0:00:01.60,0:00:02.26,Cap,,0,0,0,,NO {\c&H0022D8FF&}PARACHUTE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.26,0:00:02.34,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}GOOD{\c&H00FFFFFF&} NEWS:
+Dialogue: 0,0:00:02.34,0:00:02.80,Cap,,0,0,0,,GOOD {\c&H0022D8FF&}NEWS:{\c&H00FFFFFF&}
+Dialogue: 0,0:00:02.80,0:00:02.96,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU'VE{\c&H00FFFFFF&} GOT ABOUT
+Dialogue: 0,0:00:02.96,0:00:03.06,Cap,,0,0,0,,YOU'VE {\c&H0022D8FF&}GOT{\c&H00FFFFFF&} ABOUT
+Dialogue: 0,0:00:03.06,0:00:03.26,Cap,,0,0,0,,YOU'VE GOT {\c&H0022D8FF&}ABOUT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:03.26,0:00:03.62,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}THREE{\c&H00FFFFFF&} MINUTES
+Dialogue: 0,0:00:03.62,0:00:03.90,Cap,,0,0,0,,THREE {\c&H0022D8FF&}MINUTES{\c&H00FFFFFF&}
+Dialogue: 0,0:00:03.90,0:00:04.10,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}TO{\c&H00FFFFFF&} THINK ABOUT
+Dialogue: 0,0:00:04.10,0:00:04.24,Cap,,0,0,0,,TO {\c&H0022D8FF&}THINK{\c&H00FFFFFF&} ABOUT
+Dialogue: 0,0:00:04.24,0:00:04.44,Cap,,0,0,0,,TO THINK {\c&H0022D8FF&}ABOUT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:04.44,0:00:04.62,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOUR{\c&H00FFFFFF&} CHOICES.
+Dialogue: 0,0:00:04.62,0:00:05.36,Cap,,0,0,0,,YOUR {\c&H0022D8FF&}CHOICES.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:05.36,0:00:05.44,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}FIRST{\c&H00FFFFFF&} PROBLEM:
+Dialogue: 0,0:00:05.44,0:00:05.98,Cap,,0,0,0,,FIRST {\c&H0022D8FF&}PROBLEM:{\c&H00FFFFFF&}
+Dialogue: 0,0:00:05.98,0:00:06.18,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU'RE{\c&H00FFFFFF&} TEN
+Dialogue: 0,0:00:06.18,0:00:06.40,Cap,,0,0,0,,YOU'RE {\c&H0022D8FF&}TEN{\c&H00FFFFFF&}
+Dialogue: 0,0:00:06.40,0:00:06.74,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}KILOMETERS{\c&H00FFFFFF&} UP.
+Dialogue: 0,0:00:06.74,0:00:07.28,Cap,,0,0,0,,KILOMETERS {\c&H0022D8FF&}UP.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:07.28,0:00:07.48,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IT'S{\c&H00FFFFFF&} MINUS FIFTY
+Dialogue: 0,0:00:07.48,0:00:07.76,Cap,,0,0,0,,IT'S {\c&H0022D8FF&}MINUS{\c&H00FFFFFF&} FIFTY
+Dialogue: 0,0:00:07.76,0:00:08.12,Cap,,0,0,0,,IT'S MINUS {\c&H0022D8FF&}FIFTY{\c&H00FFFFFF&}
+Dialogue: 0,0:00:08.12,0:00:08.44,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}DEGREES,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:08.44,0:00:08.70,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}AND{\c&H00FFFFFF&} THERE'S
+Dialogue: 0,0:00:08.70,0:00:08.94,Cap,,0,0,0,,AND {\c&H0022D8FF&}THERE'S{\c&H00FFFFFF&}
+Dialogue: 0,0:00:08.94,0:00:09.26,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}BARELY{\c&H00FFFFFF&} ANY AIR.
+Dialogue: 0,0:00:09.26,0:00:09.66,Cap,,0,0,0,,BARELY {\c&H0022D8FF&}ANY{\c&H00FFFFFF&} AIR.
+Dialogue: 0,0:00:09.66,0:00:10.14,Cap,,0,0,0,,BARELY ANY {\c&H0022D8FF&}AIR.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:10.14,0:00:10.22,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU{\c&H00FFFFFF&} MIGHT PASS
+Dialogue: 0,0:00:10.22,0:00:10.38,Cap,,0,0,0,,YOU {\c&H0022D8FF&}MIGHT{\c&H00FFFFFF&} PASS
+Dialogue: 0,0:00:10.38,0:00:10.64,Cap,,0,0,0,,YOU MIGHT {\c&H0022D8FF&}PASS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:10.64,0:00:11.10,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OUT.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:11.10,0:00:11.58,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}HONESTLY?{\c&H00FFFFFF&}
+Dialogue: 0,0:00:11.58,0:00:11.74,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}BEST{\c&H00FFFFFF&} NAP
+Dialogue: 0,0:00:11.74,0:00:12.00,Cap,,0,0,0,,BEST {\c&H0022D8FF&}NAP{\c&H00FFFFFF&}
+Dialogue: 0,0:00:12.00,0:00:12.14,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OF{\c&H00FFFFFF&} YOUR LIFE.
+Dialogue: 0,0:00:12.14,0:00:12.26,Cap,,0,0,0,,OF {\c&H0022D8FF&}YOUR{\c&H00FFFFFF&} LIFE.
+Dialogue: 0,0:00:12.26,0:00:12.76,Cap,,0,0,0,,OF YOUR {\c&H0022D8FF&}LIFE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:12.76,0:00:12.92,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU'LL{\c&H00FFFFFF&} WAKE UP
+Dialogue: 0,0:00:12.92,0:00:13.02,Cap,,0,0,0,,YOU'LL {\c&H0022D8FF&}WAKE{\c&H00FFFFFF&} UP
+Dialogue: 0,0:00:13.02,0:00:13.16,Cap,,0,0,0,,YOU'LL WAKE {\c&H0022D8FF&}UP{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.16,0:00:13.30,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}ON{\c&H00FFFFFF&} THE WAY
+Dialogue: 0,0:00:13.30,0:00:13.38,Cap,,0,0,0,,ON {\c&H0022D8FF&}THE{\c&H00FFFFFF&} WAY
+Dialogue: 0,0:00:13.38,0:00:13.52,Cap,,0,0,0,,ON THE {\c&H0022D8FF&}WAY{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.52,0:00:13.96,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}DOWN.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:13.96,0:00:14.12,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}NOW{\c&H00FFFFFF&} YOU'RE
+Dialogue: 0,0:00:14.12,0:00:14.32,Cap,,0,0,0,,NOW {\c&H0022D8FF&}YOU'RE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:14.32,0:00:14.60,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}FALLING{\c&H00FFFFFF&} AT 200
+Dialogue: 0,0:00:14.60,0:00:14.82,Cap,,0,0,0,,FALLING {\c&H0022D8FF&}AT{\c&H00FFFFFF&} 200
+Dialogue: 0,0:00:14.82,0:00:15.36,Cap,,0,0,0,,FALLING AT {\c&H0022D8FF&}200{\c&H00FFFFFF&}
+Dialogue: 0,0:00:15.36,0:00:15.76,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}KILOMETERS{\c&H00FFFFFF&} PER
+Dialogue: 0,0:00:15.76,0:00:16.08,Cap,,0,0,0,,KILOMETERS {\c&H0022D8FF&}PER{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.08,0:00:16.42,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}HOUR.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.42,0:00:16.60,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}THAT'S{\c&H00FFFFFF&} YOUR TOP
+Dialogue: 0,0:00:16.60,0:00:16.72,Cap,,0,0,0,,THAT'S {\c&H0022D8FF&}YOUR{\c&H00FFFFFF&} TOP
+Dialogue: 0,0:00:16.72,0:00:16.88,Cap,,0,0,0,,THAT'S YOUR {\c&H0022D8FF&}TOP{\c&H00FFFFFF&}
+Dialogue: 0,0:00:16.88,0:00:17.62,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SPEED.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:17.68,0:00:17.76,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SPREAD{\c&H00FFFFFF&} YOUR ARMS
+Dialogue: 0,0:00:17.76,0:00:17.92,Cap,,0,0,0,,SPREAD {\c&H0022D8FF&}YOUR{\c&H00FFFFFF&} ARMS
+Dialogue: 0,0:00:17.92,0:00:18.14,Cap,,0,0,0,,SPREAD YOUR {\c&H0022D8FF&}ARMS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.14,0:00:18.32,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}AND{\c&H00FFFFFF&} LEGS LIKE
+Dialogue: 0,0:00:18.32,0:00:18.48,Cap,,0,0,0,,AND {\c&H0022D8FF&}LEGS{\c&H00FFFFFF&} LIKE
+Dialogue: 0,0:00:18.48,0:00:18.64,Cap,,0,0,0,,AND LEGS {\c&H0022D8FF&}LIKE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:18.64,0:00:18.80,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}A{\c&H00FFFFFF&} STARFISH.
+Dialogue: 0,0:00:18.80,0:00:19.42,Cap,,0,0,0,,A {\c&H0022D8FF&}STARFISH.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:19.42,0:00:19.54,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IT{\c&H00FFFFFF&} ACTUALLY
+Dialogue: 0,0:00:19.54,0:00:19.94,Cap,,0,0,0,,IT {\c&H0022D8FF&}ACTUALLY{\c&H00FFFFFF&}
+Dialogue: 0,0:00:19.94,0:00:20.18,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SLOWS{\c&H00FFFFFF&} YOU DOWN.
+Dialogue: 0,0:00:20.18,0:00:20.36,Cap,,0,0,0,,SLOWS {\c&H0022D8FF&}YOU{\c&H00FFFFFF&} DOWN.
+Dialogue: 0,0:00:20.36,0:00:20.82,Cap,,0,0,0,,SLOWS YOU {\c&H0022D8FF&}DOWN.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:20.82,0:00:21.18,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}WATER?{\c&H00FFFFFF&}
+Dialogue: 0,0:00:21.18,0:00:21.32,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}BAD{\c&H00FFFFFF&} IDEA.
+Dialogue: 0,0:00:21.32,0:00:21.90,Cap,,0,0,0,,BAD {\c&H0022D8FF&}IDEA.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:21.90,0:00:22.04,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}AT{\c&H00FFFFFF&} THIS SPEED,
+Dialogue: 0,0:00:22.04,0:00:22.22,Cap,,0,0,0,,AT {\c&H0022D8FF&}THIS{\c&H00FFFFFF&} SPEED,
+Dialogue: 0,0:00:22.22,0:00:22.60,Cap,,0,0,0,,AT THIS {\c&H0022D8FF&}SPEED,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:22.60,0:00:22.70,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IT{\c&H00FFFFFF&} HITS LIKE
+Dialogue: 0,0:00:22.70,0:00:22.90,Cap,,0,0,0,,IT {\c&H0022D8FF&}HITS{\c&H00FFFFFF&} LIKE
+Dialogue: 0,0:00:22.90,0:00:23.10,Cap,,0,0,0,,IT HITS {\c&H0022D8FF&}LIKE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:23.10,0:00:23.82,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}CONCRETE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:23.82,0:00:23.90,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}WHAT{\c&H00FFFFFF&} YOU WANT
+Dialogue: 0,0:00:23.90,0:00:24.06,Cap,,0,0,0,,WHAT {\c&H0022D8FF&}YOU{\c&H00FFFFFF&} WANT
+Dialogue: 0,0:00:24.06,0:00:24.36,Cap,,0,0,0,,WHAT YOU {\c&H0022D8FF&}WANT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:24.36,0:00:24.64,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IS{\c&H00FFFFFF&} SNOW.
+Dialogue: 0,0:00:24.64,0:00:25.06,Cap,,0,0,0,,IS {\c&H0022D8FF&}SNOW.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:25.06,0:00:25.28,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OR{\c&H00FFFFFF&} TREES.
+Dialogue: 0,0:00:25.28,0:00:25.66,Cap,,0,0,0,,OR {\c&H0022D8FF&}TREES.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:25.66,0:00:26.00,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OR{\c&H00FFFFFF&} A REALLY,
+Dialogue: 0,0:00:26.00,0:00:26.22,Cap,,0,0,0,,OR {\c&H0022D8FF&}A{\c&H00FFFFFF&} REALLY,
+Dialogue: 0,0:00:26.22,0:00:26.64,Cap,,0,0,0,,OR A {\c&H0022D8FF&}REALLY,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:26.64,0:00:27.04,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}REALLY{\c&H00FFFFFF&} SOFT
+Dialogue: 0,0:00:27.04,0:00:27.40,Cap,,0,0,0,,REALLY {\c&H0022D8FF&}SOFT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.40,0:00:27.84,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}HILL.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.84,0:00:27.94,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SOUNDS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:27.94,0:00:28.32,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IMPOSSIBLE?{\c&H00FFFFFF&}
+Dialogue: 0,0:00:28.32,0:00:28.88,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IN{\c&H00FFFFFF&} 1944,
+Dialogue: 0,0:00:28.88,0:00:29.94,Cap,,0,0,0,,IN {\c&H0022D8FF&}1944,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:29.94,0:00:30.00,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}A{\c&H00FFFFFF&} PILOT FELL
+Dialogue: 0,0:00:30.00,0:00:30.28,Cap,,0,0,0,,A {\c&H0022D8FF&}PILOT{\c&H00FFFFFF&} FELL
+Dialogue: 0,0:00:30.28,0:00:30.58,Cap,,0,0,0,,A PILOT {\c&H0022D8FF&}FELL{\c&H00FFFFFF&}
+Dialogue: 0,0:00:30.58,0:00:30.90,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}ALMOST{\c&H00FFFFFF&} SIX
+Dialogue: 0,0:00:30.90,0:00:31.26,Cap,,0,0,0,,ALMOST {\c&H0022D8FF&}SIX{\c&H00FFFFFF&}
+Dialogue: 0,0:00:31.26,0:00:31.74,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}KILOMETERS…{\c&H00FFFFFF&}
+Dialogue: 0,0:00:31.74,0:00:32.30,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}INTO{\c&H00FFFFFF&} PINE TREES
+Dialogue: 0,0:00:32.30,0:00:32.64,Cap,,0,0,0,,INTO {\c&H0022D8FF&}PINE{\c&H00FFFFFF&} TREES
+Dialogue: 0,0:00:32.64,0:00:32.92,Cap,,0,0,0,,INTO PINE {\c&H0022D8FF&}TREES{\c&H00FFFFFF&}
+Dialogue: 0,0:00:32.92,0:00:33.24,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}AND{\c&H00FFFFFF&} DEEP SNOW.
+Dialogue: 0,0:00:33.24,0:00:33.44,Cap,,0,0,0,,AND {\c&H0022D8FF&}DEEP{\c&H00FFFFFF&} SNOW.
+Dialogue: 0,0:00:33.44,0:00:33.96,Cap,,0,0,0,,AND DEEP {\c&H0022D8FF&}SNOW.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:33.96,0:00:34.02,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}HE{\c&H00FFFFFF&} WALKED AWAY
+Dialogue: 0,0:00:34.02,0:00:34.20,Cap,,0,0,0,,HE {\c&H0022D8FF&}WALKED{\c&H00FFFFFF&} AWAY
+Dialogue: 0,0:00:34.20,0:00:34.44,Cap,,0,0,0,,HE WALKED {\c&H0022D8FF&}AWAY{\c&H00FFFFFF&}
+Dialogue: 0,0:00:34.44,0:00:34.58,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}WITH{\c&H00FFFFFF&} A SPRAINED
+Dialogue: 0,0:00:34.58,0:00:34.70,Cap,,0,0,0,,WITH {\c&H0022D8FF&}A{\c&H00FFFFFF&} SPRAINED
+Dialogue: 0,0:00:34.70,0:00:35.06,Cap,,0,0,0,,WITH A {\c&H0022D8FF&}SPRAINED{\c&H00FFFFFF&}
+Dialogue: 0,0:00:35.06,0:00:35.46,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}LEG.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:35.46,0:00:35.58,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}THAT{\c&H00FFFFFF&} ONE MADE
+Dialogue: 0,0:00:35.58,0:00:35.70,Cap,,0,0,0,,THAT {\c&H0022D8FF&}ONE{\c&H00FFFFFF&} MADE
+Dialogue: 0,0:00:35.70,0:00:35.86,Cap,,0,0,0,,THAT ONE {\c&H0022D8FF&}MADE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:35.86,0:00:35.98,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}ME{\c&H00FFFFFF&} SCRATCH
+Dialogue: 0,0:00:35.98,0:00:36.20,Cap,,0,0,0,,ME {\c&H0022D8FF&}SCRATCH{\c&H00FFFFFF&}
+Dialogue: 0,0:00:36.20,0:00:36.40,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}MY{\c&H00FFFFFF&} HEAD.
+Dialogue: 0,0:00:36.40,0:00:36.84,Cap,,0,0,0,,MY {\c&H0022D8FF&}HEAD.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:36.84,0:00:36.88,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}AND{\c&H00FFFFFF&} IN 1972,
+Dialogue: 0,0:00:36.88,0:00:37.00,Cap,,0,0,0,,AND {\c&H0022D8FF&}IN{\c&H00FFFFFF&} 1972,
+Dialogue: 0,0:00:37.00,0:00:38.12,Cap,,0,0,0,,AND IN {\c&H0022D8FF&}1972,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:38.26,0:00:38.34,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}A{\c&H00FFFFFF&} FLIGHT
+Dialogue: 0,0:00:38.34,0:00:38.56,Cap,,0,0,0,,A {\c&H0022D8FF&}FLIGHT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:38.56,0:00:38.88,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}ATTENDANT{\c&H00FFFFFF&} FELL
+Dialogue: 0,0:00:38.88,0:00:39.16,Cap,,0,0,0,,ATTENDANT {\c&H0022D8FF&}FELL{\c&H00FFFFFF&}
+Dialogue: 0,0:00:39.16,0:00:39.44,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OVER{\c&H00FFFFFF&} TEN
+Dialogue: 0,0:00:39.44,0:00:39.80,Cap,,0,0,0,,OVER {\c&H0022D8FF&}TEN{\c&H00FFFFFF&}
+Dialogue: 0,0:00:39.80,0:00:40.26,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}KILOMETERS,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:40.26,0:00:40.80,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}TRAPPED{\c&H00FFFFFF&} IN
+Dialogue: 0,0:00:40.80,0:00:41.04,Cap,,0,0,0,,TRAPPED {\c&H0022D8FF&}IN{\c&H00FFFFFF&}
+Dialogue: 0,0:00:41.04,0:00:41.14,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}A{\c&H00FFFFFF&} PIECE
+Dialogue: 0,0:00:41.14,0:00:41.38,Cap,,0,0,0,,A {\c&H0022D8FF&}PIECE{\c&H00FFFFFF&}
+Dialogue: 0,0:00:41.38,0:00:41.54,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}OF{\c&H00FFFFFF&} THE PLANE.
+Dialogue: 0,0:00:41.54,0:00:41.68,Cap,,0,0,0,,OF {\c&H0022D8FF&}THE{\c&H00FFFFFF&} PLANE.
+Dialogue: 0,0:00:41.68,0:00:42.16,Cap,,0,0,0,,OF THE {\c&H0022D8FF&}PLANE.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:42.16,0:00:42.32,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SHE{\c&H00FFFFFF&} SURVIVED.
+Dialogue: 0,0:00:42.32,0:00:43.00,Cap,,0,0,0,,SHE {\c&H0022D8FF&}SURVIVED.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:43.00,0:00:43.12,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SHE{\c&H00FFFFFF&} STILL HOLDS
+Dialogue: 0,0:00:43.12,0:00:43.48,Cap,,0,0,0,,SHE {\c&H0022D8FF&}STILL{\c&H00FFFFFF&} HOLDS
+Dialogue: 0,0:00:43.48,0:00:43.82,Cap,,0,0,0,,SHE STILL {\c&H0022D8FF&}HOLDS{\c&H00FFFFFF&}
+Dialogue: 0,0:00:43.82,0:00:43.96,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}THE{\c&H00FFFFFF&} WORLD
+Dialogue: 0,0:00:43.96,0:00:44.14,Cap,,0,0,0,,THE {\c&H0022D8FF&}WORLD{\c&H00FFFFFF&}
+Dialogue: 0,0:00:44.14,0:00:44.64,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}RECORD.{\c&H00FFFFFF&}
+Dialogue: 0,0:00:44.64,0:00:44.72,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}SO{\c&H00FFFFFF&} NEXT TIME
+Dialogue: 0,0:00:44.72,0:00:44.86,Cap,,0,0,0,,SO {\c&H0022D8FF&}NEXT{\c&H00FFFFFF&} TIME
+Dialogue: 0,0:00:44.86,0:00:45.08,Cap,,0,0,0,,SO NEXT {\c&H0022D8FF&}TIME{\c&H00FFFFFF&}
+Dialogue: 0,0:00:45.08,0:00:45.22,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU'RE{\c&H00FFFFFF&} ON
+Dialogue: 0,0:00:45.22,0:00:45.32,Cap,,0,0,0,,YOU'RE {\c&H0022D8FF&}ON{\c&H00FFFFFF&}
+Dialogue: 0,0:00:45.32,0:00:45.42,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}A{\c&H00FFFFFF&} PLANE,
+Dialogue: 0,0:00:45.42,0:00:45.82,Cap,,0,0,0,,A {\c&H0022D8FF&}PLANE,{\c&H00FFFFFF&}
+Dialogue: 0,0:00:45.82,0:00:45.98,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}YOU'LL{\c&H00FFFFFF&} KNOW
+Dialogue: 0,0:00:45.98,0:00:46.16,Cap,,0,0,0,,YOU'LL {\c&H0022D8FF&}KNOW{\c&H00FFFFFF&}
+Dialogue: 0,0:00:46.16,0:00:46.60,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}EXACTLY{\c&H00FFFFFF&} WHAT
+Dialogue: 0,0:00:46.60,0:00:46.92,Cap,,0,0,0,,EXACTLY {\c&H0022D8FF&}WHAT{\c&H00FFFFFF&}
+Dialogue: 0,0:00:46.92,0:00:47.08,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}TO{\c&H00FFFFFF&} DO…
+Dialogue: 0,0:00:47.08,0:00:47.40,Cap,,0,0,0,,TO {\c&H0022D8FF&}DO…{\c&H00FFFFFF&}
+Dialogue: 0,0:00:47.40,0:00:47.56,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IF{\c&H00FFFFFF&} YOU…
+Dialogue: 0,0:00:47.56,0:00:48.17,Cap,,0,0,0,,IF {\c&H0022D8FF&}YOU…{\c&H00FFFFFF&}
+Dialogue: 2,0:00:00.00,0:00:48.27,Mark,,0,0,0,,@whatifaholics
