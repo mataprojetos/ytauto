@@ -1,9 +1,12 @@
 # EP010 · What If YOU Had to Stop an Asteroid? ☄️
 
-- **Privado (v4, animação vetorial, "who are very smart"):** https://www.youtube.com/shorts/18tF3gHp1cA (68,2 s), capa vetorial com texto centrado. Para apagar no Studio: v1 I_kDWqBwOYo, v2 yRKvGPcnUmA, v3 a75-vEKGNYk.
+- **Privado (v5, animação vetorial, "who are sooo smart" irónico):** https://www.youtube.com/shorts/hHrZavWpvZc (72,1 s), capa vetorial com texto centrado. Para apagar no Studio: v1 I_kDWqBwOYo, v2 yRKvGPcnUmA, v3 a75-vEKGNYk, v4 18tF3gHp1cA.
 - **Formato livre** (pedido do dono): ~65 s, tom com humor, sem alarme. Guião do dono, narração sem alterações; a última frase ("Which means, next time an asteroid is heading for Earth…") liga à primeira (loop de frase; último frame = frame 0).
 - **Base:** EP009 (estilo maquete, parallax 2.5D por profundidade). A mesma personagem (rapaz de capuz): as 7 ilustrações foram geradas com `ep009/anim/s1_queda_aviao.png` como referência.
 - **Montagem:** `ep010/anim_ep010.py` · cortes de áudio `ep010/build/audio_cut.py` (silêncios para 0,10 s, 8,9 s removidos, atempo 1,10) · palavras `ep010/build/words.json` (faster-whisper + texto exato do guião, 232/232) · profundidade `ep010/build/depth.py` · capa `ep010/thumb_ep010.py` → `thumbnails/ep010_thumb.jpg` · folha de controlo `ep010/folha_controlo_ep010.jpg` (frame 0, os "genius", pop-up, último frame)
+
+## v5 (26/11/2026, pedido do dono)
+Entoação irónica ("com um sorrisinho") na frase de provocação: 5 tentativas com elevenlabs_v4_turbo (estabilidade 0,2–0,3, texto com reticências/ênfase; `audio/ironia/`), o dono escolheu "And you — who are *sooo* smart…" (estabilidade 0,2). Encaixada nas 4 vezes com pausas até 0,18 s; o vídeo passa a 72,1 s.
 
 ## v4 (25/11/2026, pedido do dono)
 "And you, being a genius…" passa a "And you, who are very smart…" nas 4 vezes: só a frase nova gerada (voz Bram, 0,15 créditos) e encaixada (`ep010/build/splice_smart.py`, original em `audio/narration_v_genius.wav`). Comentário afixado sugerido (o dono põe à mão; a API não permite afixar): "Since you're so smart… would you have done it like NASA?"
@@ -16,7 +19,7 @@ Testes que ficaram pelo caminho: 3D em Blender (`ep010/3d/`, render demasiado le
 O dono escolheu resolver só por código (0 créditos). Cada ilustração passa a ser uma maquete em 3 camadas recortadas (`ep010/build/layers.py`: saliência rembg isnet + GrabCut guiado por zonas da personagem):
 fundo (espaço, desfocado e mais escuro), objetos (asteroide, Terra, nave, foguetes) e personagem. A câmara está sempre a mexer (deriva contínua + movimentos de cada cena) e cada camada desloca-se e aproxima-se conforme a distância; cada camada projeta sombra suave na de trás; brilhos desfocados em primeiro plano. Quando o rapaz está em cima de um objeto (foguetes, pintar, Terra), ele e o objeto mexem-se juntos (sem costuras). O loop mantém-se (a deriva converge para a do frame 0).
 
-## Créditos (saldo real 869,35 → 849,30)
+## Créditos (saldo real 869,35 → 848,55)
 | Geração | Modelo | Créditos |
 |---|---|---|
 | 6 ilustrações (pânico, pose de génio, foguetes, pintar, impacto da nave, alívio) | nano_banana_pro | 12 |
@@ -24,7 +27,8 @@ fundo (espaço, desfocado e mais escuro), objetos (asteroide, Terra, nave, fogue
 | Capa v2 (rapaz a carregar no botão nuclear, asteroide em chamas) | nano_banana_pro | 2 |
 | Ilustração em primeira pessoa para um gancho novo (não usada: o dono mudou de ideias) | nano_banana_pro | 2 |
 | Frase nova "And you, who are very smart…" | elevenlabs_v4_turbo, voz Bram | 0,15 |
-| **Total** | | **20,05** |
+| 5 tentativas de entoação irónica | elevenlabs_v4_turbo, voz Bram | 0,75 |
+| **Total** | | **20,8** |
 
 Sem refações. Música reaproveitada (`music/track01_cosmic_ambient.mp3`, ducking; mais baixa na viragem). Efeitos sintetizados por código.
 
