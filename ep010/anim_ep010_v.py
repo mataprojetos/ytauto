@@ -14,7 +14,7 @@ W, H = A.W, A.H
 T, G, AA, FAIL, WS = A.T, A.G, A.A, A.FAIL, A.WS
 text, stamp, bigx, fail_x, plan_chip, check, arrow, popin, seg = A.text, A.stamp, A.bigx, A.fail_x, A.plan_chip, A.check, A.arrow, A.popin, A.seg
 GOLD, RED, INK, GREEN, DARK = A.GOLD, A.RED, A.INK, A.GREEN, A.DARK
-A.OUT = f"{HERE}/whatifaholic_ep010_asteroid_v4.mp4"
+A.OUT = f"{HERE}/whatifaholic_ep010_asteroid_v5.mp4"
 HZ = 1386          # linha do horizonte (Terra) nos planos abertos
 DUR_HOOK = 4.6
 

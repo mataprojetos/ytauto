@@ -1,15 +1,17 @@
-"""EP010: troca as 4 frases "And you, being a genius…" por "And you, who are very smart…" (pedido do dono, 25/11/2026).
+"""EP010: troca as 4 frases (uso: python3 build/splice_smart.py <clip.mp3> "<texto da frase>")
+ "And you, being a genius…" por "And you, who are very smart…" (pedido do dono, 25/11/2026).
 Gera-se só a frase nova (voz Bram), com o mesmo tratamento (silêncios ≤0,10 s, atempo 1,10, volume igualado),
 e encaixa-se nos 4 sítios; words.json é refeito com os tempos deslocados. Original guardado em audio/narration_v_genius.wav."""
-import json, subprocess, numpy as np
+import json, subprocess, sys, numpy as np
 SR = 48000
 def load(p, filt=None):
     cmd = ["ffmpeg", "-v", "error", "-i", p] + (["-af", filt] if filt else []) + ["-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
     return np.frombuffer(subprocess.check_output(cmd), np.float32).copy()
 nar = load("audio/narration_v_genius.wav")
-clip = load("audio/raw/smart_raw.mp3", "silenceremove=start_periods=1:start_threshold=-40dB:stop_periods=-1:stop_threshold=-40dB:stop_duration=0.10,atempo=1.10")
+CLIP = sys.argv[1] if len(sys.argv) > 1 else "audio/raw/smart_raw.mp3"
+clip = load(CLIP, "silenceremove=start_periods=1:start_threshold=-40dB:stop_periods=-1:stop_threshold=-40dB:stop_duration=0.18,atempo=1.10")   # pausas irónicas até 0,18 s
 clip = clip[int(0.005 * SR):]
-words = json.load(open("build/words.json"))
+words = json.load(open("build/words_genius.json"))   # palavras da narração original ("being a genius…")
 G = [15, 49, 88, 126]; Aw = [20, 54, 93, 131]
 # volume: igualar o RMS da frase original "And you, being a genius…"
 s0, e0 = words[15]["s"], words[19]["e"]
@@ -22,7 +24,7 @@ m = WhisperModel("small.en", device="cpu", compute_type="int8")
 a16 = np.interp(np.arange(0, len(clip), SR / 16000), np.arange(len(clip)), clip).astype(np.float32)
 segs, _ = m.transcribe(a16, word_timestamps=True, language="en")
 cw = [(w.start, w.end) for s in segs for w in s.words]
-NEW = ["And", "you,", "who", "are", "very", "smart…"]
+NEW = (sys.argv[2] if len(sys.argv) > 2 else "And you, who are very smart…").split()
 print("palavras na frase nova:", len(cw), [round(x[0], 2) for x in cw])
 assert len(cw) == len(NEW), cw
 out, new_words, pos, shift = [], [], 0.0, 0.0
