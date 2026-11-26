@@ -1,9 +1,12 @@
 # EP010 · What If YOU Had to Stop an Asteroid? ☄️
 
-- **Privado (v5, animação vetorial, "who are sooo smart" irónico):** https://www.youtube.com/shorts/hHrZavWpvZc (72,1 s), capa vetorial com texto centrado. Para apagar no Studio: v1 I_kDWqBwOYo, v2 yRKvGPcnUmA, v3 a75-vEKGNYk, v4 18tF3gHp1cA.
+- **Privado (v6):** https://www.youtube.com/shorts/GolIYfEy5U8 (70,7 s), capa vetorial com texto centrado e compacto. Para apagar no Studio: v1 I_kDWqBwOYo, v2 yRKvGPcnUmA, v3 a75-vEKGNYk, v4 18tF3gHp1cA, v5 hHrZavWpvZc.
 - **Formato livre** (pedido do dono): ~65 s, tom com humor, sem alarme. Guião do dono, narração sem alterações; a última frase ("Which means, next time an asteroid is heading for Earth…") liga à primeira (loop de frase; último frame = frame 0).
 - **Base:** EP009 (estilo maquete, parallax 2.5D por profundidade). A mesma personagem (rapaz de capuz): as 7 ilustrações foram geradas com `ep009/anim/s1_queda_aviao.png` como referência.
 - **Montagem:** `ep010/anim_ep010.py` · cortes de áudio `ep010/build/audio_cut.py` (silêncios para 0,10 s, 8,9 s removidos, atempo 1,10) · palavras `ep010/build/words.json` (faster-whisper + texto exato do guião, 232/232) · profundidade `ep010/build/depth.py` · capa `ep010/thumb_ep010.py` → `thumbnails/ep010_thumb.jpg` · folha de controlo `ep010/folha_controlo_ep010.jpg` (frame 0, os "genius", pop-up, último frame)
+
+## v6 (26/11/2026, pedido do dono)
+Fim contínuo: a narração acaba em "Which means, next time…" e o início completa ("…an asteroid is heading for Earth."); antes repetia a frase duas vezes no loop. Pop-up de subscrição passa para o topo e começa durante a frase de marca (o fim ficou mais curto). Capa com texto mais pequeno (cabe no recorte do Short; regra no CLAUDE.md). Duração 70,7 s; ainda acima de 60 s (proposta ao dono: tirar o plano D para ficar < 60 s).
 
 ## v5 (26/11/2026, pedido do dono)
 Entoação irónica ("com um sorrisinho") na frase de provocação: 5 tentativas com elevenlabs_v4_turbo (estabilidade 0,2–0,3, texto com reticências/ênfase; `audio/ironia/`), o dono escolheu "And you — who are *sooo* smart…" (estabilidade 0,2). Encaixada nas 4 vezes com pausas até 0,18 s; o vídeo passa a 72,1 s.

@@ -239,12 +239,6 @@ Dialogue: 0,0:01:09.03,0:01:09.25,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100
 Dialogue: 0,0:01:09.25,0:01:09.65,Cap,,0,0,0,,MY {\c&H0022D8FF&}HEAD.{\c&H00FFFFFF&}
 Dialogue: 0,0:01:09.65,0:01:09.73,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}WHICH{\c&H00FFFFFF&} MEANS,
 Dialogue: 0,0:01:09.73,0:01:10.29,Cap,,0,0,0,,WHICH {\c&H0022D8FF&}MEANS,{\c&H00FFFFFF&}
-Dialogue: 0,0:01:10.29,0:01:10.41,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}NEXT{\c&H00FFFFFF&} TIME
-Dialogue: 0,0:01:10.41,0:01:10.65,Cap,,0,0,0,,NEXT {\c&H0022D8FF&}TIME{\c&H00FFFFFF&}
-Dialogue: 0,0:01:10.65,0:01:10.79,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}AN{\c&H00FFFFFF&} ASTEROID
-Dialogue: 0,0:01:10.79,0:01:11.15,Cap,,0,0,0,,AN {\c&H0022D8FF&}ASTEROID{\c&H00FFFFFF&}
-Dialogue: 0,0:01:11.15,0:01:11.31,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}IS{\c&H00FFFFFF&} HEADING
-Dialogue: 0,0:01:11.31,0:01:11.49,Cap,,0,0,0,,IS {\c&H0022D8FF&}HEADING{\c&H00FFFFFF&}
-Dialogue: 0,0:01:11.49,0:01:11.71,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}FOR{\c&H00FFFFFF&} EARTH…
-Dialogue: 0,0:01:11.71,0:01:12.07,Cap,,0,0,0,,FOR {\c&H0022D8FF&}EARTH…{\c&H00FFFFFF&}
-Dialogue: 2,0:00:00.00,0:01:12.17,Mark,,0,0,0,,@whatifaholics
+Dialogue: 0,0:01:10.29,0:01:10.41,Cap,,0,0,0,,{\fscx108\fscy108\t(0,100,\fscx100\fscy100)}{\c&H0022D8FF&}NEXT{\c&H00FFFFFF&} TIME…
+Dialogue: 0,0:01:10.41,0:01:10.70,Cap,,0,0,0,,NEXT {\c&H0022D8FF&}TIME…{\c&H00FFFFFF&}
+Dialogue: 2,0:00:00.00,0:01:10.80,Mark,,0,0,0,,@whatifaholics
