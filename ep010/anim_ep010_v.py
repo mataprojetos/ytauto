@@ -14,7 +14,7 @@ W, H = A.W, A.H
 T, G, AA, FAIL, WS = A.T, A.G, A.A, A.FAIL, A.WS
 text, stamp, bigx, fail_x, plan_chip, check, arrow, popin, seg = A.text, A.stamp, A.bigx, A.fail_x, A.plan_chip, A.check, A.arrow, A.popin, A.seg
 GOLD, RED, INK, GREEN, DARK = A.GOLD, A.RED, A.INK, A.GREEN, A.DARK
-A.OUT = f"{HERE}/whatifaholic_ep010_asteroid_v5.mp4"
+A.OUT = f"{HERE}/whatifaholic_ep010_asteroid_v6.mp4"
 HZ = 1386          # linha do horizonte (Terra) nos planos abertos
 DUR_HOOK = 4.6
 
@@ -470,7 +470,9 @@ SCENES = [(0.0, G[0], s_hook), (G[0], AA[0], make_genius(0)), (AA[0], T["youve"]
           (T["real"], T["brand"], s_real), (T["brand"], T["which"], s_brand), (T["which"], 99, s_end)]
 A.SCENES = SCENES
 A.NO_PUNCH = {s_brand, s_end, s_wash}
-A.SUB_Y = 1190
+A.SUB_Y = 230                      # no topo (o fim ficou mais curto: o pop-up começa durante a frase de marca)
+A.SUB_T0 = T["brand"] + 0.3
+A.SUB_D = A.T_END - 0.42 - A.SUB_T0
 
 
 def frame(t):
