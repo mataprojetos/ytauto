@@ -2,6 +2,8 @@
 
 Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 
+> A pasta `stickman/` é um **projeto separado** (outro canal) com regras próprias em `stickman/CLAUDE.md`; nada desta página se aplica lá.
+
 ## O projeto
 - Canal YouTube Shorts **Whatifaholic** (@whatifaholics), id `UC8P0-pbFRXyDgu7iV6TMmTQ`.
 - Formato comum: perguntas "What if…?" sobre ciência, dinheiro, tecnologia e IA, em animação.
