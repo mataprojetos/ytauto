@@ -839,7 +839,9 @@ def mix(raw_video):
     f_ = np.where(t_ < 0.3, 330 - 40 * t_ / 0.3, 247 - 60 * np.clip((t_ - 0.3) / 0.45, 0, 1))
     ph = 2 * np.pi * np.cumsum(f_) / SR
     env = np.where(t_ < 0.3, np.sin(np.pi * t_ / 0.3) ** 0.5, np.sin(np.pi * np.clip((t_ - 0.3) / 0.45, 0, 1)) ** 0.5) * (1 + 0.25 * np.sin(2 * np.pi * 6 * t_))
-    fail = wav("fail", 0.35 * (np.sin(ph) + 0.35 * np.sin(2 * ph) + 0.15 * np.sin(3 * ph)) * env)
+    # pedido do dono (27/11/2026): o "fail" antigo (trombone a descer) era horrível e chato → toque curto, grave e suave
+    t_ = np.arange(int(0.22 * SR)) / SR
+    fail = wav("fail", 0.45 * np.sin(2 * np.pi * (150 + 70 * np.exp(-t_ * 40)) * t_) * np.exp(-t_ * 22) * np.minimum(1, t_ / 0.003))
     t_ = np.arange(int(0.5 * SR)) / SR
     thump = wav("thump", 0.8 * np.sin(2 * np.pi * (60 + 90 * np.exp(-t_ * 18)) * t_) * np.exp(-t_ * 7))
     # areia molhada: ruído grave filtrado com "glub" (um único som contínuo no gancho e outro no "sink even faster")
@@ -851,7 +853,7 @@ def mix(raw_video):
     t_ = np.arange(int(0.5 * SR)) / SR
     ok = wav("ok", 0.3 * sum(np.sin(2 * np.pi * f * t_) * np.exp(-t_ * 8) * (t_ >= d) for f, d in ((784, 0), (1175, 0.08))) * np.minimum(1, t_ / 0.004))
     E = [(squelch, 0.0, 0.18), (squelch, T["sink"] - 0.2, 0.22)]
-    E += [(fail, T["doesnt"] + 0.1, 0.2), (fail, T["doesnt2"] + 0.08, 0.2)]
+    E += [(fail, T["doesnt"] + 0.1, 0.16), (fail, T["doesnt2"] + 0.08, 0.16)]
     E += [(pop, T["lifting"] - 0.05, 0.16), (thump, T["lifting"] + 0.1, 0.18), (pop, T["twice"] - 0.05, 0.16), (pop, SUB_T0 + 1.0, 0.14)]
     E += [(swish, T["so3"] - 0.12, 0.14), (swish, T["so4"] - 0.12, 0.14), (swish, T["the_"] - 0.12, 0.14)]
     E += [(ok, T["lean"], 0.18), (ok, T["free"], 0.2)]
@@ -861,6 +863,18 @@ def mix(raw_video):
         i = 3 + len(lab); ins += ["-i", f_]; d = int(max(0, x) * 1000)
         ch.append(f"[{i}:a]adelay={d}|{d},volume={v}[e{len(lab)}]"); lab.append(f"[e{len(lab)}]")
     sfx = ";".join(ch) + ";" + "".join(lab) + f"amix=inputs={len(lab)}:normalize=0[sfx]"
+    if raw_video is None:   # --audio-only: mantém a imagem do vídeo já feito e refaz só a mistura
+        src = OUT.replace(".mp4", "_prev.mp4"); os.replace(OUT, src)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-i", NARR, "-stream_loop", "-1", "-i", MUSIC, *ins,
+                        "-filter_complex",
+                        "[1:a]asplit=2[n1][nk];"
+                        f"[2:a]atrim=0:{T_END:.3f},volume=0.12[m];"
+                        "[m][nk]sidechaincompress=threshold=0.04:ratio=5:attack=30:release=400[md];"
+                        f"{sfx};[n1][md][sfx]amix=inputs=3:duration=longest:normalize=0,apad,"
+                        f"loudnorm=I=-14:TP=-1.5:LRA=11,atrim=0:{T_END:.3f}[a]",
+                        "-map", "0:v", "-map", "[a]", "-t", f"{T_END:.3f}", "-c:v", "copy",
+                        "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", OUT], check=True)
+        os.remove(src); return
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", raw_video, "-i", NARR, "-stream_loop", "-1", "-i", MUSIC, *ins,
                     "-filter_complex",
                     f"[0:v]subtitles={ASS},format=yuv420p[v];"
@@ -882,6 +896,8 @@ if __name__ == "__main__":
             frame_surface(tv).write_to_png(f"{BLD}/f_{tv:06.2f}.png")
         print("frames ok"); sys.exit()
     print("T_END", T_END, {k: round(v, 2) for k, v in T.items()})
+    if "--audio-only" in sys.argv:
+        mix(None); print("OK (só áudio)", OUT); sys.exit()
     raw_v = f"{BLD}/raw.mp4"
     if "--mix-only" not in sys.argv:
         p = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
