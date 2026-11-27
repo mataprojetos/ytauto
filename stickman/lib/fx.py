@@ -34,24 +34,43 @@ def blur_surface(surf, radius):
 
 
 def rock_texture(w, h, seed, base=(22, 16, 15), var=14, warm=(1.0, 0.86, 0.80)):
-    """Rocha escura de calhaus suaves (estilo mina/encosta da referência)."""
+    """Rocha escura de calhaus suaves, repetível nas duas direções (para fazer scroll)."""
     rnd = random.Random(seed)
     img = Image.new("RGB", (w, h), base)
     d = ImageDraw.Draw(img)
     for _ in range(int(w * h / 900)):
-        x, y = rnd.uniform(-20, w + 20), rnd.uniform(-20, h + 20)
+        x, y = rnd.uniform(0, w), rnd.uniform(0, h)
         r = rnd.uniform(9, 26)
         k = rnd.uniform(-var, var)
         c = tuple(int(max(0, min(255, base[i] + k * warm[i]))) for i in range(3))
-        d.ellipse([x - r * 1.25, y - r, x + r * 1.25, y + r], fill=c)
-    img = img.filter(ImageFilter.GaussianBlur(3.2))
-    # ruído fino
-    a = np.asarray(img).astype(np.float32)
+        for ox in (-w, 0, w):
+            for oy in (-h, 0, h):
+                d.ellipse([x + ox - r * 1.25, y + oy - r, x + ox + r * 1.25, y + oy + r], fill=c)
+    # desfoque com repetição nas bordas (sem costuras)
+    a = np.asarray(img)
+    pad = 16
+    big = Image.fromarray(np.pad(a, ((pad, pad), (pad, pad), (0, 0)), mode="wrap"))
+    a = np.asarray(big.filter(ImageFilter.GaussianBlur(3.2)))[pad:-pad, pad:-pad].astype(np.float32)
     rng = np.random.default_rng(seed)
     a += rng.normal(0, 2.2, a.shape[:2])[:, :, None]
     a = np.clip(a, 0, 255).astype(np.uint8)
     rgba = np.dstack([a, np.full(a.shape[:2], 255, np.uint8)])
     return np_to_surface(rgba)
+
+
+def add_glow(surf, glow, scale=3, radius=5, gain=1.6):
+    """Soma (modo 'add') uma versão desfocada de `glow` em `surf`: brilho néon barato."""
+    w, h = surf.get_width(), surf.get_height()
+    g = Image.fromarray(surface_to_np(glow), "RGBA")
+    small = g.resize((w // scale, h // scale), Image.BILINEAR).filter(ImageFilter.GaussianBlur(radius))
+    big = np.asarray(small.resize((w, h), Image.BILINEAR)).astype(np.float32)
+    rgb = big[:, :, :3] * gain
+    surf.flush()
+    buf = np.ndarray((h, surf.get_stride() // 4, 4), np.uint8, surf.get_data())
+    view = buf[:, :w, :3]
+    out = view.astype(np.float32) + rgb[:, :, ::-1]
+    view[:] = np.clip(out, 0, 255).astype(np.uint8)
+    surf.mark_dirty()
 
 
 class Particles:
@@ -88,11 +107,27 @@ class Particles:
             keep.append(p)
         self.items = keep
 
-    def draw(self, ctx):
+    def draw(self, ctx, gctx=None):
         for p in self.items:
             a = 1 - p["age"] / p["life"]
             cr, cg, cb = p["color"]
+            if p["kind"] == "ember":
+                s = p["size"] * (0.6 + 0.4 * a)
+                ctx.set_source_rgba(min(1, cr * 0.5 + 0.5), min(1, cg * 0.5 + 0.5), min(1, cb * 0.5 + 0.5), a)
+                ctx.arc(p["x"], p["y"], s, 0, 2 * math.pi)
+                ctx.fill()
+                if gctx is not None:
+                    gctx.set_source_rgba(cr, cg, cb, a * 0.6)
+                    gctx.arc(p["x"], p["y"], s * 1.6, 0, 2 * math.pi)
+                    gctx.fill()
+                continue
             if p["kind"] == "spark":
+                if gctx is not None:
+                    gctx.set_source_rgba(cr, cg, cb, a)
+                    gctx.set_line_width(p["size"] * 2.5)
+                    gctx.move_to(p["x"], p["y"])
+                    gctx.line_to(p["x"] - p["vx"] * 0.025, p["y"] - p["vy"] * 0.025)
+                    gctx.stroke()
                 ctx.set_source_rgba(cr, cg, cb, a)
                 ctx.set_line_width(p["size"])
                 ctx.move_to(p["x"], p["y"])

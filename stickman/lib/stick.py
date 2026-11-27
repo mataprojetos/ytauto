@@ -185,26 +185,53 @@ def _path(ctx, p):
         ctx.line_to(*p["hand" + s])
 
 
-def draw_figure(ctx, p, color=(0.96, 0.96, 0.96), width=None, glow=None, alpha=1.0):
-    """glow = (r, g, b, força) desenha halos largos por baixo do traço."""
-    width = width or 3.4 * K
+def draw_figure(ctx, p, color=(0.96, 0.96, 0.96), width=None, glow=None, alpha=1.0, gctx=None, core=0.55):
+    """Boneco néon: traço na cor da personagem com núcleo claro; o halo vai para `gctx`
+    (camada de brilho desfocada depois). Sem gctx, usa halos largos semitransparentes."""
+    width = width or 3.6 * K
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
     ctx.set_line_join(cairo.LINE_JOIN_ROUND)
     if glow:
         gr, gg, gb, k = glow
-        for wdt, a in ((26, 0.05), (16, 0.09), (9, 0.18)):
-            ctx.set_source_rgba(gr, gg, gb, a * k * alpha)
-            ctx.set_line_width(wdt)
-            _path(ctx, p)
-            ctx.stroke()
-            ctx.arc(p["head"][0], p["head"][1], HEAD_R + wdt / 2, 0, 2 * math.pi)
-            ctx.fill()
+        if gctx is not None:
+            gctx.set_line_cap(cairo.LINE_CAP_ROUND)
+            gctx.set_line_join(cairo.LINE_JOIN_ROUND)
+            gctx.set_source_rgba(gr, gg, gb, min(1.0, k) * alpha)
+            gctx.set_line_width(width * 2.6)
+            _path(gctx, p)
+            gctx.stroke()
+            gctx.arc(p["head"][0], p["head"][1], HEAD_R * 1.5, 0, 2 * math.pi)
+            gctx.fill()
+        else:
+            for wdt, a in ((26, 0.05), (16, 0.09), (9, 0.18)):
+                ctx.set_source_rgba(gr, gg, gb, a * k * alpha)
+                ctx.set_line_width(wdt)
+                _path(ctx, p)
+                ctx.stroke()
+                ctx.arc(p["head"][0], p["head"][1], HEAD_R + wdt / 2, 0, 2 * math.pi)
+                ctx.fill()
     ctx.set_source_rgba(*color, alpha)
     ctx.set_line_width(width)
     _path(ctx, p)
     ctx.stroke()
     ctx.arc(p["head"][0], p["head"][1], HEAD_R, 0, 2 * math.pi)
     ctx.fill()
+    if core > 0:  # núcleo quase branco, típico do néon
+        lite = tuple(c + (1 - c) * core for c in color)
+        ctx.set_source_rgba(*lite, alpha)
+        ctx.set_line_width(width * 0.42)
+        _path(ctx, p)
+        ctx.stroke()
+        ctx.arc(p["head"][0], p["head"][1], HEAD_R * 0.62, 0, 2 * math.pi)
+        ctx.fill()
+
+
+def limb_point(p, u, v):
+    """Ponto aleatório ao longo do corpo (u,v em [0,1)) — para emitir partículas do boneco."""
+    segs = [("neck", "hip"), ("hip", "kneeL"), ("kneeL", "footL"), ("hip", "kneeR"), ("kneeR", "footR"),
+            ("neck", "elbL"), ("elbL", "handL"), ("neck", "elbR"), ("elbR", "handR"), ("head", "head")]
+    a, b = segs[int(u * len(segs)) % len(segs)]
+    return (p[a][0] + (p[b][0] - p[a][0]) * v, p[a][1] + (p[b][1] - p[a][1]) * v)
 
 
 def draw_boulder(ctx, c, r, angle, tint=(0.36, 0.33, 0.32), alpha=1.0, glow=None):
