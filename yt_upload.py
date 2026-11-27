@@ -2,7 +2,7 @@
 """Whatifaholic — upload de um Short para o YouTube (API Data v3, upload resumível).
 
 Segurança por omissão:
-  * o vídeo fica PRIVADO, a menos que passes --public explicitamente;
+  * o vídeo fica PRIVADO, a menos que passes --public ou --unlisted (não listado) explicitamente;
   * --dry-run valida tudo (ficheiro, formato Shorts, limites do YouTube) sem enviar nada;
   * --whoami mostra em que canal vai publicar (precisa de autorização OAuth), sem enviar nada.
 
@@ -177,6 +177,7 @@ def main() -> None:
     ap.add_argument("--video")
     ap.add_argument("--metadata")
     ap.add_argument("--public", action="store_true", help="publica logo (por omissão fica privado)")
+    ap.add_argument("--unlisted", action="store_true", help="não listado (só com o link); só com autorização do dono")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--whoami", action="store_true")
     ap.add_argument("--log", default="uploaded.json")
@@ -193,7 +194,9 @@ def main() -> None:
     if not (a.video and a.metadata):
         ap.error("--video e --metadata são obrigatórios")
     meta = json.load(open(a.metadata, encoding="utf-8"))
-    meta.setdefault("status", {})["privacyStatus"] = "public" if a.public else "private"
+    if a.public and a.unlisted:
+        ap.error("--public e --unlisted são exclusivos")
+    meta.setdefault("status", {})["privacyStatus"] = "public" if a.public else ("unlisted" if a.unlisted else "private")
     errs = validate(meta, a.video)
     p = ffprobe(a.video) if os.path.isfile(a.video) else {}
     print(f"Vídeo: {a.video} · {p.get('w')}x{p.get('h')} · {p.get('dur', 0):.1f}s · {p.get('size', 0) / 1e6:.1f} MB")

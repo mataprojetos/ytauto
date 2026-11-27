@@ -7,7 +7,7 @@
   "estado": "público",
   "creditos": 2.85,
   "duracao_s": 48,
-  "visualizacoes": 1423,
+  "visualizacoes": 1424,
   "gostos": 21,
   "comentarios": 9,
   "retencao_pct": 86.4
@@ -49,7 +49,7 @@
   "visualizacoes": 574,
   "gostos": 6,
   "comentarios": 1,
-  "retencao_pct": 57.0
+  "retencao_pct": 57.1
  },
  {
   "episodio": "EP005",
@@ -59,10 +59,10 @@
   "estado": "público",
   "creditos": 4.28,
   "duracao_s": 43,
-  "visualizacoes": 1346,
+  "visualizacoes": 1347,
   "gostos": 11,
   "comentarios": 5,
-  "retencao_pct": 93.9
+  "retencao_pct": 94.2
  },
  {
   "episodio": "EP006",
@@ -72,7 +72,7 @@
   "estado": "público",
   "creditos": 1.95,
   "duracao_s": 39,
-  "visualizacoes": 1437,
+  "visualizacoes": 1436,
   "gostos": 14,
   "comentarios": 6,
   "retencao_pct": 74.8
@@ -85,10 +85,10 @@
   "estado": "público",
   "creditos": 21.8,
   "duracao_s": 34,
-  "visualizacoes": 1383,
+  "visualizacoes": 1389,
   "gostos": 18,
   "comentarios": 1,
-  "retencao_pct": 75.8
+  "retencao_pct": 75.4
  },
  {
   "episodio": "EP008",
@@ -101,7 +101,7 @@
   "visualizacoes": 1424,
   "gostos": 7,
   "comentarios": 1,
-  "retencao_pct": null
+  "retencao_pct": 81.8
  },
  {
   "episodio": "EP009",
@@ -121,9 +121,22 @@
   "data": "2026-11-25",
   "titulo": "What If YOU Had to Stop an Asteroid? ☄️",
   "link": "https://www.youtube.com/shorts/GolIYfEy5U8",
-  "estado": "privado",
+  "estado": "público",
   "creditos": 20.8,
   "duracao_s": 71,
+  "visualizacoes": 1361,
+  "gostos": 19,
+  "comentarios": 2,
+  "retencao_pct": null
+ },
+ {
+  "episodio": "EP011",
+  "data": "2026-11-27",
+  "titulo": "What If You Fell Into Quicksand? 🏜️",
+  "link": "https://www.youtube.com/shorts/wbBoqDaWXEY",
+  "estado": "não listado",
+  "creditos": 17.0,
+  "duracao_s": 49,
   "visualizacoes": 0,
   "gostos": 0,
   "comentarios": 0,
