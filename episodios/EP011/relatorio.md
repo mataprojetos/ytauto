@@ -1,6 +1,7 @@
 # EP011 · What If You Fell Into Quicksand? 🏜️
 
-- **Não listado** (pedido do dono, 27/11/2026): https://www.youtube.com/shorts/wbBoqDaWXEY (48,8 s), capa "DON'T MOVE" (texto centrado e compacto, cara visível por cima) aplicada com `thumbnails.set`. `yt_upload.py` ganhou a opção `--unlisted`.
+- **Não listado v2** (pedido do dono, 27/11/2026): https://www.youtube.com/shorts/vzrbEYrz4rc (48,8 s; som do X novo). Para apagar no Studio: v1 wbBoqDaWXEY.
+- Capa "DON'T MOVE" (texto centrado e compacto, cara visível por cima) aplicada com `thumbnails.set`. `yt_upload.py` ganhou a opção `--unlisted`.
 - **Formato** (pedido do dono): tom com humor, guião do dono com a narração exata, sem alarme e **sem frase de marca** (exceção pedida para este vídeo). Fica abaixo de 60 s (Short).
 - **Fim contínuo** (lição do EP010): a narração acaba em "Which means, the next time you…" e o vídeo começa em "…just stepped into quicksand." O "You" inicial da gravação foi cortado (0,185 s, `ep011/build/trim_start.py`), por isso no loop ouve-se uma frase só, sem palavra repetida. Último frame = frame 0 (câmara, afundamento e "SINKING" convergem para o início).
 - **Base:** EP010 v2 / EP009 (maquete 2.5D com parallax). A mesma personagem (rapaz de capuz): as 5 ilustrações e a capa foram geradas com `ep009/anim/s1_queda_aviao.png` como referência.
@@ -33,7 +34,7 @@ Música reaproveitada (`music/track01_cosmic_ambient.mp3`, ducking). Efeitos sin
 - 47,2 s final: de volta ao gancho, converge para o frame 0.
 
 ## Áudio
-14 efeitos: 2 sons de areia molhada (gancho e "sink even faster"), 2 sons de falhanço (os X), 3 pops (carro, 2×, subscrição), batida no carro, 3 swishes (paragem, solução, cinema), 2 sons de "certo" (deitar-se, livre), brilho no "FREE!", impacto no carimbo. Sem dings, sem alarme.
+14 efeitos: 2 sons de areia molhada (gancho e "sink even faster"), 2 sons de "resposta errada" nos X (v2: escolhidos pelo dono entre 4 da Epidemic Sound via Higgsfield, `lib/sfx/x_resposta_errada.mp3`; o trombone sintetizado da v1 era "horrível e chato"), 3 pops (carro, 2×, subscrição), batida no carro, 3 swishes (paragem, solução, cinema), 2 sons de "certo" (deitar-se, livre), brilho no "FREE!", impacto no carimbo. Sem dings, sem alarme.
 
 ## Fontes
 - Bonn, D. et al. "Quicksand and the human body", Nature 434, 1079 (2005): areia movediça ~2× mais densa do que o corpo (não se afunda por completo, flutua-se); puxar um pé a 1 cm/s exige ~10⁶ N, comparável a levantar um carro.
