@@ -11,7 +11,7 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 
 ## Fórmula de cada vídeo (aprovada pelo dono)
 - Gancho com urgência + número + recompensa em 1–2 s (ex.: contagem "1.30 SECONDS LEFT" e a Lua estilhaça no zero).
-- Gancho sonoro e visual: alarme de emergência de dois tons + bordas vermelhas a piscar até à recompensa (decisão do dono, 17/11/2026; é a exceção ao som discreto).
+- Gancho **sem alarme e sem bordas vermelhas a piscar** (decisão do dono, 24/11/2026: deixavam o início confuso e aumentavam o scroll). O impacto vem da imagem, do número e da voz; no máximo um whoosh ou impacto suave.
 - Duração alvo: 30–40 s (~100–120 palavras de guião; decisão do dono a 21/11/2026, para subir a % vista). Cortar o facto mais fraco antes de cortar uma boa piada.
 - Loop aberto principal com selo no ecrã até à revelação; loops curtos a cada 8–10 s.
 - Uma piada a cada ~10–15 s, cada uma com visual próprio. **Piadas relatable sempre que der** (pedido do dono): situações do dia a dia da maioria das pessoas (chefe, segunda-feira, renda, despertador, reuniões chatas, chat de família, bateria do telemóvel), ligadas ao tema; evitar piadas de nicho.
@@ -19,11 +19,11 @@ Responde sempre em português de Portugal. O canal e os vídeos são em inglês.
 - Último frame igual ao primeiro (loop). Sem ecrã final.
 - Estilo: ilustração plana e/ou animação só por código (pycairo). **Sem paleta fixa nem cor de marca** (decisão do dono, 21/11/2026): cada vídeo usa as cores que o tema pedir; não forçar azul/ciano.
 - Legendas palavra a palavra, palavra atual destacada numa cor de contraste que combine com o vídeo, fora das zonas tapadas pelo YouTube.
-- Som discreto: swish só nas mudanças de capítulo, pop leve nos números, ding nas piadas, música com ducking.
+- **Som limpo e poucos efeitos** (decisão do dono, 24/11/2026: efeitos repetitivos cansam): ~10–15 efeitos por vídeo, volumes baixos. Swish só em 2–3 mudanças grandes; pop leve só nos 3–4 números principais; **sem ding nas piadas**; nada de repetir o mesmo som em série (ex.: queda = um vento contínuo, não vários whooshes); impacto forte só na revelação principal. Frase de marca com o seu som; música com ducking. Referência: EP008 v2 (`ep008/anim_ep008.py`, função `mix`).
 - **Pop-up de subscrição em todos os vídeos** (aprovado pelo dono): cápsula "🔔 SUBSCRIBE · for more what ifs" (cores livres) logo após a revelação principal (~70–75%), ~2,5 s, toque animado → "SUBSCRIBED ✓", pop leve; fora das zonas do YouTube e sem tapar o essencial da cena. Código de referência: `lib/subscribe_popup.py`.
 - **Capa (thumbnail) em todos os vídeos** (pedido do dono): imagem própria, não precisa de ser um frame do vídeo, feita para ser irresistível de clicar (expressão forte, cor de destaque, 2–4 palavras grandes com contorno, fundo do tema). 1 imagem nano_banana_pro 9:16 (~2 créditos) + texto por código, JPG < 2 MB em `thumbnails/epXXX_thumb.jpg`; aplicar logo após o envio privado com `thumbnails.set` em `youtube.googleapis.com` (funciona com a permissão `youtube.upload`).
 - Marca discreta "@whatifaholics" no canto superior esquerdo. Sem número de episódio em nada do que é público (ecrã, título, descrição, etiquetas): é irrelevante para quem vê. EPxxx só nos ficheiros internos.
-- **Frase de marca em todos os vídeos:** "That one made me scratch my head." (escolha do dono). **Obrigatória cedo, no desenvolvimento (~3–8 s, logo a seguir ao gancho)**; pode repetir-se na viragem. Sempre com a mesma assinatura visual curta (mão a coçar a cabeça) e o mesmo som curto.
+- **Frase de marca: opcional** (decisão do dono, 27/11/2026): "That one made me scratch my head." só quando o dono pedir. Quando houver, só depois de um facto realmente surpreendente (nunca encaixada à força), com a assinatura visual curta (mão a coçar a cabeça) e o som curto.
 - **Final com gatilhos até ao último segundo** (pedido do dono, 21/11/2026): guardar a maior revelação/número para os últimos ~5 s, anunciada antes com um loop aberto ("wait until you see…"); nada de abrandar no fim.
 - **Pedido de comentário: opcional** (decisão do dono, 22/11/2026): só quando o dono quiser ou o tipo de vídeo pedir. Quando houver, original e curtíssimo (≤6 palavras), colado à revelação final; nunca o genérico "Tell me below". Alternativa preferida para fechar: frase final incompleta que o início do vídeo completa (loop de frase, ex.: "Which means, right now…" → "You're falling into a black hole.").
 - Factos sempre verificados em fontes abertas; fontes na descrição de cada vídeo.
