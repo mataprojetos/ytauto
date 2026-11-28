@@ -36,9 +36,13 @@ def bg(ctx, w, h, glow=None, glow_r=None, glow_col=BG2):
     ctx.paint()
 
 
-def hooded(ctx, x, y, s, lw, col=WHITE, pose="stand", face=False):
-    """Stickman de capuz. (x, y) = pés no chão; s = altura total."""
+def hooded(ctx, x, y, s, lw, col=WHITE, pose="stand", face=False, outline=0.0):
+    """Stickman de capuz. (x, y) = pés no chão; s = altura total.
+    outline > 0: desenha só o contorno preto (chamar antes do boneco a cores)."""
     ctx.save()
+    if outline:
+        col = (0, 0, 0)
+        lw = lw + 2 * outline
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
     ctx.set_line_join(cairo.LINE_JOIN_ROUND)
     ctx.set_line_width(lw)
@@ -55,6 +59,9 @@ def hooded(ctx, x, y, s, lw, col=WHITE, pose="stand", face=False):
     ctx.curve_to(-hr * 1.45, -hr * 0.4, -hr * 0.9, -hr * 1.55, hr * 0.05, -hr * 1.5)
     ctx.curve_to(hr * 0.95, -hr * 1.45, hr * 1.35, -hr * 0.5, hr * 1.1, hr * 0.85)
     ctx.close_path()
+    if outline:
+        ctx.set_line_width(2 * outline)
+        ctx.stroke_preserve()
     ctx.fill()
     if face:
         rgb(ctx, BG)
@@ -110,7 +117,7 @@ def hooded(ctx, x, y, s, lw, col=WHITE, pose="stand", face=False):
     if pose == "climb":   # picareta
         hx, hy = x + s * 0.20, y - s * 0.98
         ctx.set_line_width(lw * 0.8)
-        rgb(ctx, GOLD)
+        rgb(ctx, col if outline else GOLD)
         ctx.move_to(hx, hy)
         ctx.line_to(hx - s * 0.10, hy - s * 0.12)
         ctx.stroke()
@@ -240,6 +247,8 @@ def hood_head(ctx, cx, cy, hr, col, outline=0.0):
 
 
 GREEN = (0.42, 1.0, 0.45)   # verde vivo claro
+PURPLE = (0.70, 0.45, 1.0)  # roxo
+BLUE = (0.30, 0.72, 1.0)    # azul
 
 
 def fencer(ctx, S, col, lw, outline=0.0):
@@ -377,9 +386,10 @@ def banner(ctx, W=2560, H=1440):
         ctx.move_to(x1, ground)
         ctx.line_to(x2, ground)
         ctx.stroke()
-    figs = [(120, "MOTIVATION", "tired", GREEN), (285, "OBSESSION", "run", GREEN),
-            (445, "ANGER", "stand", RED_HI), (2140, "DISCIPLINE", "climb", GREEN)]
+    figs = [(120, "MOTIVATION", "tired", GREEN), (285, "OBSESSION", "run", PURPLE),
+            (445, "ANGER", "stand", RED_HI), (2140, "DISCIPLINE", "climb", BLUE)]
     for x, name, pose, col in figs:
+        hooded(ctx, x, ground - 3, 170, 5.5, col=col, pose=pose, outline=3.0)
         hooded(ctx, x, ground - 3, 170, 5.5, col=col, pose=pose)
         text(ctx, name, x, ground - 230, 22, RED_HI, spacing=0.12)
     # o prémio: diamantes dourados à direita
