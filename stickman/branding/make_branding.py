@@ -36,7 +36,7 @@ def bg(ctx, w, h, glow=None, glow_r=None, glow_col=BG2):
     ctx.paint()
 
 
-def hooded(ctx, x, y, s, lw, col=WHITE, pose="stand", face=True):
+def hooded(ctx, x, y, s, lw, col=WHITE, pose="stand", face=False):
     """Stickman de capuz. (x, y) = pés no chão; s = altura total."""
     ctx.save()
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
@@ -229,9 +229,6 @@ def hood_head(ctx, cx, cy, hr, col):
     ctx.curve_to(-hr * 1.45, -hr * 0.4, -hr * 0.9, -hr * 1.55, hr * 0.05, -hr * 1.5)
     ctx.curve_to(hr * 0.95, -hr * 1.45, hr * 1.35, -hr * 0.5, hr * 1.1, hr * 0.85)
     ctx.close_path()
-    ctx.fill()
-    rgb(ctx, BG)
-    ctx.arc(hr * 0.25, hr * 0.05, hr * 0.60, 0, 2 * math.pi)
     ctx.fill()
     ctx.restore()
 
