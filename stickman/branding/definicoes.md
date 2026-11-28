@@ -15,11 +15,7 @@ Tudo pronto a colar. Textos públicos em inglês; instruções em português.
 
 ## Descrição do canal (colar)
 ```
-Your mind is an arena. Motivation, Discipline, Obsession, Anger, Ego… they all want to win. Only one does.
-
-Short stickman battles between the traits that run your life. Watch, pick your side, and find out which one you really are.
-
-New Shorts every week.
+Stickman battles between the traits in your head. Only one wins.
 ```
 
 ## Palavras-chave do canal (colar)
