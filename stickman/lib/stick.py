@@ -317,3 +317,44 @@ def lie_back_pose(gy, xh, t=0.0):
 
 def clamp01(v):
     return 0.0 if v < 0 else 1.0 if v > 1 else v
+
+
+# ---------- elevações na barra (vista de frente) ----------
+def pullup_pose(bar_y, x, d, grip=20, arm=26, swing=0.0, kick=0.0):
+    """Pendurado numa barra horizontal em y=bar_y, centrado em x, de frente.
+    d: 0 = braços esticados, 1 = queixo acima da barra. arm: comprimento de cada osso do braço
+    (um pouco maior que o normal para a subida se ver bem). kick: joelhos a dobrar (esforço)."""
+    a = arm * K
+    hl, hr = (x - grip * K, bar_y), (x + grip * K, bar_y)
+    hang = math.sqrt(max(1.0, (2 * a * 0.985) ** 2 - (grip * K) ** 2))
+    top = 6 * K
+    ny = bar_y + hang + (top - hang) * clamp01(d)
+    neck = (x + swing, ny)
+    head = (neck[0], ny - HEAD_R - 4 * K)
+    hip = (x + swing * 1.6, ny + TORSO)
+    p = {"neck": neck, "head": head, "hip": hip}
+    leg = THIGH + SHIN
+    for name, s in (("L", -1), ("R", 1)):
+        foot = (hip[0] + s * 7 * K + swing * 0.6, hip[1] + leg * (0.97 - 0.18 * kick))
+        knee = ((hip[0] + foot[0]) / 2 + s * (3 + 9 * kick) * K, (hip[1] + foot[1]) / 2)
+        p["knee" + name], p["foot" + name] = knee, foot
+    eL, hL = ik2(neck, hl, a, a, bend=-1)
+    eR, hR = ik2(neck, hr, a, a, bend=1)
+    p.update({"elbL": eL, "handL": hl, "elbR": eR, "handR": hr})
+    return p
+
+
+def kneel_pose(gy, x, pound=0.0):
+    """De joelhos no chão, curvado, cabeça em baixo, punhos no chão (vista de lado, virado para +x).
+    pound 0..1 levanta o punho direito (a bater no chão)."""
+    knee = (x + 6 * K, gy - 2 * K)
+    foot = (x - 24 * K, gy - 1 * K)
+    hip = (x - 6 * K, gy - 28 * K)
+    neck = (x + 24 * K, gy - 52 * K)
+    head = (neck[0] + 13 * K, neck[1] + 8 * K)
+    p = {"hip": hip, "neck": neck, "head": head, "kneeL": knee, "footL": foot,
+         "kneeR": (knee[0] + 3 * K, knee[1]), "footR": (foot[0] + 3 * K, foot[1])}
+    p["elbL"], p["handL"] = (x + 18 * K, gy - 26 * K), (x + 32 * K, gy - 2 * K)
+    lift = 22 * K * clamp01(pound)
+    p["elbR"], p["handR"] = (x + 22 * K, gy - 28 * K - lift * 0.4), (x + 36 * K, gy - 2 * K - lift)
+    return p
