@@ -30,3 +30,11 @@ Responde em português de Portugal. Os vídeos são em inglês (só texto curto 
   ou só com efeitos sonoros mínimos, cronometrado para o drop cair aos 17 s. Indicar ao dono o segundo da música a usar.
 - Nada de automatismos nem envio para o YouTube: o vídeo é entregue ao dono como ficheiro (pasta `stickman/out/`, não versionar mp4 grandes se não for preciso).
 - Código partilhado em `stickman/lib/`, um script por vídeo em `stickman/videos/NNN_nome.py`.
+
+## Entrega final (pedido do dono, 28/11/2026)
+Sempre que um vídeo fica fechado e é hora de publicar, entregar SEMPRE, separados e prontos a copiar:
+1. **Título** (personagens "A vs B vs C…: <prova>" + emoji + 2–3 hashtags).
+2. **Descrição** (uma linha curta por personagem com o que lhe aconteceu, "Only one…", pergunta final "Which one are you? 👇", hashtags).
+3. **Etiquetas** (separadas por vírgulas, incluir "ThePsychArena").
+Mais: vídeo sem música + pré-visualização com música, capa (`out/NNN_thumb.jpg`) e o segundo da música a usar na app.
+Guardar o texto em `stickman/out/NNN_nome_post.md`. Exemplo: `out/001_climb_post.md`.
