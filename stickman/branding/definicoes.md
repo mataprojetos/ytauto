@@ -15,8 +15,8 @@ Tudo pronto a colar. Textos públicos em inglês; instruções em português.
 
 ## Descrição do canal (colar)
 ```
-Stickman battles between the traits in your head: Motivation, Discipline, Obsession, Anger and more.
-Each Short is a new challenge, and only one wins. Which one are you?
+⚔️ Stickman battles between the traits in your head: Motivation, Discipline, Obsession, Anger and more.
+🏆 Each Short is a new challenge, and only one wins. Which one are you? 🧠
 ```
 
 ## Palavras-chave do canal (colar)
