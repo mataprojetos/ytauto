@@ -22,7 +22,7 @@ Responde em português de Portugal. Os vídeos são em inglês (só texto curto 
 - Obstáculos explicam quem pára; quem pára perde o movimento da linha. Vencedor chega ~2 s antes do fim.
 - Pensamentos nascem a crescer da cabeça, ficam por cima e caem para trás para o chão.
 - Pulsação ao BPM da música (`lib/beats.py` deteta BPM/drop/batidas); drop do vídeo aos 17,0 s.
-  Música do dono em `music/` (não versionada); o render gera pré-visualização com música e indica o segundo de início.
+  Música do dono em `music/` (`music/stakillaz.mp3` está no repositório, a pedido do dono: drop no segundo 20,97 → começar aos 3,97 s); o render gera pré-visualização com música e indica o segundo de início.
 
 ## Produção
 - **Tudo por código** (pycairo/numpy + ffmpeg). **Zero créditos do Higgsfield.**

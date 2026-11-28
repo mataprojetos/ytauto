@@ -31,7 +31,7 @@ from lib.ui import GOLD, RED, ease_back, make_title  # noqa: E402
 S.set_scale(2.0)
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-VER = "reps_v2"
+VER = "reps_v3"
 OUT = os.path.join(ROOT, "out", VER + ".mp4")
 MUSIC = os.path.join(ROOT, "music", "stakillaz.mp3")
 HANDLE = "@ThePsychArena"
