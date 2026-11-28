@@ -4,6 +4,7 @@ Responde em português de Portugal. Os vídeos são em inglês (só texto curto 
 **As regras do Whatifaholic (CLAUDE.md da raiz) NÃO se aplicam aqui**, exceto não pôr credenciais no repositório.
 
 ## O que é
+- Canal: **@ThePsychArena** (marca discreta no canto superior esquerdo, por cima das faixas).
 - Canal de Shorts no estilo da trend "quem ganha?": bonecos simples (stickmen) de capuz que representam traços de personalidade
   (Motivation, Discipline, Obsession; às vezes Anger, Ego, Overthinking, Laziness) numa prova até só um vencer.
 - Estilo visual livre de cópia direta: bonecos simples são um estilo comum; personagens, provas e títulos são nossos.
@@ -13,6 +14,15 @@ Responde em português de Portugal. Os vídeos são em inglês (só texto curto 
 - **Drop da música aos ~17 s**, a coincidir com o momento decisivo.
 - Estrutura: 0–2 s título "A vs B vs C" com a prova já a decorrer · 2–10 s alguém fraqueja · 10–16 s crise/tensão máxima ·
   ~17 s momento decisivo (drop) · 17–28 s consequência épica · 28–30 s frase-lição curta e corte seco.
+
+## Estilo aprovado (EP #001 climb, v6)
+- Fundo preto; 4 faixas com o nome a vermelho, % + barrinha na cor da personagem; percurso inteiro à vista
+  (linha fina de ponta a ponta que anda por baixo de quem avança — "escada rolante"); meta só aparece nos últimos ~2 s.
+- Bonecos néon, uma cor por personagem (Anger vermelho, Obsession roxo, Discipline ciano, Motivation laranja), muitas partículas.
+- Obstáculos explicam quem pára; quem pára perde o movimento da linha. Vencedor chega ~2 s antes do fim.
+- Pensamentos nascem a crescer da cabeça, ficam por cima e caem para trás para o chão.
+- Pulsação ao BPM da música (`lib/beats.py` deteta BPM/drop/batidas); drop do vídeo aos 17,0 s.
+  Música do dono em `music/` (não versionada); o render gera pré-visualização com música e indica o segundo de início.
 
 ## Produção
 - **Tudo por código** (pycairo/numpy + ffmpeg). **Zero créditos do Higgsfield.**

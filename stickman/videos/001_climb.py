@@ -6,7 +6,7 @@ Bonecos néon, cada um com a sua cor. Pensamentos nascem da cabeça e caem para 
 Pulsação suave ao ritmo da música (--music deteta BPM/batidas/drop; sem música usa --bpm).
 Drop da música aos 17,0 s. Sem música no ficheiro (faixa silenciosa).
 
-    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v5.mp4 + folha de frames
+    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v6.mp4 + folha de frames
     python3 stickman/videos/001_climb.py --frames 0,17 --dump /tmp/f   # só PNG
 """
 import argparse
@@ -26,8 +26,9 @@ from lib.beats import BeatSync  # noqa: E402
 S.set_scale(1.18)
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-OUT = os.path.join(ROOT, "out", "climb_v5.mp4")
+OUT = os.path.join(ROOT, "out", "climb_v6.mp4")
 MUSIC = os.path.join(ROOT, "music", "stakillaz.mp3")
+HANDLE = "@ThePsychArena"
 
 DURATION = 30.0
 DROP = 17.0
@@ -325,8 +326,8 @@ def draw_line(ctx, gctx, g, cam, col, pulse):
     """Fundo preto: a encosta é só uma linha fina, de ponta a ponta da faixa."""
     cx = cam[0]
     x0, x1 = int(cx) - 12, int(cx + W) + 12
-    for c, wdt, rgba in ((gctx, 5, (*col, 0.30 + 0.25 * pulse)),
-                         (ctx, 2.2, (0.80, 0.80, 0.84, 0.55 + 0.25 * pulse))):
+    for c, wdt, rgba in ((gctx, 5 + 5 * pulse, (*col, 0.30 + 0.55 * pulse)),
+                         (ctx, 2.2 + 1.2 * pulse, (0.80, 0.80, 0.84, 0.55 + 0.4 * pulse))):
         c.set_line_width(wdt)
         c.set_source_rgba(*rgba)
         c.move_to(x0, g(x0))
@@ -519,7 +520,7 @@ def main():
     ap.add_argument("--frames", help="só estes tempos (s), separados por vírgula")
     ap.add_argument("--dump", help="pasta para gravar cada frame renderizado em PNG")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v5_frames.png"))
+    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v6_frames.png"))
     ap.add_argument("--music", default=MUSIC if os.path.exists(MUSIC) else None, help="ficheiro da música: deteta BPM, batidas e drop (alinha o drop aos 17 s)")
     ap.add_argument("--bpm", type=float, default=140.0, help="BPM provisório quando não há --music")
     args = ap.parse_args()
@@ -637,7 +638,7 @@ def main():
             ctx.set_source_surface(title2, 0, 0)
             ctx.paint_with_alpha(sw)
             ctx.restore()
-        draw_text(ctx, "@channel", 30, 248, 17, (0.85, 0.85, 0.85, 0.16), 1.5)
+        draw_text(ctx, HANDLE, 30, 247, 20, (0.88, 0.88, 0.9, 0.55), 1.5)
 
         # --- faixas
         for i, s in enumerate(states):
@@ -732,19 +733,19 @@ def main():
             for c in (ctx, gctx):
                 c.restore()
 
-        add_glow(surf, glow, scale=2, radius=5, gain=1.2 + 0.45 * pulse)
+        add_glow(surf, glow, scale=2, radius=5, gain=1.15 + 1.0 * pulse)
 
         for i in range(5):
             y = LANE_TOP + i * LH
             hot = (0.6 + 0.4 * pulse) if (i in (0, 1) and DROP <= t < WIN) else 0
-            ctx.set_source_rgba(0.42 + 0.4 * hot, 0.07, 0.07, 0.95)
+            ctx.set_source_rgba(min(1, 0.42 + 0.4 * hot + 0.25 * pulse), 0.07 + 0.05 * pulse, 0.07, 0.95)
             ctx.set_line_width(2)
             ctx.move_to(0, y)
             ctx.line_to(W, y)
             ctx.stroke()
 
         # pulsação suave do vídeo inteiro em cada batida (mais forte depois do drop)
-        z = 1 + (0.004 if t < DROP else 0.010) * pulse
+        z = 1 + (0.012 if t < DROP else 0.026) * pulse
         fctx.set_source_rgb(0, 0, 0)
         fctx.paint()
         fctx.save()
