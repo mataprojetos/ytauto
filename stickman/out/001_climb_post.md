@@ -17,7 +17,7 @@ Which one are you? 👇
 motivation vs discipline, motivation, discipline, obsession, anger, mindset, self improvement, psychology, stickman animation, stickman, animation, who reaches the top, which one are you, personality types, grind, never give up, hard work, success mindset, shorts, ThePsychArena
 
 ## Comentário fixado
-Be honest… which one are you right now? 🔴 Anger · 🟣 Obsession · 🔵 Discipline · 🟠 Motivation
+Be honest… what % would you have reached? ⛰️👇
 
 ## Música
 Na app: STAKILLAZ (som escolhido pelo dono), começar no segundo 3,97 (≈ 0:04) para o drop cair aos 17 s.
