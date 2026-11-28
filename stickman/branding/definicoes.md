@@ -3,7 +3,7 @@
 Tudo pronto a colar. Textos públicos em inglês; instruções em português.
 
 ## Imagens
-- Foto de perfil: `perfil_a.png`, `perfil_b.png` ou `perfil_c.png` (800×800). Pré-visualização em círculo e a 98/48/32 px: `preview_perfis.png`.
+- Foto de perfil: `perfil_d.png` (duelo de espadas, preferida) ou `perfil_a.png`, `perfil_b.png`, `perfil_c.png` (800×800). Pré-visualização em círculo e a 98/48/32 px: `preview_perfis.png`.
 - Banner: `banner.png` (2560×1440, texto dentro da zona segura 1546×423). Pré-visualização: `preview_banner.png`.
 - Refazer: `python3 stickman/branding/make_branding.py` (precisa de `pip install pycairo` e da fonte `fonts/Anton-Regular.ttf` em `~/.fonts`).
 

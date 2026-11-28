@@ -219,6 +219,99 @@ def profile_c(ctx, S=800):
     hooded(ctx, x0 + wp + gap + wa * 0.52, base - size * 0.80, S * 0.17, S * 0.016, pose="win")
 
 
+def hood_head(ctx, cx, cy, hr, col):
+    """Cabeça com capuz (virada para a direita)."""
+    ctx.save()
+    ctx.translate(cx, cy)
+    rgb(ctx, col)
+    ctx.new_path()
+    ctx.move_to(-hr * 1.05, hr * 0.9)
+    ctx.curve_to(-hr * 1.45, -hr * 0.4, -hr * 0.9, -hr * 1.55, hr * 0.05, -hr * 1.5)
+    ctx.curve_to(hr * 0.95, -hr * 1.45, hr * 1.35, -hr * 0.5, hr * 1.1, hr * 0.85)
+    ctx.close_path()
+    ctx.fill()
+    rgb(ctx, BG)
+    ctx.arc(hr * 0.25, hr * 0.05, hr * 0.60, 0, 2 * math.pi)
+    ctx.fill()
+    ctx.restore()
+
+
+def fencer(ctx, S, col, lw):
+    """Stickman de capuz em investida para a direita, espada erguida para o centro."""
+    P = lambda x, y: (x * S, y * S)
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+    ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+    ctx.set_line_width(lw)
+    rgb(ctx, col)
+    hip, neck, sh = P(0.22, 0.57), P(0.29, 0.39), P(0.28, 0.42)
+    for pts in ([neck, hip],
+                [hip, P(0.33, 0.68), P(0.37, 0.81)],      # perna da frente
+                [hip, P(0.14, 0.69), P(0.07, 0.81)],      # perna de trás
+                [sh, P(0.35, 0.41), P(0.40, 0.34)],       # braço da espada
+                [sh, P(0.19, 0.46), P(0.12, 0.40)]):      # braço de equilíbrio
+        ctx.move_to(*pts[0])
+        for q in pts[1:]:
+            ctx.line_to(*q)
+        ctx.stroke()
+    hood_head(ctx, *P(0.315, 0.30), S * 0.058, col)
+    # espada: lâmina prateada + guarda dourada
+    hx, hy = P(0.40, 0.34)
+    tx, ty = P(0.70, 0.07)
+    ctx.set_line_width(lw * 0.62)
+    ctx.set_source_rgb(0.86, 0.86, 0.88)
+    ctx.move_to(hx, hy)
+    ctx.line_to(tx, ty)
+    ctx.stroke()
+    dx, dy = (tx - hx), (ty - hy)
+    n = math.hypot(dx, dy)
+    ux, uy = dx / n, dy / n
+    gx, gy = hx + ux * S * 0.02, hy + uy * S * 0.02
+    ctx.set_line_width(lw * 0.7)
+    rgb(ctx, GOLD)
+    ctx.move_to(gx - uy * S * 0.032, gy + ux * S * 0.032)
+    ctx.line_to(gx + uy * S * 0.032, gy - ux * S * 0.032)
+    ctx.stroke()
+
+
+def profile_d(ctx, S=800):
+    """Duelo de espadas: branco vs vermelho, lâminas cruzadas com faísca dourada."""
+    bg(ctx, S, S, glow=(S / 2, S * 0.26), glow_r=S * 0.55, glow_col=(0.19, 0.13, 0.06))
+    lw = S * 0.044
+    k = 0.80                                   # encolher tudo para caber no círculo
+    ctx.translate(S * (1 - k) / 2, S * (1 - k) / 2 + S * 0.03)
+    ctx.scale(k, k)
+    ctx.save()
+    fencer(ctx, S, WHITE, lw)
+    ctx.restore()
+    ctx.save()
+    ctx.translate(S, 0)
+    ctx.scale(-1, 1)
+    fencer(ctx, S, RED_HI, lw)
+    ctx.restore()
+    # faísca no cruzamento das lâminas
+    cx, cy = S * 0.5, S * 0.243
+    g = cairo.RadialGradient(cx, cy, 0, cx, cy, S * 0.12)
+    g.add_color_stop_rgba(0, 1, 0.85, 0.45, 0.55)
+    g.add_color_stop_rgba(1, 1, 0.85, 0.45, 0)
+    ctx.set_source(g)
+    ctx.arc(cx, cy, S * 0.12, 0, 2 * math.pi)
+    ctx.fill()
+    rgb(ctx, GOLD)
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+    ctx.set_line_width(S * 0.014)
+    for i in range(8):
+        a = i * math.pi / 4 + math.pi / 8
+        r1, r2 = S * 0.035, S * (0.10 if i % 2 == 0 else 0.07)
+        ctx.move_to(cx + r1 * math.cos(a), cy + r1 * math.sin(a))
+        ctx.line_to(cx + r2 * math.cos(a), cy + r2 * math.sin(a))
+        ctx.stroke()
+    # chão dourado
+    ctx.set_line_width(S * 0.016)
+    ctx.move_to(S * 0.02, S * 0.825)
+    ctx.line_to(S * 0.98, S * 0.825)
+    ctx.stroke()
+
+
 # ---------------------------------------------------------------- banner
 def banner(ctx, W=2560, H=1440):
     bg(ctx, W, H, glow=(W / 2, H / 2), glow_r=W * 0.45, glow_col=(0.13, 0.08, 0.06))
@@ -346,9 +439,9 @@ def banner_preview(surf, safe, path):
 
 
 def main():
-    profs = [("A · campeão no anel", profile_a), ("B · duelo branco vs vermelho", profile_b), ("C · monograma PA", profile_c)]
+    profs = [("A · campeão no anel", profile_a), ("B · duelo branco vs vermelho", profile_b), ("C · monograma PA", profile_c), ("D · duelo de espadas", profile_d)]
     surfs = []
-    for (label, fn), tag in zip(profs, "abc"):
+    for (label, fn), tag in zip(profs, "abcd"):
         s, _ = render(lambda ctx, fn=fn: fn(ctx), 800, 800)
         s.write_to_png(os.path.join(OUT, f"perfil_{tag}.png"))
         surfs.append((label, s))
