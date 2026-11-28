@@ -121,6 +121,23 @@ class Particles:
                     gctx.arc(p["x"], p["y"], s * 1.6, 0, 2 * math.pi)
                     gctx.fill()
                 continue
+            if p["kind"] == "sweat":  # gota de suor (lágrima alongada na direção do movimento)
+                ang = math.atan2(p["vy"], p["vx"])
+                s = p["size"]
+                ctx.save()
+                ctx.translate(p["x"], p["y"])
+                ctx.rotate(ang)
+                ctx.move_to(-s * 2.4, 0)
+                ctx.curve_to(-s, -s, s, -s, s, 0)
+                ctx.curve_to(s, s, -s, s, -s * 2.4, 0)
+                ctx.set_source_rgba(min(1, cr + 0.3), min(1, cg + 0.3), min(1, cb + 0.3), a * 0.9)
+                ctx.fill()
+                ctx.restore()
+                if gctx is not None:
+                    gctx.set_source_rgba(cr, cg, cb, a * 0.5)
+                    gctx.arc(p["x"], p["y"], s * 1.8, 0, 2 * math.pi)
+                    gctx.fill()
+                continue
             if p["kind"] == "spark":
                 if gctx is not None:
                     gctx.set_source_rgba(cr, cg, cb, a)

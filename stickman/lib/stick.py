@@ -270,3 +270,50 @@ def draw_boulder(ctx, c, r, angle, tint=(0.36, 0.33, 0.32), alpha=1.0, glow=None
     ctx.set_line_width(1.6)
     ctx.arc(x, y, r, 0, 2 * math.pi)
     ctx.stroke()
+
+
+# ---------- flexões (vista de lado, virado para +x) ----------
+def pushup_pose(gy, xf, depth, sag=0.0, hand_dx=None):
+    """Flexão com os pés em (xf, gy). depth: 0 = braços esticados, 1 = peito em baixo,
+    >1 até 1.3 = deitado de barriga no chão (cansado/caído). sag: anca a descer (cansaço)."""
+    lb = THIGH + SHIN + TORSO
+    hs_top, hs_bot, hs_flat = 62 * K, 22 * K, 7 * K
+    flat = clamp01((depth - 1.0) / 0.3)
+    d = min(depth, 1.0)
+    hs = hs_top + (hs_bot - hs_top) * d
+    hs = hs + (hs_flat - hs) * flat
+    foot = (xf, gy)
+    nx = xf + math.sqrt(max(1.0, lb * lb - hs * hs))
+    neck = (nx, gy - hs)
+    u = ((neck[0] - xf) / lb, (neck[1] - gy) / lb)
+    fl = (THIGH + SHIN) / lb
+    hip = (xf + u[0] * lb * fl, gy + u[1] * lb * fl + sag * 14 * K)
+    hip = (hip[0], hip[1] + (gy - 6 * K - hip[1]) * flat)
+    knee = ((foot[0] + hip[0]) / 2, (foot[1] + hip[1]) / 2 + sag * 4 * K)
+    head = (neck[0] + u[0] * (HEAD_R + 4 * K), neck[1] + u[1] * (HEAD_R + 4 * K) - 3 * K)
+    head = (head[0] + 2 * K * flat, head[1] + (gy - HEAD_R - head[1]) * flat)
+    hx = neck[0] + (hand_dx if hand_dx is not None else 4 * K)
+    p = {"hip": hip, "neck": neck, "head": head, "kneeL": knee, "footL": foot,
+         "kneeR": (knee[0] + 2 * K, knee[1]), "footR": (xf + 3 * K, gy)}
+    for name, dx in (("L", -2 * K), ("R", 3 * K)):
+        elb, hand = ik2(neck, (hx + dx + (14 * K) * flat, gy), UPPER, FORE, bend=1)
+        p["elb" + name], p["hand" + name] = elb, hand
+    return p
+
+
+def lie_back_pose(gy, xh, t=0.0):
+    """Deitado de costas a descansar (joelhos dobrados, mãos atrás da cabeça), a respirar."""
+    b = 1.3 * math.sin(t * 2.6)
+    hip = (xh, gy - 6 * K)
+    neck = (xh + TORSO, gy - 8 * K - b)
+    head = (neck[0] + HEAD_R + 3 * K, gy - HEAD_R - 1 * K - b * 0.5)
+    kL, kR = (xh - 20 * K, gy - 30 * K), (xh - 16 * K, gy - 27 * K)
+    fL, fR = (xh - 40 * K, gy), (xh - 36 * K, gy)
+    eL, eR = (neck[0] + 4 * K, gy - 30 * K - b), (neck[0] + 10 * K, gy - 26 * K - b)
+    hL = hR = (head[0] + 2 * K, head[1] - 2 * K)
+    return {"hip": hip, "neck": neck, "head": head, "kneeL": kL, "footL": fL, "kneeR": kR,
+            "footR": fR, "elbL": eL, "handL": hL, "elbR": eR, "handR": hR}
+
+
+def clamp01(v):
+    return 0.0 if v < 0 else 1.0 if v > 1 else v
