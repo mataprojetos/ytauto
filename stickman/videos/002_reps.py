@@ -46,7 +46,7 @@ TOP = 262                             # fim da zona do título
 BAR_Y = 800
 FLOOR_Y = 1235
 NAMES = ["ANGER", "OBSESSION", "DISCIPLINE", "MOTIVATION"]
-XS = {"ANGER": 150, "OBSESSION": 375, "DISCIPLINE": 600, "MOTIVATION": 825}  # botões do YouTube à direita de ~940
+XS = {"ANGER": 210, "OBSESSION": 430, "DISCIPLINE": 650, "MOTIVATION": 870}  # simétrico em torno de x=540
 COL = {"ANGER": (1.0, 0.16, 0.13), "OBSESSION": (0.74, 0.34, 1.0),
        "DISCIPLINE": (0.12, 0.80, 1.0), "MOTIVATION": (1.0, 0.64, 0.10)}
 CNT_Y = 1388                          # linha de base do contador
@@ -442,6 +442,36 @@ def dim_rect(ctx, gctx, x0, x1, a):
         c.restore()
 
 
+# ---------- câmara: zoom nos momentos importantes (só a cena; o título fica fixo) ----------
+# (instante, zoom, foco): foco = nome da personagem (segue o pescoço dela) ou None (plano geral)
+CAM = [(0, 1.0, None), (9.35, 1.0, "MOTIVATION"), (9.9, 1.42, "MOTIVATION"), (11.3, 1.42, "MOTIVATION"),
+       (11.9, 1.0, None), (12.5, 1.0, "ANGER"), (13.3, 1.32, "ANGER"), (16.7, 1.6, "ANGER"),
+       (DROP, 1.78, "ANGER"), (17.95, 1.0, None), (20.85, 1.0, "ANGER"), (21.1, 1.2, "ANGER"),
+       (21.45, 1.22, "OBSESSION"), (21.9, 1.38, "OBSESSION"), (23.2, 1.38, "OBSESSION"), (23.9, 1.0, None),
+       (27.2, 1.0, "DISCIPLINE"), (27.75, 1.18, "DISCIPLINE"), (28.1, 1.2, "ANGER"), (28.8, 1.38, "ANGER"),
+       (30.0, 1.45, "ANGER")]
+SCENE_C = (W / 2, 1080)  # para onde a câmara puxa a personagem focada
+
+
+def cam_focus(key, poses):
+    if key is None:
+        return SCENE_C
+    return (XS[key], (BAR_Y + FLOOR_Y) / 2 + 20)  # altura fixa: barra, chão e pensamentos sempre à vista
+
+
+def camera(t, poses):
+    """-> (zoom, tx, ty): ecrã = zoom * cena + (tx, ty). Fundo preto: pode sair da cena sem se notar."""
+    i = max(0, min(len(CAM) - 2, sum(1 for k in CAM if k[0] <= t) - 1))
+    (t0, z0, k0), (t1, z1, k1) = CAM[i], CAM[i + 1]
+    u = ramp(t, t0, t1)
+    z = lerp(z0, z1, u)
+    f0, f1 = cam_focus(k0, poses), cam_focus(k1, poses)
+    fx, fy = lerp(f0[0], f1[0], u), lerp(f0[1], f1[1], u)
+    k = 0.85 * clamp((z - 1.0) / 0.15)  # quanto mais zoom, mais a personagem vem para o centro
+    sx, sy = lerp(fx, SCENE_C[0], k), lerp(fy, SCENE_C[1], k)
+    return z, sx - z * fx, sy - z * fy
+
+
 # ---------- render ----------
 def main():
     ap = argparse.ArgumentParser()
@@ -653,13 +683,24 @@ def main():
         ctx.line_to(W, TOP)
         ctx.stroke()
 
-        z = 1 + (0.012 if t < DROP else 0.026) * pulse
+        zp = 1 + (0.012 if t < DROP else 0.026) * pulse
+        zc, tx, ty = camera(t, {n: st["pose"] for n, st in zip(NAMES, states)})
+        z = zc * zp
+        cx0, cy0 = (tx + zc * SCENE_C[0], ty + zc * SCENE_C[1])  # pulsação à volta do centro visível
+        tx, ty = cx0 - (cx0 - tx) * zp, cy0 - (cy0 - ty) * zp
         fctx.set_source_rgb(0, 0, 0)
         fctx.paint()
-        fctx.save()
-        fctx.translate(W / 2, H * 0.45)
+        fctx.save()  # cena (com câmara)
+        fctx.rectangle(0, TOP + 1, W, H - TOP)
+        fctx.clip()
+        fctx.translate(tx, ty)
         fctx.scale(z, z)
-        fctx.translate(-W / 2, -H * 0.45)
+        fctx.set_source_surface(surf, 0, 0)
+        fctx.paint()
+        fctx.restore()
+        fctx.save()  # título e linha fixos
+        fctx.rectangle(0, 0, W, TOP + 1)
+        fctx.clip()
         fctx.set_source_surface(surf, 0, 0)
         fctx.paint()
         fctx.restore()
