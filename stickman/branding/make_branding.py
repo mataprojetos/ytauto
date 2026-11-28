@@ -254,11 +254,22 @@ def fencer(ctx, S, col, lw):
             ctx.line_to(*q)
         ctx.stroke()
     hood_head(ctx, *P(0.315, 0.30), S * 0.058, col)
-    # espada: lâmina prateada + guarda dourada
+    # espada: lâmina dourada néon (halo em camadas + núcleo claro) + guarda dourada
     hx, hy = P(0.40, 0.34)
     tx, ty = P(0.70, 0.07)
+    for wmul, a in ((3.6, 0.07), (2.6, 0.12), (1.8, 0.22), (1.15, 0.55)):
+        ctx.set_line_width(lw * wmul)
+        ctx.set_source_rgba(1.0, 0.76, 0.22, a)
+        ctx.move_to(hx, hy)
+        ctx.line_to(tx, ty)
+        ctx.stroke()
     ctx.set_line_width(lw * 0.62)
-    ctx.set_source_rgb(0.86, 0.86, 0.88)
+    ctx.set_source_rgb(1.0, 0.84, 0.40)
+    ctx.move_to(hx, hy)
+    ctx.line_to(tx, ty)
+    ctx.stroke()
+    ctx.set_line_width(lw * 0.22)
+    ctx.set_source_rgb(1.0, 0.97, 0.82)
     ctx.move_to(hx, hy)
     ctx.line_to(tx, ty)
     ctx.stroke()
@@ -274,7 +285,7 @@ def fencer(ctx, S, col, lw):
 
 
 def profile_d(ctx, S=800):
-    """Duelo de espadas: branco vs vermelho, lâminas cruzadas com faísca dourada."""
+    """Duelo de espadas: branco vs vermelho, lâminas douradas néon cruzadas com faísca branca."""
     bg(ctx, S, S, glow=(S / 2, S * 0.26), glow_r=S * 0.55, glow_col=(0.19, 0.13, 0.06))
     lw = S * 0.044
     k = 0.80                                   # encolher tudo para caber no círculo
@@ -291,12 +302,12 @@ def profile_d(ctx, S=800):
     # faísca no cruzamento das lâminas
     cx, cy = S * 0.5, S * 0.243
     g = cairo.RadialGradient(cx, cy, 0, cx, cy, S * 0.12)
-    g.add_color_stop_rgba(0, 1, 0.85, 0.45, 0.55)
-    g.add_color_stop_rgba(1, 1, 0.85, 0.45, 0)
+    g.add_color_stop_rgba(0, 1, 1, 1, 0.65)
+    g.add_color_stop_rgba(1, 1, 1, 1, 0)
     ctx.set_source(g)
     ctx.arc(cx, cy, S * 0.12, 0, 2 * math.pi)
     ctx.fill()
-    rgb(ctx, GOLD)
+    rgb(ctx, WHITE)
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
     ctx.set_line_width(S * 0.014)
     for i in range(8):
@@ -305,7 +316,8 @@ def profile_d(ctx, S=800):
         ctx.move_to(cx + r1 * math.cos(a), cy + r1 * math.sin(a))
         ctx.line_to(cx + r2 * math.cos(a), cy + r2 * math.sin(a))
         ctx.stroke()
-    # chão dourado
+    # chão branco
+    rgb(ctx, WHITE)
     ctx.set_line_width(S * 0.016)
     ctx.move_to(S * 0.02, S * 0.825)
     ctx.line_to(S * 0.98, S * 0.825)
