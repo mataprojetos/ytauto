@@ -6,7 +6,7 @@ Bonecos néon, cada um com a sua cor. Pensamentos nascem da cabeça e caem para 
 Pulsação suave ao ritmo da música (--music deteta BPM/batidas/drop; sem música usa --bpm).
 Drop da música aos 17,0 s. Sem música no ficheiro (faixa silenciosa).
 
-    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v3.mp4 + folha de frames
+    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v4.mp4 + folha de frames
     python3 stickman/videos/001_climb.py --frames 0,17 --dump /tmp/f   # só PNG
 """
 import argparse
@@ -26,7 +26,8 @@ from lib.beats import BeatSync  # noqa: E402
 S.set_scale(1.18)
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-OUT = os.path.join(ROOT, "out", "climb_v3.mp4")
+OUT = os.path.join(ROOT, "out", "climb_v4.mp4")
+MUSIC = os.path.join(ROOT, "music", "stakillaz.mp3")
 
 DURATION = 30.0
 DROP = 17.0
@@ -48,13 +49,19 @@ R, D = 28.0 * S.K, 82.0 * S.K
 SLOPE = 0.16
 
 
-def make_ground(summit, seed):
-    """Encosta infinita a subir para a direita (y para baixo); com `summit` há um cume e descida."""
+def make_ground(summit, seed, humps=()):
+    """Encosta infinita a subir para a direita (y para baixo); com `summit` há um cume e descida.
+    humps: [(x, meia_largura, altura)] lombas/pedras que a pedra consegue passar."""
     ph1, ph2 = seed * 1.7, seed * 0.9
 
     def up(x):
         fade = 1.0 if summit is None else clamp((summit - 40 - x) / 120)
-        return -SLOPE * x + fade * (7 * math.sin(x * 0.019 + ph1) + 3 * math.sin(x * 0.061 + ph2))
+        y = -SLOPE * x + fade * (7 * math.sin(x * 0.019 + ph1) + 3 * math.sin(x * 0.061 + ph2))
+        for hx, hw, hh in humps:
+            d = (x - hx) / hw
+            if -1 < d < 1:
+                y -= hh * 0.5 * (1 + math.cos(math.pi * d))
+        return y
 
     if summit is None:
         return up
@@ -74,8 +81,10 @@ MOT_SIT = 640
 MOT_X = pchip([(0, 70), (3.5, 330), (6.5, 520), (9.0, 615), (9.8, MOT_SIT), (30, MOT_SIT)])
 MOT_RELEASE = 9.9
 DIS_X = pchip([(0, 60), (30, 60 + 30 * 31)])
+OBS_STUCK = 880
 OBS_X = pchip([(0, 90), (3, 300), (6.0, 500), (6.15, 490), (7.4, 300), (8.4, 300),
-               (12, 480), (17, 760), (24, 900), (30, 960)])
+               (12, 480), (17, 740), (21.6, OBS_STUCK), (30, OBS_STUCK)])
+OBS_STUCK_T = 21.6
 ANG_SUMMIT = 2800.0  # só entra no ecrã nos últimos ~2 s
 ANG_TOP_X = ANG_SUMMIT - D - 12
 ANG_X = pchip([(0, 75), (2, 140), (3.2, 160), (5.5, 250), (7, 265), (9.5, 340), (12.2, 385),
@@ -83,15 +92,45 @@ ANG_X = pchip([(0, 75), (2, 140), (3.2, 160), (5.5, 250), (7, 265), (9.5, 340), 
                (28.5, ANG_SUMMIT - 8), (30, ANG_SUMMIT - 8)])
 ANG_TOP = 27.4   # a pedra passa o cume: o vencedor chega ~2 s antes do fim
 WIN = 28.0
+ANG_BLOCK = 385  # anca quando a pedra bate no rochedo (12,2 s)
+
+
+def wall_at(xh_stop):
+    """x do lado esquerdo de um obstáculo que trava a pedra quando a anca está em xh_stop."""
+    return xh_stop + D + R - 3
+
+
+def first_time(xf, x, t0):
+    t = t0
+    while t < DURATION and xf(t) < x:
+        t += 1 / (FPS * 4)
+    return t
+
+
+ANG_SMASH = first_time(ANG_X, ANG_BLOCK - 1, DROP)  # a Anger rebenta o rochedo
+# obstáculos grandes (muros) por faixa: x, altura, largura, quando rebenta (ou None)
+WALLS = {
+    "ANGER": [dict(x=wall_at(ANG_BLOCK), h=96, w=70, smash=ANG_SMASH)],
+    "OBSESSION": [dict(x=wall_at(OBS_STUCK), h=118, w=80, smash=None)],
+    "DISCIPLINE": [],
+    "MOTIVATION": [dict(x=wall_at(MOT_SIT), h=125, w=80, smash=None)],
+}
+HUMPS = {
+    "ANGER": [],
+    "OBSESSION": [(500 + D + R + 10, 22, 13)],          # a pedra onde escorrega aos 6 s
+    "DISCIPLINE": [(x, 26, 15) for x in (330, 560, 800, 1010)],  # lombas que passa com calma
+    "MOTIVATION": [(360, 24, 12)],
+}
 
 LANES = {
     "ANGER": dict(x=ANG_X, summit=ANG_SUMMIT, seed=3, cycle=lambda t: 74 if t >= DROP else 52),
-    "OBSESSION": dict(x=OBS_X, summit=None, seed=5, cycle=lambda t: 70),
+    "OBSESSION": dict(x=OBS_X, summit=None, seed=5, cycle=lambda t: 70,
+                      spin=lambda t: 1.6 * ramp(t, OBS_STUCK_T - 0.3, OBS_STUCK_T + 0.3)),
     "DISCIPLINE": dict(x=DIS_X, summit=None, seed=7, cycle=lambda t: 50),
     "MOTIVATION": dict(x=MOT_X, summit=None, seed=9, cycle=lambda t: 64 if t < 4 else 44),
 }
 for nm, L in LANES.items():
-    L["g"] = make_ground(L["summit"], L["seed"])
+    L["g"] = make_ground(L["summit"], L["seed"], HUMPS[nm])
 
 
 def precompute():
@@ -105,6 +144,8 @@ def precompute():
             t = f / FPS
             x = xf(t)
             ph += 2 * math.pi * (x - prev) / L["cycle"](t)
+            if "spin" in L:  # pernas a patinar sem avançar (preso no obstáculo)
+                ph += 2 * math.pi * L["spin"](t) / FPS
             prev = x
             L["ph"].append(ph)
             follow += (min(x, lim) - follow) * (0.10 if nm != "ANGER" or t < DROP else 0.16)
@@ -125,9 +166,10 @@ def hand_target(c):
 THOUGHTS = {
     "ANGER": [(4.2, "WHY WON'T YOU MOVE?", "r"), (13.0, "I'M TOO SLOW!", "r"),
               (DROP + 0.1, "NOTHING STOPS ME.", "R"), (20.6, "I'LL BREAK THROUGH.", "R"), (24.1, "I'M NOT DONE.", "R")],
-    "OBSESSION": [(1.2, "FASTER."), (6.05, "NO, NO, NO!"), (9.0, "I CAN'T STOP."), (21.5, "NOT ENOUGH.")],
+    "OBSESSION": [(1.2, "FASTER."), (6.05, "NO, NO, NO!"), (9.0, "I CAN'T STOP."), (14.2, "MORE. MORE."),
+                  (22.0, "WHY WON'T IT MOVE?!"), (25.6, "NOT ENOUGH.")],
     "DISCIPLINE": [(2.4, "ONE MORE STEP."), (11.0, "KEEP GOING."), (19.4, "ONE MORE STEP."), (24.8, "STAY STEADY.")],
-    "MOTIVATION": [(0.3, "LET'S GO!"), (6.4, "I'M SO TIRED..."), (10.8, "I'LL REST A BIT.")],
+    "MOTIVATION": [(0.3, "LET'S GO!"), (5.6, "I'M SO TIRED..."), (9.6, "IT'S TOO HIGH..."), (13.4, "I'LL REST A BIT.")],
 }
 T_GROW, T_FALL, T_REST = 0.35, 0.55, 1.4
 
@@ -180,12 +222,15 @@ def st_obsession(t, f):
     bx = xh + D
     c = S.rest_center(g, bx, R)
     late = ramp(t, 17, 24)
-    push = S.push_pose(g, xh, ph, hand_target(c), lean=lerp(46, 52, late) + heave(ph) * 1.2,
-                       stride=lerp(20, 12, late), lift=lerp(12, 7, late))
+    stuck = ramp(t, OBS_STUCK_T - 0.3, OBS_STUCK_T + 0.3)
+    if stuck > 0:  # preso no muro: a pedra treme, ele força
+        c = (c[0] + 1.2 * math.sin(t * 47) * stuck, c[1])
+    push = S.push_pose(g, xh, ph, hand_target(c), lean=lerp(46, 52, late) + 6 * stuck + heave(ph) * 1.2,
+                       stride=lerp(lerp(20, 12, late), 7, stuck), lift=lerp(lerp(12, 7, late), 4, stuck))
     wf = ramp(t, 6.0, 6.22) * (1 - ramp(t, 7.5, 8.3))
     pose = S.blend(push, S.fallen_pose(g, xh, flail=t * 15), wf) if wf > 0 else push
     return dict(pose=pose, glow=0.85, boulders=[(c, bx / R * 1.02, None)], x=xh,
-                moving=wf == 0, bx=bx, embers=1.3)
+                moving=wf == 0, bx=bx, embers=1.3 + 1.2 * stuck, stuck=stuck)
 
 
 def st_anger(t, f, rnd):
@@ -290,6 +335,75 @@ def draw_line(ctx, gctx, g, cam, col, pulse):
         c.stroke()
 
 
+def wall_poly(w, g):
+    """Contorno recortado de um rochedo/muro, assente no chão (coordenadas do mundo)."""
+    x0, hgt, wd = w["x"], w["h"], w["w"]
+    r = random.Random(int(x0))
+    pts = [(x0, g(x0) + 4)]
+    n = 7
+    for i in range(n + 1):
+        u = i / n
+        bump = math.sin(math.pi * u) ** 0.6
+        pts.append((x0 + wd * u + r.uniform(-4, 4), g(x0 + wd * u) - hgt * (0.55 + 0.45 * bump) + r.uniform(-9, 9)))
+    pts.append((x0 + wd, g(x0 + wd) + 4))
+    return pts
+
+
+def draw_walls(ctx, gctx, name, g, t, col):
+    for w in WALLS[name]:
+        if w["smash"] is not None and t >= w["smash"]:
+            continue
+        pts = wall_poly(w, g)
+        shake = 0.0
+        if w["smash"] is not None and w["smash"] - 0.5 < t < w["smash"]:
+            shake = 3.0 * math.sin(t * 90)
+        for c, fill in ((gctx, None), (ctx, (0.035, 0.03, 0.035))):
+            c.move_to(pts[0][0] + shake, pts[0][1])
+            for x, y in pts[1:]:
+                c.line_to(x + shake, y)
+            c.close_path()
+            if fill:
+                c.set_source_rgb(*fill)
+                c.fill_preserve()
+                c.set_source_rgba(0.82, 0.82, 0.86, 0.9)
+                c.set_line_width(2.2)
+            else:
+                c.set_source_rgba(*col, 0.35)
+                c.set_line_width(6)
+            c.stroke()
+        # fissuras
+        r = random.Random(int(w["x"]) + 1)
+        ctx.set_source_rgba(0.6, 0.6, 0.65, 0.5)
+        ctx.set_line_width(1.3)
+        for _ in range(3):
+            x = w["x"] + r.uniform(12, w["w"] - 12)
+            y = g(x) - r.uniform(15, w["h"] * 0.6)
+            ctx.move_to(x + shake, y)
+            ctx.line_to(x + r.uniform(-12, 12) + shake, y + r.uniform(10, 22))
+            ctx.line_to(x + r.uniform(-8, 8) + shake, y + r.uniform(24, 36))
+            ctx.stroke()
+
+
+def draw_humps(ctx, name, g):
+    """Pedrinhas desenhadas por cima das lombas (para se perceber que é um obstáculo)."""
+    for hx, hw, hh in HUMPS[name]:
+        r = random.Random(int(hx))
+        pts = []
+        for i in range(7):
+            u = i / 6
+            x = hx - hw * 0.85 + 2 * hw * 0.85 * u
+            pts.append((x, g(x) - (3 + r.uniform(0, 5)) * math.sin(math.pi * u)))
+        ctx.move_to(*pts[0])
+        for p in pts[1:]:
+            ctx.line_to(*p)
+        ctx.close_path()
+        ctx.set_source_rgb(0.035, 0.03, 0.035)
+        ctx.fill_preserve()
+        ctx.set_source_rgba(0.82, 0.82, 0.86, 0.85)
+        ctx.set_line_width(1.8)
+        ctx.stroke()
+
+
 def ease_back(u):
     u = clamp(u)
     k = 1.9
@@ -351,6 +465,43 @@ def draw_thoughts(ctx, gctx, name, t, f, heads, g, rnd):
         ctx.restore()
 
 
+# percurso de cada um (px do mundo que valem 100%): o final de cada barra conta a história
+START = {"ANGER": ANG_X(0), "OBSESSION": OBS_X(0), "DISCIPLINE": DIS_X(0), "MOTIVATION": MOT_X(0)}
+COURSE = {"ANGER": ANG_SUMMIT - 8 - ANG_X(0),
+          "OBSESSION": (OBS_STUCK - OBS_X(0)) / 0.87,       # fica preso nos 87%
+          "DISCIPLINE": (DIS_X(30) - DIS_X(0)) / 0.93,      # chega aos 93% e continua
+          "MOTIVATION": (MOT_SIT - MOT_X(0)) / 0.64}        # desiste nos 64%
+
+
+def progress(name, xh, t):
+    if name == "ANGER" and t >= WIN:
+        return 1.0
+    return clamp((xh - START[name]) / COURSE[name], 0, 0.99 if name == "ANGER" else 1)
+
+
+def draw_progress(ctx, gctx, name, pct, col, pulse, t):
+    """Percentagem ao lado do nome + barrinha fina por baixo."""
+    lw = text_width(ctx, name, 25, 2.4)
+    x = 30 + lw + 16
+    done = pct >= 0.999
+    c = GOLD if done else col
+    txt = f"{int(pct * 100)}%"
+    sz = 27 * (1 + (0.25 * math.exp(-(t - WIN) / 0.25) if done and t >= WIN else 0))
+    draw_text(ctx, txt, x + 1, 40, sz, (0, 0, 0, 0.7), 1.5)
+    draw_text(ctx, txt, x, 39, sz, (*c, 1.0), 1.5)
+    draw_text(gctx, txt, x, 39, sz, (*c, 0.55 + 0.3 * pulse), 1.5)
+    bx, by, bw = 30, 50, 190
+    ctx.set_source_rgba(1, 1, 1, 0.12)
+    ctx.rectangle(bx, by, bw, 4)
+    ctx.fill()
+    ctx.set_source_rgba(*c, 1.0)
+    ctx.rectangle(bx, by, bw * pct, 4)
+    ctx.fill()
+    gctx.set_source_rgba(*c, 0.8)
+    gctx.rectangle(bx, by - 1, bw * pct, 6)
+    gctx.fill()
+
+
 def draw_label(ctx, name):
     ctx.move_to(14, 25)
     ctx.line_to(22, 30)
@@ -368,8 +519,8 @@ def main():
     ap.add_argument("--frames", help="só estes tempos (s), separados por vírgula")
     ap.add_argument("--dump", help="pasta para gravar cada frame renderizado em PNG")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v3_frames.png"))
-    ap.add_argument("--music", help="ficheiro da música: deteta BPM, batidas e drop (alinha o drop aos 17 s)")
+    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v4_frames.png"))
+    ap.add_argument("--music", default=MUSIC if os.path.exists(MUSIC) else None, help="ficheiro da música: deteta BPM, batidas e drop (alinha o drop aos 17 s)")
     ap.add_argument("--bpm", type=float, default=140.0, help="BPM provisório quando não há --music")
     args = ap.parse_args()
     ensure_font()
@@ -431,6 +582,9 @@ def main():
                 if bc and rnd.random() < min(0.9, v / 70):
                     P.emit(bc[0] - 4, bc[1] + R - 3, 1, vx=(-110, -30), vy=(-90, -20), size=(1.8, 3.6),
                            color=(0.58, 0.5, 0.45), kind="rock", life=(0.8, 1.6))
+            if s.get("stuck", 0) > 0.5 and rnd.random() < 0.7:  # pés a patinar
+                fx = s["pose"]["footL"] if rnd.random() < 0.5 else s["pose"]["footR"]
+                P.emit(fx[0], fx[1] - 2, 2, vx=(-110, -30), vy=(-80, -15), size=(1.3, 3.0))
             if name == "OBSESSION" and abs(t - 6.05) < dt / 2:
                 P.emit(s["x"], g(s["x"]) - 4, 30, vx=(-120, 40), vy=(-160, -20), size=(1.5, 3.4))
             if name == "MOTIVATION" and s.get("rolling_back") and bc and rnd.random() < 0.8:
@@ -441,6 +595,15 @@ def main():
                            size=(1.6, 3.2), color=(1, 0.4, 0.2), g=500, kind="spark")
                     P.emit(bc[0], bc[1] + R - 4, 20, vx=(-200, 80), vy=(-240, -60), size=(2, 4.5),
                            color=(0.6, 0.5, 0.45), kind="rock")
+                if abs(t - ANG_SMASH) < dt / 2:  # o rochedo rebenta
+                    w = WALLS["ANGER"][0]
+                    for k in range(60):
+                        x = w["x"] + rnd.uniform(0, w["w"])
+                        y = g(x) - rnd.uniform(5, w["h"])
+                        P.emit(x, y, 1, vx=(60, 420), vy=(-380, -60), size=(3, 8.5), life=(1.0, 2.0),
+                               color=(0.7, 0.7, 0.74), kind="rock", g=700)
+                    P.emit(w["x"], g(w["x"]) - w["h"] * 0.5, 60, vx=(-150, 380), vy=(-340, 120),
+                           life=(0.3, 0.9), size=(1.6, 3.2), color=(1, 0.45, 0.25), g=400, kind="spark")
                 if s["rage"] and t < ANG_TOP and bc:
                     P.emit(bc[0] - R * 0.8, bc[1] - 4, 4, vx=(-260, 90), vy=(-260, -30), life=(0.2, 0.6),
                            size=(1.4, 2.8), color=(1, 0.36, 0.2), g=500, kind="spark")
@@ -498,6 +661,8 @@ def main():
                 c.translate(-cam[0] + shake[0], -cam[1] + shake[1])
 
             draw_line(ctx, gctx, g, cam, s.get("gcol", COL[name]), pulse)
+            draw_humps(ctx, name, g)
+            draw_walls(ctx, gctx, name, g, t, COL[name])
             if L["summit"] is not None:
                 draw_flag(ctx, gctx, g, L["summit"] + 30, t)
 
@@ -544,6 +709,8 @@ def main():
 
             if name == "ANGER" and t >= DROP:
                 fl = math.exp(-(t - DROP) / 0.12) * 0.75
+                if t >= ANG_SMASH:
+                    fl = max(fl, math.exp(-(t - ANG_SMASH) / 0.10) * 0.45)
                 if fl > 0.01:
                     ctx.set_source_rgba(1, 0.85, 0.85, fl)
                     ctx.paint()
@@ -562,6 +729,7 @@ def main():
                 gctx.set_operator(cairo.OPERATOR_OVER)
 
             draw_label(ctx, name)
+            draw_progress(ctx, gctx, name, progress(name, s["x"], t), COL[name], pulse, t)
             for c in (ctx, gctx):
                 c.restore()
 
@@ -602,6 +770,13 @@ def main():
 
     if writer:
         writer.close()
+        if args.music and sync.offset is not None:
+            prev = args.out.replace(".mp4", "_preview_com_musica.mp4")
+            import subprocess
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", args.out, "-ss", f"{sync.offset:.3f}",
+                            "-i", args.music, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac",
+                            "-b:a", "192k", "-shortest", prev], check=True)
+            print("pré-visualização com música:", prev)
     if sheet_imgs:
         make_sheet(sheet_imgs, args.sheet)
 

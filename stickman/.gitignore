@@ -1,0 +1,3 @@
+# música de terceiros e pré-visualizações com música: não versionar
+music/*.mp3
+out/*_preview_com_musica.mp4

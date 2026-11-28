@@ -55,12 +55,22 @@ class BeatSync:
         self.drop = drop_video
 
     @classmethod
-    def from_audio(cls, path, drop_at=17.0):
+    def from_audio(cls, path, drop_at=17.0, duration=31.0):
+        """Grelha de batidas ao BPM detetado, com fase presa ao drop (o beat tracker falha muitas
+        vezes nas intros). A força de cada batida segue a energia dos graves da música."""
+        import librosa
         a = analyze(path)
         offset = a["drop"] - drop_at
-        bv = [b - offset for b in a["beats"]]
-        s = cls(bv, a["bpm"], drop_at)
+        s = cls.grid(a["bpm"], drop_at, duration)
         s.offset, s.info = offset, a
+        y, sr = librosa.load(path, sr=22050, mono=True)
+        hop = 512
+        S = np.abs(librosa.stft(y, n_fft=2048, hop_length=hop))
+        low = S[librosa.fft_frequencies(sr=sr, n_fft=2048) < 150].sum(axis=0)
+        k = max(1, int(0.2 * sr / hop))
+        low = np.convolve(low, np.ones(k) / k, mode="same")
+        s.env_t = np.arange(len(low)) * hop / sr - offset   # em tempo do vídeo
+        s.env = low / (np.percentile(low, 95) + 1e-6)
         return s
 
     @classmethod
@@ -73,12 +83,18 @@ class BeatSync:
         s.offset, s.info = None, dict(bpm=bpm)
         return s
 
+    def energy(self, t):
+        if getattr(self, "env", None) is None:
+            return 1.0
+        return float(np.clip(np.interp(t, self.env_t, self.env), 0, 1))
+
     def pulse(self, t, decay=0.16):
-        """1 no instante da batida, a decair exponencialmente até à seguinte."""
+        """1 no instante da batida, a decair exponencialmente até à seguinte (vezes a energia)."""
         idx = np.searchsorted(self.beats, t, side="right") - 1
         if idx < 0:
             return 0.0
-        return math.exp(-(t - self.beats[idx]) / decay)
+        b = self.beats[idx]
+        return math.exp(-(t - b) / decay) * self.energy(b + 0.03)
 
     def beat_index(self, t):
         return int(np.searchsorted(self.beats, t, side="right") - 1)
