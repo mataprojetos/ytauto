@@ -219,27 +219,41 @@ def profile_c(ctx, S=800):
     hooded(ctx, x0 + wp + gap + wa * 0.52, base - size * 0.80, S * 0.17, S * 0.016, pose="win")
 
 
-def hood_head(ctx, cx, cy, hr, col):
-    """Cabeça com capuz (virada para a direita)."""
+def hood_head(ctx, cx, cy, hr, col, outline=0.0):
+    """Cabeça com capuz (virada para a direita). outline > 0: só o contorno preto dessa espessura."""
     ctx.save()
     ctx.translate(cx, cy)
-    rgb(ctx, col)
     ctx.new_path()
     ctx.move_to(-hr * 1.05, hr * 0.9)
     ctx.curve_to(-hr * 1.45, -hr * 0.4, -hr * 0.9, -hr * 1.55, hr * 0.05, -hr * 1.5)
     ctx.curve_to(hr * 0.95, -hr * 1.45, hr * 1.35, -hr * 0.5, hr * 1.1, hr * 0.85)
     ctx.close_path()
-    ctx.fill()
+    if outline:
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.set_line_width(outline * 2)
+        ctx.stroke_preserve()
+        ctx.fill()
+    else:
+        rgb(ctx, col)
+        ctx.fill()
     ctx.restore()
 
 
-def fencer(ctx, S, col, lw):
-    """Stickman de capuz em investida para a direita, espada erguida para o centro."""
+GREEN = (0.42, 1.0, 0.45)   # verde vivo claro
+
+
+def fencer(ctx, S, col, lw, outline=0.0):
+    """Stickman de capuz em investida para a direita, espada erguida para o centro.
+    outline > 0 desenha só o contorno preto (chamar antes, com a mesma geometria)."""
     P = lambda x, y: (x * S, y * S)
     ctx.set_line_cap(cairo.LINE_CAP_ROUND)
     ctx.set_line_join(cairo.LINE_JOIN_ROUND)
-    ctx.set_line_width(lw)
-    rgb(ctx, col)
+    if outline:
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.set_line_width(lw + outline * 2)
+    else:
+        rgb(ctx, col)
+        ctx.set_line_width(lw)
     hip, neck, sh = P(0.22, 0.57), P(0.29, 0.39), P(0.28, 0.42)
     for pts in ([neck, hip],
                 [hip, P(0.33, 0.68), P(0.37, 0.81)],      # perna da frente
@@ -250,7 +264,9 @@ def fencer(ctx, S, col, lw):
         for q in pts[1:]:
             ctx.line_to(*q)
         ctx.stroke()
-    hood_head(ctx, *P(0.315, 0.30), S * 0.058, col)
+    hood_head(ctx, *P(0.315, 0.30), S * 0.058, col, outline)
+    if outline:
+        return
     # espada: lâmina dourada néon (halo em camadas + núcleo claro) + guarda dourada
     hx, hy = P(0.40, 0.34)
     tx, ty = P(0.70, 0.07)
@@ -281,40 +297,61 @@ def fencer(ctx, S, col, lw):
     ctx.stroke()
 
 
+def stacked_title(ctx, S, top, bottom, lines):
+    """Nome em várias linhas, centrado em x = S/2, entre top e bottom. lines = [(texto, largura, cor)]."""
+    ctx.select_font_face(FONT)
+    items = []
+    for t, wfrac, col in lines:
+        ctx.set_font_size(100)
+        e = ctx.text_extents(t)
+        size = 100 * (wfrac * S) / e.width
+        ctx.set_font_size(size)
+        items.append((t, size, col, ctx.text_extents(t)))
+    gap = S * 0.018
+    total = sum(e.height for *_, e in items) + gap * (len(items) - 1)
+    y = top + ((bottom - top) - total) / 2
+    for t, size, col, e in items:
+        ctx.set_font_size(size)
+        x = S / 2 - e.width / 2 - e.x_bearing
+        ctx.move_to(x, y - e.y_bearing)
+        ctx.text_path(t)
+        ctx.set_source_rgb(0, 0, 0)
+        ctx.set_line_width(S * 0.012)
+        ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+        ctx.stroke_preserve()
+        rgb(ctx, col)
+        ctx.fill()
+        y += e.height + gap
+
+
 def profile_d(ctx, S=800):
-    """Duelo de espadas: branco vs vermelho, lâminas douradas néon cruzadas com faísca branca."""
+    """Duelo de espadas: verde vs vermelho com contorno preto, lâminas douradas néon,
+    nome do canal em 3 linhas entre o choque das espadas e o chão."""
     bg(ctx, S, S, glow=(S / 2, S * 0.26), glow_r=S * 0.55, glow_col=(0.19, 0.13, 0.06))
     lw = S * 0.044
+    ol = S * 0.012
     k = 0.80                                   # encolher tudo para caber no círculo
     ctx.translate(S * (1 - k) / 2, S * (1 - k) / 2 + S * 0.03)
     ctx.scale(k, k)
-    ctx.save()
-    fencer(ctx, S, WHITE, lw)
-    ctx.restore()
-    ctx.save()
-    ctx.translate(S, 0)
-    ctx.scale(-1, 1)
-    fencer(ctx, S, RED_HI, lw)
-    ctx.restore()
-    # faísca no cruzamento das lâminas
-    cx, cy = S * 0.5, S * 0.243
-    g = cairo.RadialGradient(cx, cy, 0, cx, cy, S * 0.12)
-    g.add_color_stop_rgba(0, 1, 1, 1, 0.65)
-    g.add_color_stop_rgba(1, 1, 1, 1, 0)
-    ctx.set_source(g)
-    ctx.arc(cx, cy, S * 0.12, 0, 2 * math.pi)
-    ctx.fill()
-    rgb(ctx, WHITE)
-    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
-    ctx.set_line_width(S * 0.014)
-    for i in range(8):
-        a = i * math.pi / 4 + math.pi / 8
-        r1, r2 = S * 0.035, S * (0.10 if i % 2 == 0 else 0.07)
-        ctx.move_to(cx + r1 * math.cos(a), cy + r1 * math.sin(a))
-        ctx.line_to(cx + r2 * math.cos(a), cy + r2 * math.sin(a))
-        ctx.stroke()
+
+    def both(outline):
+        ctx.save()
+        fencer(ctx, S, GREEN, lw, outline)
+        ctx.restore()
+        ctx.save()
+        ctx.translate(S, 0)
+        ctx.scale(-1, 1)
+        fencer(ctx, S, RED_HI, lw, outline)
+        ctx.restore()
+
+    both(ol)
+    both(0)
+    # nome do canal: do choque das espadas até ao chão
+    stacked_title(ctx, S, S * 0.36, S * 0.80,
+                  [("THE", 0.11, WHITE), ("PSYCH", 0.22, WHITE), ("ARENA", 0.22, GOLD)])
     # chão branco
     rgb(ctx, WHITE)
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
     ctx.set_line_width(S * 0.016)
     ctx.move_to(S * 0.02, S * 0.825)
     ctx.line_to(S * 0.98, S * 0.825)
