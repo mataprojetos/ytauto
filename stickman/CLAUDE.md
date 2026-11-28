@@ -36,6 +36,6 @@ Sempre que um vídeo fica fechado e é hora de publicar, entregar SEMPRE, separa
 1. **Título** (personagens "A vs B vs C…: <prova>" + emoji + 2–3 hashtags).
 2. **Descrição** (uma linha curta por personagem com o que lhe aconteceu, "Only one…", pergunta final "Which one are you? 👇", hashtags).
 3. **Etiquetas** (separadas por vírgulas, incluir "ThePsychArena").
-4. **Comentário para fixar** (curto, pergunta pessoal ao espectador sobre a prova; SEM nomear as personagens/estados psicológicos).
+4. **Comentário para fixar** (reflexivo: uma ideia/lição curta sobre o que o vencedor mostra, tom pessoal; não listar as personagens).
 Mais: vídeo sem música + pré-visualização com música, capa (`out/NNN_thumb.jpg`) e o segundo da música a usar na app.
 Guardar o texto em `stickman/out/NNN_nome_post.md`. Exemplo: `out/001_climb_post.md`.
