@@ -6,7 +6,7 @@ Bonecos néon, cada um com a sua cor. Pensamentos nascem da cabeça e caem para 
 Pulsação suave ao ritmo da música (--music deteta BPM/batidas/drop; sem música usa --bpm).
 Drop da música aos 17,0 s. Sem música no ficheiro (faixa silenciosa).
 
-    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v4.mp4 + folha de frames
+    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v5.mp4 + folha de frames
     python3 stickman/videos/001_climb.py --frames 0,17 --dump /tmp/f   # só PNG
 """
 import argparse
@@ -26,7 +26,7 @@ from lib.beats import BeatSync  # noqa: E402
 S.set_scale(1.18)
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-OUT = os.path.join(ROOT, "out", "climb_v4.mp4")
+OUT = os.path.join(ROOT, "out", "climb_v5.mp4")
 MUSIC = os.path.join(ROOT, "music", "stakillaz.mp3")
 
 DURATION = 30.0
@@ -81,10 +81,13 @@ MOT_SIT = 640
 MOT_X = pchip([(0, 70), (3.5, 330), (6.5, 520), (9.0, 615), (9.8, MOT_SIT), (30, MOT_SIT)])
 MOT_RELEASE = 9.9
 DIS_X = pchip([(0, 60), (30, 60 + 30 * 31)])
-OBS_STUCK = 880
-OBS_X = pchip([(0, 90), (3, 300), (6.0, 500), (6.15, 490), (7.4, 300), (8.4, 300),
-               (12, 480), (17, 740), (21.6, OBS_STUCK), (30, OBS_STUCK)])
-OBS_STUCK_T = 21.6
+# Obsession: ritmo constante e acelerado; bate num muro aos 19 s, força-o e rebenta-o aos 20,6 s
+OBS_V = 45.0
+OBS_STUCK_T, OBS_SMASH = 19.0, 20.6
+OBS_STUCK = 90 + OBS_V * OBS_STUCK_T
+OBS_X = pchip([(0, 90), (OBS_STUCK_T - 0.4, OBS_STUCK - OBS_V * 0.4), (OBS_STUCK_T, OBS_STUCK),
+               (OBS_SMASH, OBS_STUCK), (OBS_SMASH + 0.5, OBS_STUCK + OBS_V * 0.4),
+               (30, OBS_STUCK + OBS_V * 0.4 + OBS_V * (30 - OBS_SMASH - 0.5))])
 ANG_SUMMIT = 2800.0  # só entra no ecrã nos últimos ~2 s
 ANG_TOP_X = ANG_SUMMIT - D - 12
 ANG_X = pchip([(0, 75), (2, 140), (3.2, 160), (5.5, 250), (7, 265), (9.5, 340), (12.2, 385),
@@ -111,13 +114,13 @@ ANG_SMASH = first_time(ANG_X, ANG_BLOCK - 1, DROP)  # a Anger rebenta o rochedo
 # obstáculos grandes (muros) por faixa: x, altura, largura, quando rebenta (ou None)
 WALLS = {
     "ANGER": [dict(x=wall_at(ANG_BLOCK), h=96, w=70, smash=ANG_SMASH)],
-    "OBSESSION": [dict(x=wall_at(OBS_STUCK), h=118, w=80, smash=None)],
+    "OBSESSION": [dict(x=wall_at(OBS_STUCK), h=118, w=80, smash=OBS_SMASH)],
     "DISCIPLINE": [],
     "MOTIVATION": [dict(x=wall_at(MOT_SIT), h=125, w=80, smash=None)],
 }
 HUMPS = {
     "ANGER": [],
-    "OBSESSION": [(500 + D + R + 10, 22, 13)],          # a pedra onde escorrega aos 6 s
+    "OBSESSION": [(700, 22, 13), (1300, 22, 13)],
     "DISCIPLINE": [(x, 26, 15) for x in (330, 560, 800, 1010)],  # lombas que passa com calma
     "MOTIVATION": [(360, 24, 12)],
 }
@@ -125,7 +128,7 @@ HUMPS = {
 LANES = {
     "ANGER": dict(x=ANG_X, summit=ANG_SUMMIT, seed=3, cycle=lambda t: 74 if t >= DROP else 52),
     "OBSESSION": dict(x=OBS_X, summit=None, seed=5, cycle=lambda t: 70,
-                      spin=lambda t: 1.6 * ramp(t, OBS_STUCK_T - 0.3, OBS_STUCK_T + 0.3)),
+                      spin=lambda t: 1.8 * ramp(t, OBS_STUCK_T - 0.15, OBS_STUCK_T + 0.15) * (1 - ramp(t, OBS_SMASH - 0.1, OBS_SMASH + 0.1))),
     "DISCIPLINE": dict(x=DIS_X, summit=None, seed=7, cycle=lambda t: 50),
     "MOTIVATION": dict(x=MOT_X, summit=None, seed=9, cycle=lambda t: 64 if t < 4 else 44),
 }
@@ -166,8 +169,8 @@ def hand_target(c):
 THOUGHTS = {
     "ANGER": [(4.2, "WHY WON'T YOU MOVE?", "r"), (13.0, "I'M TOO SLOW!", "r"),
               (DROP + 0.1, "NOTHING STOPS ME.", "R"), (20.6, "I'LL BREAK THROUGH.", "R"), (24.1, "I'M NOT DONE.", "R")],
-    "OBSESSION": [(1.2, "FASTER."), (6.05, "NO, NO, NO!"), (9.0, "I CAN'T STOP."), (14.2, "MORE. MORE."),
-                  (22.0, "WHY WON'T IT MOVE?!"), (25.6, "NOT ENOUGH.")],
+    "OBSESSION": [(1.2, "FASTER."), (6.0, "MORE. MORE."), (11.0, "I CAN'T STOP."),
+                  (19.05, "MOVE!!"), (24.2, "NOT ENOUGH.")],
     "DISCIPLINE": [(2.4, "ONE MORE STEP."), (11.0, "KEEP GOING."), (19.4, "ONE MORE STEP."), (24.8, "STAY STEADY.")],
     "MOTIVATION": [(0.3, "LET'S GO!"), (5.6, "I'M SO TIRED..."), (9.6, "IT'S TOO HIGH..."), (13.4, "I'LL REST A BIT.")],
 }
@@ -221,16 +224,13 @@ def st_obsession(t, f):
     xh, ph = OBS_X(t), L["ph"][f]
     bx = xh + D
     c = S.rest_center(g, bx, R)
-    late = ramp(t, 17, 24)
-    stuck = ramp(t, OBS_STUCK_T - 0.3, OBS_STUCK_T + 0.3)
+    stuck = ramp(t, OBS_STUCK_T - 0.15, OBS_STUCK_T + 0.15) * (1 - ramp(t, OBS_SMASH - 0.1, OBS_SMASH + 0.15))
     if stuck > 0:  # preso no muro: a pedra treme, ele força
         c = (c[0] + 1.2 * math.sin(t * 47) * stuck, c[1])
-    push = S.push_pose(g, xh, ph, hand_target(c), lean=lerp(46, 52, late) + 6 * stuck + heave(ph) * 1.2,
-                       stride=lerp(lerp(20, 12, late), 7, stuck), lift=lerp(lerp(12, 7, late), 4, stuck))
-    wf = ramp(t, 6.0, 6.22) * (1 - ramp(t, 7.5, 8.3))
-    pose = S.blend(push, S.fallen_pose(g, xh, flail=t * 15), wf) if wf > 0 else push
+    pose = S.push_pose(g, xh, ph, hand_target(c), lean=48 + 8 * stuck + heave(ph) * 1.2,
+                       stride=lerp(19, 7, stuck), lift=lerp(12, 4, stuck))
     return dict(pose=pose, glow=0.85, boulders=[(c, bx / R * 1.02, None)], x=xh,
-                moving=wf == 0, bx=bx, embers=1.3 + 1.2 * stuck, stuck=stuck)
+                moving=stuck < 0.5, bx=bx, embers=1.4 + 1.6 * stuck, stuck=stuck)
 
 
 def st_anger(t, f, rnd):
@@ -355,8 +355,8 @@ def draw_walls(ctx, gctx, name, g, t, col):
             continue
         pts = wall_poly(w, g)
         shake = 0.0
-        if w["smash"] is not None and w["smash"] - 0.5 < t < w["smash"]:
-            shake = 3.0 * math.sin(t * 90)
+        if w["smash"] is not None and w["smash"] - 1.5 < t < w["smash"]:
+            shake = (1.0 + 3.0 * ramp(t, w["smash"] - 1.5, w["smash"])) * math.sin(t * 90)
         for c, fill in ((gctx, None), (ctx, (0.035, 0.03, 0.035))):
             c.move_to(pts[0][0] + shake, pts[0][1])
             for x, y in pts[1:]:
@@ -468,9 +468,9 @@ def draw_thoughts(ctx, gctx, name, t, f, heads, g, rnd):
 # percurso de cada um (px do mundo que valem 100%): o final de cada barra conta a história
 START = {"ANGER": ANG_X(0), "OBSESSION": OBS_X(0), "DISCIPLINE": DIS_X(0), "MOTIVATION": MOT_X(0)}
 COURSE = {"ANGER": ANG_SUMMIT - 8 - ANG_X(0),
-          "OBSESSION": (OBS_STUCK - OBS_X(0)) / 0.87,       # fica preso nos 87%
-          "DISCIPLINE": (DIS_X(30) - DIS_X(0)) / 0.93,      # chega aos 93% e continua
-          "MOTIVATION": (MOT_SIT - MOT_X(0)) / 0.64}        # desiste nos 64%
+          "OBSESSION": (OBS_X(30) - OBS_X(0)) / 0.90,       # dá tudo: ~90% no fim
+          "DISCIPLINE": (DIS_X(30) - DIS_X(0)) / 0.65,      # constante, fica nos 65% (e continua)
+          "MOTIVATION": (MOT_SIT - MOT_X(0)) / 0.50}        # muito rápido, morre nos 50%
 
 
 def progress(name, xh, t):
@@ -519,7 +519,7 @@ def main():
     ap.add_argument("--frames", help="só estes tempos (s), separados por vírgula")
     ap.add_argument("--dump", help="pasta para gravar cada frame renderizado em PNG")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v4_frames.png"))
+    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v5_frames.png"))
     ap.add_argument("--music", default=MUSIC if os.path.exists(MUSIC) else None, help="ficheiro da música: deteta BPM, batidas e drop (alinha o drop aos 17 s)")
     ap.add_argument("--bpm", type=float, default=140.0, help="BPM provisório quando não há --music")
     args = ap.parse_args()
@@ -585,25 +585,24 @@ def main():
             if s.get("stuck", 0) > 0.5 and rnd.random() < 0.7:  # pés a patinar
                 fx = s["pose"]["footL"] if rnd.random() < 0.5 else s["pose"]["footR"]
                 P.emit(fx[0], fx[1] - 2, 2, vx=(-110, -30), vy=(-80, -15), size=(1.3, 3.0))
-            if name == "OBSESSION" and abs(t - 6.05) < dt / 2:
-                P.emit(s["x"], g(s["x"]) - 4, 30, vx=(-120, 40), vy=(-160, -20), size=(1.5, 3.4))
             if name == "MOTIVATION" and s.get("rolling_back") and bc and rnd.random() < 0.8:
                 P.emit(bc[0] + 8, bc[1] + R - 2, 2, vx=(0, 70), vy=(-70, -10), size=(1.2, 2.6))
+            for w in WALLS[name]:  # obstáculo a rebentar
+                if w["smash"] is not None and abs(t - w["smash"]) < dt / 2:
+                    for k in range(60):
+                        x = w["x"] + rnd.uniform(0, w["w"])
+                        y = g(x) - rnd.uniform(5, w["h"])
+                        P.emit(x, y, 1, vx=(60, 420), vy=(-380, -60), size=(3, 8.5), life=(1.0, 2.0),
+                               color=(0.7, 0.7, 0.74), kind="rock", g=700)
+                    sc = (1, 0.45, 0.25) if name == "ANGER" else COL[name]
+                    P.emit(w["x"], g(w["x"]) - w["h"] * 0.5, 60, vx=(-150, 380), vy=(-340, 120),
+                           life=(0.3, 0.9), size=(1.6, 3.2), color=sc, g=400, kind="spark")
             if name == "ANGER":
                 if abs(t - DROP) < dt / 2:
                     P.emit(bc[0] - R, bc[1], 70, vx=(-320, 260), vy=(-380, -40), life=(0.3, 0.9),
                            size=(1.6, 3.2), color=(1, 0.4, 0.2), g=500, kind="spark")
                     P.emit(bc[0], bc[1] + R - 4, 20, vx=(-200, 80), vy=(-240, -60), size=(2, 4.5),
                            color=(0.6, 0.5, 0.45), kind="rock")
-                if abs(t - ANG_SMASH) < dt / 2:  # o rochedo rebenta
-                    w = WALLS["ANGER"][0]
-                    for k in range(60):
-                        x = w["x"] + rnd.uniform(0, w["w"])
-                        y = g(x) - rnd.uniform(5, w["h"])
-                        P.emit(x, y, 1, vx=(60, 420), vy=(-380, -60), size=(3, 8.5), life=(1.0, 2.0),
-                               color=(0.7, 0.7, 0.74), kind="rock", g=700)
-                    P.emit(w["x"], g(w["x"]) - w["h"] * 0.5, 60, vx=(-150, 380), vy=(-340, 120),
-                           life=(0.3, 0.9), size=(1.6, 3.2), color=(1, 0.45, 0.25), g=400, kind="spark")
                 if s["rage"] and t < ANG_TOP and bc:
                     P.emit(bc[0] - R * 0.8, bc[1] - 4, 4, vx=(-260, 90), vy=(-260, -30), life=(0.2, 0.6),
                            size=(1.4, 2.8), color=(1, 0.36, 0.2), g=500, kind="spark")
