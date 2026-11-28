@@ -1,7 +1,7 @@
 """Stickman #002 · "WHO DOES THE MOST REPS?" (Anger vs Obsession vs Discipline vs Motivation).
 
 v2 (pedido do dono): uma barra de ponta a ponta do ecrã e os 4 lado a lado a fazer elevações.
-Contador grande de reps por baixo de cada um, nome e posição ao vivo (1ST..4TH) por baixo do contador.
+Por cima da barra, sobre cada um: nome, posição ao vivo (1ST..4TH) e contador grande de reps (v4).
 Mesmo estilo do #001: fundo preto, bonecos néon, pensamentos que nascem da cabeça e caem para o chão.
 História: Motivation dispara e desiste ("TOMORROW..."), Obsession passa à frente e rebenta,
 Discipline constante, Anger falha, cai e no drop (17,0 s) volta à barra brutal e fica em 1º isolado.
@@ -31,7 +31,7 @@ from lib.ui import GOLD, RED, ease_back, make_title  # noqa: E402
 S.set_scale(2.0)
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-VER = "reps_v3"
+VER = "reps_v4"
 OUT = os.path.join(ROOT, "out", VER + ".mp4")
 MUSIC = os.path.join(ROOT, "music", "stakillaz.mp3")
 HANDLE = "@ThePsychArena"
@@ -43,15 +43,15 @@ NF = int(DURATION * FPS)
 
 # ---------- layout ----------
 TOP = 262                             # fim da zona do título
-BAR_Y = 800
-FLOOR_Y = 1235
+BAR_Y = 990
+FLOOR_Y = 1425
 NAMES = ["ANGER", "OBSESSION", "DISCIPLINE", "MOTIVATION"]
 XS = {"ANGER": 210, "OBSESSION": 430, "DISCIPLINE": 650, "MOTIVATION": 870}  # simétrico em torno de x=540
 COL = {"ANGER": (1.0, 0.16, 0.13), "OBSESSION": (0.74, 0.34, 1.0),
        "DISCIPLINE": (0.12, 0.80, 1.0), "MOTIVATION": (1.0, 0.64, 0.10)}
-CNT_Y = 1388                          # linha de base do contador
-NAME_Y = 1478
-RANK_Y = 1526                         # tudo acima de ~1574 (zona de baixo do YouTube)
+CNT_Y = 750                           # linha de base do contador (por cima da barra, à altura dos olhos)
+NAME_Y = 548
+RANK_Y = 600                          # nome, posição e contador por cima da barra, longe dos cantos de baixo
 
 
 def ground(x):
@@ -277,7 +277,7 @@ def draw_thoughts(ctx, gctx, name, t, f, heads, rnd):
         lh = size * 1.08
         alpha, ang = 1.0, 0.0
         hx, hy = heads[f]
-        hold_y = min(hy - S.HEAD_R - 40, BAR_Y - 120)
+        hold_y = min(hy - S.HEAD_R - 40, BAR_Y - 108)
         cx = clamp(XS[name], 105, 975)
         if age < T_GROW + hold:
             e = ease_back(age / T_GROW)
@@ -287,7 +287,7 @@ def draw_thoughts(ctx, gctx, name, t, f, heads, rnd):
         else:
             fs = min(f, int(round((t0 + T_GROW + hold) * FPS)))
             hy0 = heads[fs][1]
-            p0 = (cx, min(hy0 - S.HEAD_R - 40, BAR_Y - 120))
+            p0 = (cx, min(hy0 - S.HEAD_R - 40, BAR_Y - 108))
             lx, ly = cx - 55, FLOOR_Y - 4
             land = -0.12 if name != "MOTIVATION" else 0.1
             u = (age - T_GROW - hold) / T_FALL
@@ -450,13 +450,13 @@ CAM = [(0, 1.0, None), (9.35, 1.0, "MOTIVATION"), (9.9, 1.42, "MOTIVATION"), (11
        (21.45, 1.22, "OBSESSION"), (21.9, 1.38, "OBSESSION"), (23.2, 1.38, "OBSESSION"), (23.9, 1.0, None),
        (27.2, 1.0, "DISCIPLINE"), (27.75, 1.18, "DISCIPLINE"), (28.1, 1.2, "ANGER"), (28.8, 1.38, "ANGER"),
        (30.0, 1.45, "ANGER")]
-SCENE_C = (W / 2, 1080)  # para onde a câmara puxa a personagem focada
+SCENE_C = (W / 2, (TOP + H) / 2)  # centro da zona visível por baixo do título
 
 
 def cam_focus(key, poses):
     if key is None:
         return SCENE_C
-    return (XS[key], (BAR_Y + FLOOR_Y) / 2 + 20)  # altura fixa: barra, chão e pensamentos sempre à vista
+    return (XS[key], (NAME_Y - 30 + FLOOR_Y + 15) / 2)  # altura fixa: nome, contador, barra e chão sempre à vista
 
 
 def camera(t, poses):
