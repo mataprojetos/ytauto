@@ -377,8 +377,8 @@ def banner(ctx, W=2560, H=1440):
         ctx.move_to(x1, ground)
         ctx.line_to(x2, ground)
         ctx.stroke()
-    figs = [(120, "MOTIVATION", "tired", WHITE), (285, "OBSESSION", "run", WHITE),
-            (445, "ANGER", "stand", RED_HI), (2140, "DISCIPLINE", "climb", WHITE)]
+    figs = [(120, "MOTIVATION", "tired", GREEN), (285, "OBSESSION", "run", GREEN),
+            (445, "ANGER", "stand", RED_HI), (2140, "DISCIPLINE", "climb", GREEN)]
     for x, name, pose, col in figs:
         hooded(ctx, x, ground - 3, 170, 5.5, col=col, pose=pose)
         text(ctx, name, x, ground - 230, 22, RED_HI, spacing=0.12)
