@@ -1,10 +1,12 @@
 """Stickman #001 · "WHO REACHES THE TOP?" (Anger vs Obsession vs Discipline vs Motivation).
 
-v2 (pedido do dono): câmara a seguir cada boneco, o cume fica escondido no escuro e só se revela
-no fim; só a Anger lá chega. Bonecos néon, cada um com a sua cor, muitas partículas.
+v3 (pedido do dono): fundo preto, a encosta é uma linha de ponta a ponta e anda por baixo deles
+(escada rolante); a meta só aparece nos últimos ~2 s, quando a Anger lá chega (o único).
+Bonecos néon, cada um com a sua cor. Pensamentos nascem da cabeça e caem para trás.
+Pulsação suave ao ritmo da música (--music deteta BPM/batidas/drop; sem música usa --bpm).
 Drop da música aos 17,0 s. Sem música no ficheiro (faixa silenciosa).
 
-    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v2.mp4 + folha de frames
+    python3 stickman/videos/001_climb.py                     # -> stickman/out/climb_v3.mp4 + folha de frames
     python3 stickman/videos/001_climb.py --frames 0,17 --dump /tmp/f   # só PNG
 """
 import argparse
@@ -16,14 +18,15 @@ import sys
 import cairo
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from lib.core import FPS, H, W, Writer, clamp, draw_text, ensure_font, lerp, pchip, ramp, text_width, window  # noqa: E402
-from lib.fx import Particles, add_glow, blur_surface, rock_texture, twinkle  # noqa: E402
+from lib.core import FPS, H, W, Writer, clamp, draw_text, ensure_font, lerp, pchip, ramp, text_width  # noqa: E402
+from lib.fx import Particles, add_glow, blur_surface, twinkle  # noqa: E402
 from lib import stick as S  # noqa: E402
+from lib.beats import BeatSync  # noqa: E402
 
 S.set_scale(1.18)
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
-OUT = os.path.join(ROOT, "out", "climb_v2.mp4")
+OUT = os.path.join(ROOT, "out", "climb_v3.mp4")
 
 DURATION = 30.0
 DROP = 17.0
@@ -39,11 +42,10 @@ GOLD = (0.86, 0.66, 0.30)
 COL = {"ANGER": (1.0, 0.16, 0.13), "OBSESSION": (0.74, 0.34, 1.0),
        "DISCIPLINE": (0.12, 0.80, 1.0), "MOTIVATION": (1.0, 0.64, 0.10)}
 HIP_SCREEN_X = 470                   # onde a câmara mantém a anca
-GROUND_SCREEN = 0.76                 # altura do chão (fração da faixa) debaixo do boneco
-FOG0, FOG1 = 650, 850                # nevoeiro escuro à direita: esconde o que vem aí
+GROUND_SCREEN = 0.70                 # altura do chão (fração da faixa) debaixo do boneco
 
 R, D = 28.0 * S.K, 82.0 * S.K
-SLOPE = 0.26
+SLOPE = 0.16
 
 
 def make_ground(summit, seed):
@@ -71,22 +73,22 @@ def make_ground(summit, seed):
 MOT_SIT = 640
 MOT_X = pchip([(0, 70), (3.5, 330), (6.5, 520), (9.0, 615), (9.8, MOT_SIT), (30, MOT_SIT)])
 MOT_RELEASE = 9.9
-MOT_SUMMIT = MOT_SIT + D + 290       # estava "a 2 passos": só se vê no fim
 DIS_X = pchip([(0, 60), (30, 60 + 30 * 31)])
 OBS_X = pchip([(0, 90), (3, 300), (6.0, 500), (6.15, 490), (7.4, 300), (8.4, 300),
                (12, 480), (17, 760), (24, 900), (30, 960)])
-ANG_SUMMIT = 1180.0
+ANG_SUMMIT = 2800.0  # só entra no ecrã nos últimos ~2 s
 ANG_TOP_X = ANG_SUMMIT - D - 12
 ANG_X = pchip([(0, 75), (2, 140), (3.2, 160), (5.5, 250), (7, 265), (9.5, 340), (12.2, 385),
-               (13.1, 300), (15, 312), (DROP, 312), (19, 700), (21.4, ANG_TOP_X), (22.0, ANG_TOP_X + 40),
-               (22.6, ANG_SUMMIT - 8), (30, ANG_SUMMIT - 8)])
-ANG_TOP = 21.4
+               (13.1, 300), (15, 312), (DROP, 312), (18, 430), (27.4, ANG_TOP_X), (28.0, ANG_TOP_X + 40),
+               (28.5, ANG_SUMMIT - 8), (30, ANG_SUMMIT - 8)])
+ANG_TOP = 27.4   # a pedra passa o cume: o vencedor chega ~2 s antes do fim
+WIN = 28.0
 
 LANES = {
     "ANGER": dict(x=ANG_X, summit=ANG_SUMMIT, seed=3, cycle=lambda t: 74 if t >= DROP else 52),
     "OBSESSION": dict(x=OBS_X, summit=None, seed=5, cycle=lambda t: 70),
     "DISCIPLINE": dict(x=DIS_X, summit=None, seed=7, cycle=lambda t: 50),
-    "MOTIVATION": dict(x=MOT_X, summit=MOT_SUMMIT, seed=9, cycle=lambda t: 64 if t < 4 else 44),
+    "MOTIVATION": dict(x=MOT_X, summit=None, seed=9, cycle=lambda t: 64 if t < 4 else 44),
 }
 for nm, L in LANES.items():
     L["g"] = make_ground(L["summit"], L["seed"])
@@ -106,7 +108,7 @@ def precompute():
             prev = x
             L["ph"].append(ph)
             follow += (min(x, lim) - follow) * (0.10 if nm != "ANGER" or t < DROP else 0.16)
-            cx = follow - HIP_SCREEN_X + (170 * ramp(t, 24.8, 26.2) if nm == "MOTIVATION" else 0)
+            cx = follow - HIP_SCREEN_X
             cy = g(follow + 40) - GROUND_SCREEN * LH
             L["cam"].append((cx, cy))
 
@@ -119,9 +121,19 @@ def hand_target(c):
     return (c[0] - R * 0.93, c[1] - R * 0.30)
 
 
-def thought(t, t0, t1, txt, style="w"):
-    a = window(t, t0, t1, 0.16)
-    return (txt, a, style, t - t0) if a > 0 else None
+# pensamentos: (início, texto, estilo) — nascem da cabeça, ficam por cima e caem para trás
+THOUGHTS = {
+    "ANGER": [(4.2, "WHY WON'T YOU MOVE?", "r"), (13.0, "I'M TOO SLOW!", "r"),
+              (DROP + 0.1, "NOTHING STOPS ME.", "R"), (20.6, "I'LL BREAK THROUGH.", "R"), (24.1, "I'M NOT DONE.", "R")],
+    "OBSESSION": [(1.2, "FASTER."), (6.05, "NO, NO, NO!"), (9.0, "I CAN'T STOP."), (21.5, "NOT ENOUGH.")],
+    "DISCIPLINE": [(2.4, "ONE MORE STEP."), (11.0, "KEEP GOING."), (19.4, "ONE MORE STEP."), (24.8, "STAY STEADY.")],
+    "MOTIVATION": [(0.3, "LET'S GO!"), (6.4, "I'M SO TIRED..."), (10.8, "I'LL REST A BIT.")],
+}
+T_GROW, T_FALL, T_REST = 0.35, 0.55, 1.4
+
+
+def t_hold(txt):
+    return 1.45 + 0.03 * len(txt)
 
 
 def heave(ph):
@@ -146,9 +158,7 @@ def st_motivation(t, f):
         pose = dict(pose)
         for k in ("head", "neck", "elbL", "elbR", "handL", "handR"):
             pose[k] = (pose[k][0], pose[k][1] + b)
-    th = [thought(t, 0.3, 2.6, "LET'S GO!"), thought(t, 6.6, 9.4, "I'M SO TIRED..."),
-          thought(t, 10.9, 13.5, "I'LL REST A BIT."), thought(t, 26.0, 28.0, "WAIT... WHAT?")]
-    return dict(pose=pose, glow=0.8, boulders=[(c, bx / R * 1.02, None)], thoughts=th, x=xh,
+    return dict(pose=pose, glow=0.8, boulders=[(c, bx / R * 1.02, None)], x=xh,
                 moving=t < MOT_RELEASE, bx=bx, rolling_back=t > MOT_RELEASE, embers=1.0 - 0.7 * tired)
 
 
@@ -159,9 +169,7 @@ def st_discipline(t, f):
     bx = xh + D
     c = S.rest_center(g, bx, R)
     pose = S.push_pose(g, xh, ph, hand_target(c), lean=41 + heave(ph) * 0.6, stride=14, lift=9)
-    th = [thought(t, 2.6, 5.0, "ONE MORE STEP."), thought(t, 11.0, 13.4, "KEEP GOING."),
-          thought(t, 23.2, 25.6, "ONE MORE STEP."), thought(t, 27.0, 29.8, "STAY STEADY.")]
-    return dict(pose=pose, glow=0.8, boulders=[(c, bx / R * 1.02, None)], thoughts=th, x=xh,
+    return dict(pose=pose, glow=0.8, boulders=[(c, bx / R * 1.02, None)], x=xh,
                 moving=True, bx=bx, embers=0.8)
 
 
@@ -176,9 +184,7 @@ def st_obsession(t, f):
                        stride=lerp(20, 12, late), lift=lerp(12, 7, late))
     wf = ramp(t, 6.0, 6.22) * (1 - ramp(t, 7.5, 8.3))
     pose = S.blend(push, S.fallen_pose(g, xh, flail=t * 15), wf) if wf > 0 else push
-    th = [thought(t, 1.2, 3.2, "FASTER."), thought(t, 6.1, 7.6, "NO, NO, NO!"),
-          thought(t, 9.0, 11.6, "I CAN'T STOP."), thought(t, 24.2, 26.8, "NOT ENOUGH.")]
-    return dict(pose=pose, glow=0.85, boulders=[(c, bx / R * 1.02, None)], thoughts=th, x=xh,
+    return dict(pose=pose, glow=0.85, boulders=[(c, bx / R * 1.02, None)], x=xh,
                 moving=wf == 0, bx=bx, embers=1.3)
 
 
@@ -204,12 +210,12 @@ def st_anger(t, f, rnd):
         shove = 5 * max(0, math.sin(t * 7)) if 13.1 <= t < 15 else 0  # empurrões irritados
         push = S.push_pose(g, xh, ph, tgt, lean=lerp(40, 46, ramp(t, 13.1, 14)) + heave(ph) + shove,
                            stride=16, lift=10)
-    pose = S.blend(push, S.stand_pose(g, xh, arms="up", t=t), ramp(t, 22.0, 22.7))
+    pose = S.blend(push, S.stand_pose(g, xh, arms="up", t=t), ramp(t, WIN, WIN + 0.6))
     if 15.0 <= t < DROP:  # tremor antes do drop
         k = 1.5 * ramp(t, 15.0, 15.4)
         pose = S.offset(pose, rnd.uniform(-k, k), rnd.uniform(-k, k))
         c = (c[0] + rnd.uniform(-k, k) * 0.5, c[1])
-    cool = ramp(t, 22.4, 23.8)
+    cool = ramp(t, WIN + 0.3, WIN + 1.4)
     if rage:
         color = tuple(lerp(a, b, cool) for a, b in zip((1.0, 0.22, 0.18), (0.92, 0.96, 1.0)))
         gcol = tuple(lerp(a, b, cool) for a, b in zip((1.0, 0.10, 0.06), (0.45, 0.72, 1.0)))
@@ -217,49 +223,13 @@ def st_anger(t, f, rnd):
     else:
         color, gcol, glow = COL["ANGER"], COL["ANGER"], 0.75
     bglow = (1.0, 0.25, 0.15, 0.9) if rage and t < ANG_TOP + 0.6 else None
-    th = [thought(t, 4.4, 6.8, "WHY WON'T YOU MOVE?", "r"), thought(t, 13.0, 15.0, "I'M TOO SLOW!", "r"),
-          thought(t, DROP + 0.12, 19.4, "NOTHING STOPS ME.", "R"),
-          thought(t, 19.5, 21.8, "I'LL BREAK THROUGH.", "R")]
     return dict(pose=pose, color=color, gcol=gcol, glow=glow,
                 boulders=[(c, bx / R * 1.02, bglow)] if c[0] < ANG_SUMMIT + 500 else [],
-                thoughts=th, x=xh, moving=not (15.0 <= t < DROP) and t < 22.0, bx=bx, rage=rage,
-                embers=(4.0 if rage and t < 22.3 else 1.2))
+                x=xh, moving=not (15.0 <= t < DROP) and t < WIN, bx=bx, rage=rage,
+                embers=(4.0 if rage and t < WIN + 0.3 else 1.2))
 
 
 # ---------- elementos estáticos ----------
-def lane_overlay():
-    """Vinheta e sombra no topo da faixa (por cima de tudo, em coordenadas de ecrã)."""
-    w, h = W, int(math.ceil(LH))
-    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
-    ctx = cairo.Context(surf)
-    vg = cairo.RadialGradient(w * 0.42, h * 0.6, h * 0.35, w * 0.42, h * 0.6, w * 0.72)
-    vg.add_color_stop_rgba(0, 0, 0, 0, 0)
-    vg.add_color_stop_rgba(1, 0, 0, 0, 0.7)
-    ctx.set_source(vg)
-    ctx.paint()
-    tg = cairo.LinearGradient(0, 0, 0, 46)
-    tg.add_color_stop_rgba(0, 0, 0, 0, 0.6)
-    tg.add_color_stop_rgba(1, 0, 0, 0, 0)
-    ctx.set_source(tg)
-    ctx.rectangle(0, 0, w, 46)
-    ctx.fill()
-    lg = cairo.LinearGradient(0, 0, 120, 0)
-    lg.add_color_stop_rgba(0, 0, 0, 0, 0.55)
-    lg.add_color_stop_rgba(1, 0, 0, 0, 0)
-    ctx.set_source(lg)
-    ctx.rectangle(0, 0, 120, h)
-    ctx.fill()
-    return surf
-
-
-def fog_pattern():
-    fg = cairo.LinearGradient(FOG0, 0, FOG1, 0)
-    for i in range(9):
-        u = i / 8
-        fg.add_color_stop_rgba(u, 0.0, 0.0, 0.0, 0.985 * (u * u * (3 - 2 * u)))
-    return fg
-
-
 def make_title(parts, size=80, spacing=3.5, base=205):
     surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, LANE_TOP)
     glow = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, LANE_TOP)
@@ -306,65 +276,79 @@ def draw_flag(ctx, gctx, g, x0, t):
         c.fill()
 
 
-def draw_terrain(ctx, g, cam, tex, seed):
-    cx, cy = cam
+def draw_line(ctx, gctx, g, cam, col, pulse):
+    """Fundo preto: a encosta é só uma linha fina, de ponta a ponta da faixa."""
+    cx = cam[0]
     x0, x1 = int(cx) - 12, int(cx + W) + 12
-    ctx.move_to(x0, cy + LH + 20)
-    for x in range(x0, x1 + 1, 4):
-        ctx.line_to(x, g(x))
-    ctx.line_to(x1, cy + LH + 20)
-    ctx.close_path()
-    pat = cairo.SurfacePattern(tex)
-    pat.set_extend(cairo.EXTEND_REPEAT)
-    ctx.save()
-    ctx.set_source(pat)
-    ctx.fill_preserve()
-    dg = cairo.LinearGradient(0, cy + LH * 0.55, 0, cy + LH)
-    dg.add_color_stop_rgba(0, 0, 0, 0, 0)
-    dg.add_color_stop_rgba(1, 0, 0, 0, 0.5)
-    ctx.set_source(dg)
-    ctx.fill()
-    ctx.restore()
-    # pedrinhas na superfície (dão a sensação de avanço)
-    step = 46
-    for i in range(int(x0 / step) - 1, int(x1 / step) + 2):
-        r = random.Random(i * 7919 + seed * 31)
-        x = i * step + r.uniform(0, step * 0.8)
-        s = r.uniform(2.0, 6.5)
-        y = g(x)
-        ctx.move_to(x - s, y + 1)
-        ctx.line_to(x - s * 0.4, y - s * 0.9)
-        ctx.line_to(x + s * 0.6, y - s * 0.7)
-        ctx.line_to(x + s, y + 1)
-        ctx.close_path()
-        sh = r.uniform(0.22, 0.4)
-        ctx.set_source_rgba(sh, sh * 0.9, sh * 0.85, 0.9)
-        ctx.fill()
-    for wdt, a in ((7, 0.06), (2.2, 0.5)):
-        ctx.set_line_width(wdt)
-        ctx.set_source_rgba(0.62, 0.52, 0.46, a)
-        ctx.move_to(x0, g(x0))
+    for c, wdt, rgba in ((gctx, 5, (*col, 0.30 + 0.25 * pulse)),
+                         (ctx, 2.2, (0.80, 0.80, 0.84, 0.55 + 0.25 * pulse))):
+        c.set_line_width(wdt)
+        c.set_source_rgba(*rgba)
+        c.move_to(x0, g(x0))
         for x in range(x0, x1 + 1, 4):
-            ctx.line_to(x, g(x))
-        ctx.stroke()
+            c.line_to(x, g(x))
+        c.stroke()
 
 
-def draw_thought(ctx, item, rnd):
-    txt, a, style, age = item
-    cx, base = 330, 80
-    rise = 6 * (1 - ramp(age, 0, 0.2))
-    if style == "R":
-        size = 42
-        jit = lambda i: (rnd.uniform(-2.6, 2.6), rnd.uniform(-2.6, 2.6))
-        for k, al in ((7, 0.10), (4, 0.16)):
-            for dx, dy in ((k, 0), (-k, 0), (0, k), (0, -k)):
-                draw_text(ctx, txt, cx + dx, base + dy, size, (1, 0.1, 0.08, al * a), 3, "center")
-        draw_text(ctx, txt, cx, base, size, (1, 0.22, 0.18, a), 3, "center", jitter=jit)
-        return
-    size = 36
-    col = (0.93, 0.20, 0.18) if style == "r" else (0.94, 0.94, 0.94)
-    draw_text(ctx, txt, cx + 2, base + rise + 3, size, (0, 0, 0, 0.6 * a), 2.6, "center")
-    draw_text(ctx, txt, cx, base + rise, size, (*col, a), 2.6, "center")
+def ease_back(u):
+    u = clamp(u)
+    k = 1.9
+    return 1 + (k + 1) * (u - 1) ** 3 + k * (u - 1) ** 2
+
+
+def draw_thoughts(ctx, gctx, name, t, f, heads, g, rnd):
+    """Pensamentos em coordenadas do mundo: nascem a crescer da cabeça, ficam por cima,
+    caem para trás até ao chão e ficam lá (a câmara deixa-os para trás) até desaparecerem."""
+    for item in THOUGHTS[name]:
+        t0, txt = item[0], item[1]
+        style = item[2] if len(item) > 2 else "w"
+        hold = t_hold(txt)
+        age = t - t0
+        if age < 0 or age > T_GROW + hold + T_FALL + T_REST:
+            continue
+        size = 38 if style == "R" else 34
+        alpha, ang = 1.0, 0.0
+        head = heads[f]
+        if age < T_GROW + hold:
+            e = ease_back(age / T_GROW)
+            sc = 0.12 + 0.88 * e
+            x, y = head[0], head[1] - S.HEAD_R - 6 - 44 * clamp(age / T_GROW)
+        else:
+            fs = min(f, int(round((t0 + T_GROW + hold) * FPS)))
+            hx, hy = heads[fs]
+            p0 = (hx, hy - S.HEAD_R - 50)
+            lx = hx - 130
+            ly = g(lx) - 3
+            land_ang = math.atan2(g(lx + 6) - g(lx - 6), 12)
+            u = (age - T_GROW - hold) / T_FALL
+            if u < 1:
+                x = lerp(p0[0], lx, u)
+                y = lerp(p0[1], ly, u * u) - 14 * math.sin(math.pi * u) * (1 - u)
+                ang = land_ang * u - 0.5 * math.sin(math.pi * u)
+                sc = lerp(1.0, 0.85, u)
+            else:
+                r = age - T_GROW - hold - T_FALL
+                x, y = lx, ly - 6 * abs(math.sin(r * 18)) * math.exp(-r * 9)
+                ang, sc = land_ang, 0.85
+                alpha = 1 - ramp(r, T_REST * 0.4, T_REST)
+        ctx.save()
+        ctx.translate(x, y)
+        ctx.rotate(ang)
+        ctx.scale(sc, sc)
+        if style == "R":
+            jit = lambda i: (rnd.uniform(-2.4, 2.4), rnd.uniform(-2.4, 2.4))
+            draw_text(ctx, txt, 0, 0, size, (1, 0.22, 0.18, alpha), 3, "center", jitter=jit)
+            gctx.save()
+            gctx.translate(x, y)
+            gctx.rotate(ang)
+            gctx.scale(sc, sc)
+            draw_text(gctx, txt, 0, 0, size, (1, 0.1, 0.06, 0.8 * alpha), 3, "center")
+            gctx.restore()
+        else:
+            col = (0.95, 0.24, 0.20) if style == "r" else (0.95, 0.95, 0.95)
+            draw_text(ctx, txt, 2, 3, size, (0, 0, 0, 0.7 * alpha), 2.4, "center")
+            draw_text(ctx, txt, 0, 0, size, (*col, alpha), 2.4, "center")
+        ctx.restore()
 
 
 def draw_label(ctx, name):
@@ -384,7 +368,9 @@ def main():
     ap.add_argument("--frames", help="só estes tempos (s), separados por vírgula")
     ap.add_argument("--dump", help="pasta para gravar cada frame renderizado em PNG")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v2_frames.png"))
+    ap.add_argument("--sheet", default=os.path.join(ROOT, "out", "climb_v3_frames.png"))
+    ap.add_argument("--music", help="ficheiro da música: deteta BPM, batidas e drop (alinha o drop aos 17 s)")
+    ap.add_argument("--bpm", type=float, default=140.0, help="BPM provisório quando não há --music")
     args = ap.parse_args()
     ensure_font()
     precompute()
@@ -393,10 +379,11 @@ def main():
     sheet_f = {int(round(s * FPS)): s for s in [0, 10, 17, 25, 29.5]}
     sheet_imgs = {}
 
-    sky = [rock_texture(640, 640, 11 + 7 * i, base=(15, 11, 11), var=9) for i in range(4)]
-    gtex = [rock_texture(640, 640, 111 + 7 * i, base=(40, 28, 25), var=18) for i in range(4)]
-    overlay = lane_overlay()
-    fog = fog_pattern()
+    sync = BeatSync.from_audio(args.music, DROP) if args.music else BeatSync.grid(args.bpm, DROP)
+    if args.music:
+        print(f"música: BPM {sync.bpm}, drop no segundo {sync.info['drop']} -> começar a música no "
+              f"segundo {sync.offset:.2f}")
+    heads = {n: [] for n in NAMES}
     title1 = make_title([("WHO REACHES THE ", (0.80, 0.80, 0.80), False), ("TOP?", GOLD, True)])
     title2 = make_title([("WHICH ONE ARE ", (0.80, 0.80, 0.80), False), ("YOU?", GOLD, True)])
 
@@ -409,12 +396,17 @@ def main():
     surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
     glow = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
     ctx, gctx = cairo.Context(surf), cairo.Context(glow)
+    final = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    fctx = cairo.Context(final)
     writer = None if only else Writer(args.out)
     dt = 1 / FPS
 
     for f in range(NF):
         t = f / FPS
         states = [st_anger(t, f, rnd), st_obsession(t, f), st_discipline(t, f), st_motivation(t, f)]
+        for n, st in zip(NAMES, states):
+            heads[n].append(st["pose"]["head"])
+        pulse = sync.pulse(t)
 
         # --- partículas (avançam sempre: o estado é igual com ou sem --frames)
         for i, s in enumerate(states):
@@ -465,17 +457,17 @@ def main():
             continue
 
         # --- fundo e título
-        ctx.set_source_rgb(0.025, 0.022, 0.024)
+        ctx.set_source_rgb(0, 0, 0)
         ctx.paint()
         gctx.set_operator(cairo.OPERATOR_CLEAR)
         gctx.paint()
         gctx.set_operator(cairo.OPERATOR_OVER)
-        sw = ramp(t, 27.9, 28.12)
+        sw = ramp(t, 28.7, 28.9)
         if sw < 1:
             ctx.set_source_surface(title1, 0, 0)
             ctx.paint_with_alpha(1 - sw)
         if sw > 0:
-            pop = 1 + 0.06 * (1 - ramp(t, 28.0, 28.35))
+            pop = 1 + 0.06 * (1 - ramp(t, 28.8, 29.15))
             ctx.save()
             ctx.translate(W / 2, 180)
             ctx.scale(pop, pop)
@@ -497,28 +489,21 @@ def main():
                 c.translate(0, top)
                 c.rectangle(0, 0, W, LH)
                 c.clip()
-            # céu de rocha com paralaxe
-            pat = cairo.SurfacePattern(sky[i])
-            pat.set_extend(cairo.EXTEND_REPEAT)
-            pat.set_matrix(cairo.Matrix(x0=cam[0] * 0.45, y0=cam[1] * 0.45))
-            ctx.set_source(pat)
-            ctx.paint()
-
             shake = (0, 0)
             if name == "ANGER" and DROP <= t < ANG_TOP + 0.5:
-                k = 8 * (1 - 0.4 * ramp(t, DROP, ANG_TOP))
+                k = 2.5 + 8 * pulse  # treme ao ritmo das batidas
                 shake = (rnd.uniform(-k, k), rnd.uniform(-k * 0.7, k * 0.7))
             for c in (ctx, gctx):
                 c.save()
                 c.translate(-cam[0] + shake[0], -cam[1] + shake[1])
 
-            draw_terrain(ctx, g, cam, gtex[i], L["seed"])
+            draw_line(ctx, gctx, g, cam, s.get("gcol", COL[name]), pulse)
             if L["summit"] is not None:
                 draw_flag(ctx, gctx, g, L["summit"] + 30, t)
 
             if name == "ANGER" and s["rage"]:
                 hx, hy = s["pose"]["hip"]
-                a = 0.34 * (1 - ramp(t, 22.4, 23.6))
+                a = (0.26 + 0.14 * pulse) * (1 - ramp(t, WIN + 0.4, WIN + 1.4))
                 rg = cairo.RadialGradient(hx, hy, 10, hx, hy, 240)
                 rg.add_color_stop_rgba(0, 0.9, 0.08, 0.05, a)
                 rg.add_color_stop_rgba(1, 0.9, 0.08, 0.05, 0)
@@ -534,10 +519,8 @@ def main():
             if name == "ANGER" and s["rage"]:  # halo extra a pulsar
                 S.draw_figure(gctx, s["pose"], color=tuple(c * 0.6 for c in gcol), width=7 * S.K, core=0)
 
-            reveal = 0.0
             if name == "ANGER":
-                reveal = ramp(t, 20.6, 21.8)
-                Lt = ramp(t, 22.2, 24.0)
+                Lt = ramp(t, WIN + 0.1, WIN + 1.4)
                 if Lt > 0:
                     cx, cy = s["pose"]["neck"]
                     rad = cairo.RadialGradient(cx, cy, 0, cx, cy, 120 + 650 * Lt)
@@ -549,30 +532,15 @@ def main():
                     ctx.paint()
                     for sp in sparkles:
                         x = cx + sp["x"] + 10 * math.sin(t * 0.8 + sp["ph"])
-                        y = cy + 40 + ((sp["y"] - sp["v"] * (t - 22.2)) % (LH * 1.1)) - LH * 0.85
+                        y = cy + 40 + ((sp["y"] - sp["v"] * (t - WIN)) % (LH * 1.1)) - LH * 0.85
                         tw = 0.5 + 0.5 * math.sin(t * 4 + sp["ph"] * 3)
                         vis = clamp((120 + 650 * Lt - math.hypot(x - cx, y - cy)) / 150)
                         if vis > 0:
                             twinkle(ctx, x, y, sp["s"] * (0.6 + 0.5 * tw), (0.75, 0.88, 1.0, (0.35 + 0.65 * tw) * vis))
                     S.draw_figure(ctx, s["pose"], color=(1, 1, 1), glow=(0.55, 0.8, 1.0, 0.35), gctx=gctx)
-            elif name == "MOTIVATION":
-                reveal = ramp(t, 24.8, 25.9)
+            draw_thoughts(ctx, gctx, name, t, f, heads[name], g, rnd)
             for c in (ctx, gctx):
                 c.restore()
-
-            # nevoeiro: o que vem à frente fica escondido até à revelação
-            if reveal < 1:
-                ctx.save()
-                ctx.set_source(fog)
-                ctx.paint_with_alpha(1 - reveal)
-                ctx.restore()
-                gctx.save()
-                gctx.set_source(fog)
-                gctx.set_operator(cairo.OPERATOR_DEST_OUT)
-                gctx.paint_with_alpha(1 - reveal)
-                gctx.restore()
-            ctx.set_source_surface(overlay, 0, 0)
-            ctx.paint()
 
             if name == "ANGER" and t >= DROP:
                 fl = math.exp(-(t - DROP) / 0.12) * 0.75
@@ -583,10 +551,8 @@ def main():
             dim = 0.0
             if name != "ANGER" and 15.0 <= t < DROP:
                 dim = 0.55 * ramp(t, 15.0, 15.6)
-            if name in ("OBSESSION", "DISCIPLINE"):
-                dim = max(dim, 0.3 * ramp(t, 22.3, 23.3))
-            if name == "MOTIVATION":
-                dim = max(dim, 0.3 * ramp(t, 22.3, 23.3) * (1 - ramp(t, 24.6, 25.2)))
+            if name != "ANGER":
+                dim = max(dim, 0.4 * ramp(t, WIN - 0.4, WIN + 0.4))
             if dim > 0:
                 ctx.set_source_rgba(0, 0, 0, dim)
                 ctx.paint()
@@ -595,32 +561,41 @@ def main():
                 gctx.paint()
                 gctx.set_operator(cairo.OPERATOR_OVER)
 
-            for th in s["thoughts"]:
-                if th:
-                    draw_thought(ctx, th, rnd)
             draw_label(ctx, name)
             for c in (ctx, gctx):
                 c.restore()
 
-        add_glow(surf, glow, scale=2, radius=5, gain=1.25)
+        add_glow(surf, glow, scale=2, radius=5, gain=1.2 + 0.45 * pulse)
 
         for i in range(5):
             y = LANE_TOP + i * LH
-            hot = 1 if (i in (0, 1) and DROP <= t < 22.0) else 0
+            hot = (0.6 + 0.4 * pulse) if (i in (0, 1) and DROP <= t < WIN) else 0
             ctx.set_source_rgba(0.42 + 0.4 * hot, 0.07, 0.07, 0.95)
             ctx.set_line_width(2)
             ctx.move_to(0, y)
             ctx.line_to(W, y)
             ctx.stroke()
 
+        # pulsação suave do vídeo inteiro em cada batida (mais forte depois do drop)
+        z = 1 + (0.004 if t < DROP else 0.010) * pulse
+        fctx.set_source_rgb(0, 0, 0)
+        fctx.paint()
+        fctx.save()
+        fctx.translate(W / 2, H * 0.45)
+        fctx.scale(z, z)
+        fctx.translate(-W / 2, -H * 0.45)
+        fctx.set_source_surface(surf, 0, 0)
+        fctx.paint()
+        fctx.restore()
+
         if writer:
-            writer.write(surf)
+            writer.write(final)
         if args.dump:
             os.makedirs(args.dump, exist_ok=True)
-            surf.write_to_png(os.path.join(args.dump, f"t{t:05.2f}.png"))
+            final.write_to_png(os.path.join(args.dump, f"t{t:05.2f}.png"))
         if f in sheet_f and not only:
             p = os.path.join(os.path.dirname(args.sheet), f"_f{f:03d}.png")
-            surf.write_to_png(p)
+            final.write_to_png(p)
             sheet_imgs[sheet_f[f]] = p
         if f % 90 == 0:
             print(f"{t:5.1f}s", flush=True)
